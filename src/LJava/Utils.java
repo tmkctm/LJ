@@ -8,6 +8,10 @@ public class Utils {
 	
 	
 	
+	/**
+	 * @param x
+	 * @return
+	 */
 	public static boolean variable(Object x) {
 		return (x instanceof Variable);
 	}		
