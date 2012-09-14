@@ -9,7 +9,6 @@ public class Utils {
 	
 	
 	public static boolean variable(Object x) {
-		Result r = Result.FAIL;
 		return (x instanceof Variable);
 	}		
 }
