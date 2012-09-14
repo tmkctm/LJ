@@ -86,14 +86,14 @@ public class Relation implements QueryParameter {
 	}	
 		
 	
-	//Compares between 2 relations.
-		private boolean equalsRelation(Relation r){
-			if (!relationNameCompare(r)) return false;
-			if (this.isGroup() ^ r.isGroup()) return false;
-			for (int i=0; i<argsLength; i++)
-				if (!this.args[i].equals(r.args[i])) return false;
-			return true;
-		}
+//Compares between 2 relations.
+	private boolean equalsRelation(Relation r){
+		if (!relationNameCompare(r)) return false;
+		if (this.isGroup() ^ r.isGroup()) return false;
+		for (int i=0; i<argsLength; i++)
+			if (!this.args[i].equals(r.args[i])) return false;
+		return true;
+	}
 	
 		
 	//The main method behind queries. It checks satisfaction for a relation against another relation and adds results to a map.	

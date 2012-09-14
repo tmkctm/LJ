@@ -9,15 +9,15 @@ import java.util.LinkedHashSet;
 public class LJ {
 	
 
-	public final static Relation _=new Relation("_",0);
+	public final static Relation _=new Relation("_");
 
-	public final static Relation nil=new Relation("$nil$",0);
+	public final static Relation nil=new Relation("$nil$");
 
-	public static final Relation none=new Relation("$no_variable_value$",0);		
+	public static final Relation none=new Relation("$no_variable_value$");		
 	
-	public static Relation LJavaTrueRelation=new Relation("$true$",0);
+	public static Relation LJavaTrueRelation=new Relation("$true$");
 
-	public static Relation LJavaFalseRelation=new Relation("$false$",0);
+	public static Relation LJavaFalseRelation=new Relation("$false$");
 	
 	private static HashMap<Integer, LinkedHashSet<Relation>> LJavaRelationTable=new HashMap<Integer, LinkedHashSet<Relation>>();
 	
@@ -54,24 +54,24 @@ public class LJ {
 	
 			
 // Exists in DB method.
-	public static boolean exists(Relation r) {
+	public static QueryResult exists(Relation r) {
 		VariableValuesMap varValues=new VariableValuesMap(); 	
-		if (!exists(r, varValues))	return false;
+		if (exists(r, varValues)==FAILED) return FAILED;
 		return instantiate(varValues);
 	}
 	
 	
-	public static boolean exists(Relation r, VariableValuesMap varValues){	
+	public static QueryResult exists(Relation r, VariableValuesMap varValues){	
 		LinkedHashSet<Relation> relationSet = LJavaRelationTable.get(r.args().length);
 		if (relationSet!=null) {
 			for (Relation element : relationSet)
-				if (satisfy(r, element, varValues))	return true;			
+				if (satisfy(r, element, varValues))	return SUCCESS;			
 		}
-		return false;
+		return FAILED;
 	}
 	
 	
-	public static boolean exists(Object... args) {
+	public static QueryResult exists(Object... args) {
 		Relation r=new Relation("#query",args);
 		return exists(r);
 	}
@@ -79,25 +79,25 @@ public class LJ {
 	
 
 //Conducts
-	public static boolean conduct(Relation r){		
+	public static QueryResult conduct(Relation r){		
 		VariableValuesMap varValues=new VariableValuesMap(); 
-		if (!conduct(r, varValues)) return false;
+		if (conduct(r, varValues)==FAILED) return FAILED;
 		return instantiate(varValues);
 	}
 	
 	
-	public static boolean conduct(Relation r, VariableValuesMap varValues) {	
+	public static QueryResult conduct(Relation r, VariableValuesMap varValues) {	
 		LinkedHashSet<Relation> relationSet = LJavaRelationTable.get(r.args().length);
 		if (relationSet!=null) {
 			for (Relation element : relationSet)
 				satisfy(r, element, varValues);			
 		}
-		if (varValues.map.isEmpty()) return false;
-		return true;
+		if (varValues.map.isEmpty()) return FAILED;
+		return SUCCESS;
 	}
 	
 	
-	public static boolean conduct(Object... args){
+	public static QueryResult conduct(Object... args){
 		Relation r=new Relation("#query",args);
 		return conduct(r);		
 	}
@@ -111,7 +111,7 @@ public class LJ {
 	
 	
 //Query and Logical operators
-	public static boolean query(VariableValuesMap varValues){
+	public static QueryResult query(VariableValuesMap varValues){
 		return instantiate(varValues);
 	}
 	
@@ -209,12 +209,13 @@ public class LJ {
 	
 
 //Instantiate all variables to their values according to the given map.
-	private static boolean instantiate(VariableValuesMap varValues) {
+	private static QueryResult instantiate(VariableValuesMap varValues) {
         boolean answer=true;		
 		for (Map.Entry<Variable, LinkedHashSet<Object>> entry : varValues.map.entrySet()) {													
 			answer=(entry.getKey().set(entry.getValue().toArray()) && answer);	
 		}
-		return answer;
+		if (answer) return SUCCESS;
+		return QueryResult.FAILED_INSTANTIATE;
 	}
 
 	
@@ -231,7 +232,7 @@ public class LJ {
 	
 //Updates variables values map for this current running query.
 	protected static void updateValuesMap(HashMap<Variable,Object> vars, VariableValuesMap varValues){		
-		LinkedHashSet<Object> v;		
+		LinkedHashSet<Object> v;	
 		Variable t;
 		for (Map.Entry<Variable, Object> entry : vars.entrySet()) {
 			t=entry.getKey();

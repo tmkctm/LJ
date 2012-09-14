@@ -2,16 +2,15 @@ package LJava;
 
 public class Utils {
 	
-	static public enum Result {
-		SUCCESS, FAIL, FAIL_ELSEWHERE 
+	static public enum  QueryResult{
+		SUCCESS, FAILED_INSTANTIATE, FAILED 
 	}
 	
 	
+	public static final QueryResult SUCCESS=QueryResult.SUCCESS;
+	public static final QueryResult FAILED=QueryResult.FAILED;
 	
-	/**
-	 * @param x
-	 * @return
-	 */
+
 	public static boolean variable(Object x) {
 		return (x instanceof Variable);
 	}		

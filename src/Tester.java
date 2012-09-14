@@ -1,5 +1,6 @@
 import LJava.*;
 import static LJava.LJ.*;
+import static LJava.Utils.*;
 import org.junit.*;
 import static org.junit.Assert.*;
 
@@ -207,7 +208,7 @@ public class Tester {
 		nil(11,70);
 		nil(11,6);
 		nil(11,0,11,0,11,0);
-		assertTrue(query( or(
+		assertEquals(query( or(
 					and(
 							relate(11,1,2,3,4,5,6),
 							relate(11,6)
@@ -216,7 +217,8 @@ public class Tester {
 							relate(11,_,9,8,7,_,5,4,3,2,0),
 							relate(11,1,11,1,11,2)
 					)	
-				)));
+				))
+				,SUCCESS);
 		
 	}
 	
