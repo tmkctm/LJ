@@ -9,24 +9,24 @@ import java.util.LinkedHashSet;
 public class LJ {
 	
 
-	public final static Relation _=new Relation("_");
+	public final static Association _=new Association("_");
 
-	public final static Relation nil=new Relation("$nil$");
+	public final static Association nil=new Association("$nil$");
 
-	public static final Relation none=new Relation("$no_variable_value$");		
+	public static final Association none=new Association("$no_variable_value$");		
 	
-	public static Relation LJavaTrueRelation=new Relation("$true$");
+	public static Association LJavaTrueRelation=new Association("$true$");
 
-	public static Relation LJavaFalseRelation=new Relation("$false$");
+	public static Association LJavaFalseRelation=new Association("$false$");
 	
-	private static HashMap<Integer, LinkedHashSet<Relation>> LJavaRelationTable=new HashMap<Integer, LinkedHashSet<Relation>>();
+	private static HashMap<Integer, LinkedHashSet<Association>> LJavaRelationTable=new HashMap<Integer, LinkedHashSet<Association>>();
 	
 	
 // Relates in order
-	public static void nil(Relation r) {
-		LinkedHashSet<Relation> set = LJavaRelationTable.get(r.argsLength());
+	public static void associate(Association r) {
+		LinkedHashSet<Association> set = LJavaRelationTable.get(r.argsLength());
 		if (set==null) {
-			set=new LinkedHashSet<Relation>();
+			set=new LinkedHashSet<Association>();
 			set.add(r);
 			LJavaRelationTable.put(r.argsLength(), set);
 		}
@@ -34,37 +34,30 @@ public class LJ {
 	}
 	
 
-	public static void nil(Object... args) {		
+	public static void relate(Object... args) {		
 		Relation r=new Relation("#LJavaRelationTableEntry#", args);
-		nil(r);
+		associate(r);
 	}	
 
 	
-// Relates for sets
-	public static void group(Group r) {
-		Group r2=new Group(r.name(), r.args());
-		nil(r2);
-	}	
-	
-
 	public static void group(Object... args) {		
 		Group r=new Group("#LJavaRelationTableEntry#", args);
-		group(r);
+		associate(r);
 	}		
 	
 			
 // Exists in DB method.
 	public static QueryResult exists(Relation r) {
-		VariableValuesMap varValues=new VariableValuesMap(); 	
+		VariableValuesMap varValues=new VariableValuesMap();		
 		if (exists(r, varValues)==FAILED) return FAILED;
 		return instantiate(varValues);
 	}
 	
 	
-	public static QueryResult exists(Relation r, VariableValuesMap varValues){	
-		LinkedHashSet<Relation> relationSet = LJavaRelationTable.get(r.args().length);
-		if (relationSet!=null) {
-			for (Relation element : relationSet)
+	private static QueryResult exists(Relation r, VariableValuesMap varValues){	
+		LinkedHashSet<Association> associationsSet = LJavaRelationTable.get(r.argsLength());
+		if (associationsSet!=null) {
+			for (Association element : associationsSet)
 				if (satisfy(r, element, varValues))	return SUCCESS;			
 		}
 		return FAILED;
@@ -75,8 +68,7 @@ public class LJ {
 		Relation r=new Relation("#query",args);
 		return exists(r);
 	}
-	
-	
+		
 
 //Conducts
 	public static QueryResult conduct(Relation r){		
@@ -87,9 +79,9 @@ public class LJ {
 	
 	
 	public static QueryResult conduct(Relation r, VariableValuesMap varValues) {	
-		LinkedHashSet<Relation> relationSet = LJavaRelationTable.get(r.args().length);
-		if (relationSet!=null) {
-			for (Relation element : relationSet)
+		LinkedHashSet<Association> associationsSet = LJavaRelationTable.get(r.argsLength());
+		if (associationsSet!=null) {
+			for (Association element : associationsSet)
 				satisfy(r, element, varValues);			
 		}
 		if (varValues.map.isEmpty()) return FAILED;
@@ -104,7 +96,7 @@ public class LJ {
 	
 
 	public static boolean same(Object a, Object b) {		
-		if ( (variable(a)) || (a instanceof Relation) )
+		if ( (variable(a)) || (a instanceof Association) )
 				return a.equals(b);
 		return b.equals(a);
 	}	
@@ -192,18 +184,13 @@ public class LJ {
 	
 	
 //Returns a relation when taking the first parameter for naming.
-	public static Relation relate(String n,Object... args) {
+	public static Relation relation(String n,Object... args) {
 		return new Relation(n,args);
 	}
 	
 	
-	public static Relation relate(Object... args) {
+	public static Relation relation(Object... args) {
 		return new Relation("",args);
-	}
-	
-
-	public static Relation nil() {
-		return nil;
 	}
 	
 	
@@ -224,25 +211,26 @@ public class LJ {
 //The main part where the logical engine works.
 
 //Checks satisfaction of two relations.	
-	private static boolean satisfy(Relation r, Relation candidate, VariableValuesMap varValues){
+	private static boolean satisfy(Relation r, Association candidate, VariableValuesMap varValues){
 		if (!candidate.relationNameCompare(r)) return false;
+		if (r.argsLength()==0) return true;
 		return candidate.satisfy(r,varValues);
 	}
 	
 	
 //Updates variables values map for this current running query.
-	protected static void updateValuesMap(HashMap<Variable,Object> vars, VariableValuesMap varValues){		
+	protected static void updateValuesMap(HashMap<Variable,LinkedHashSet<Object>> vars, VariableValuesMap varValues){		
 		LinkedHashSet<Object> v;	
 		Variable t;
-		for (Map.Entry<Variable, Object> entry : vars.entrySet()) {
+		for (Map.Entry<Variable, LinkedHashSet<Object>> entry : vars.entrySet()) {
 			t=entry.getKey();
 			v=varValues.map.get(t);
 			if (v==null) {  
 				v=new LinkedHashSet<Object>();
-				v.add(entry.getValue());
+				v.addAll(entry.getValue());
 				varValues.map.put(t, v);
 			}
-			else v.add(entry.getValue());
+			else v.addAll(entry.getValue());
 		}		
 	}
 	
