@@ -84,7 +84,7 @@ public class Tester {
 		assertEquals(x,"t");
 		Variable c=new Variable();
 		c.set(2,"b","t");
-		assertTrue(x.equalConstrain(c));		
+		assertTrue(x.equalConstraint(c));		
 	}
 	
 
@@ -143,7 +143,7 @@ public class Tester {
 		exists(7,7,8,y);	
 		Variable c=new Variable();
 		c.set(y,1,"a",helper);
-		assertTrue(x.equalConstrain(c));
+		assertTrue(x.equalConstraint(c));
 		assertEquals(x,nil);
 	}
 	
@@ -157,7 +157,7 @@ public class Tester {
 		assertEquals(x,1);
 		Variable c=new Variable();
 		c.set(1,2,3,"a","b","c");
-		assertTrue(x.equalConstrain(c));
+		assertTrue(x.equalConstraint(c));
 	}
 	
 	
@@ -168,7 +168,7 @@ public class Tester {
 		relate(9,3,"c");
 		query( and( relation(9,x,_) , relation(9,_,x) ));
 		assertEquals(x,3);
-		assertTrue(!x.isConstrain());
+		assertTrue(!x.isConstraint());
 		assertTrue(x.isNumber());		
 	}
 	
@@ -194,8 +194,8 @@ public class Tester {
 						relation(10,y,10,y,10,y)
 				)	
 			));
-		assertTrue(x.isConstrain());
-		assertTrue(!y.isConstrain());
+		assertTrue(x.isConstraint());
+		assertTrue(!y.isConstraint());
 		assertEquals(x,6);
 		assertEquals(y,helper);
 	}

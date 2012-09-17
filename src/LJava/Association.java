@@ -5,32 +5,30 @@ import static LJava.LJ.none;
 import static LJava.LJ.var;
 import static LJava.LJ.nil;
 import static LJava.LJ.LJavaTrueRelation;
-import static LJava.Utils.variable;
+import static LJava.Utils.*;
 
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 
-public class Association implements QueryParameter {
+public class Association {
 
-	protected String name;
-	protected Object[] args;
-	protected int argsLength;
+	protected final String name;
+	protected final Object[] args;
+	protected final int argsLength;
 	
 	protected Association(boolean sort ,String n, Object... params) {
 		if ((n==null) || (n=="")) name="#Relation"; 
 		else this.name=n;
-		if (sort) Arrays.sort(params, new CompareOparator());
+		if (sort) Arrays.sort(params, new CompareOperator());
 		this.args=params;
 		argsLength=params.length;			
 	}
 	
+	
 	public Association(String n, Object... params){
 		this(false, n, params);
 	}
-	
-	
-	
+
 	
 	public String name(){
 		return name;
@@ -113,20 +111,5 @@ public class Association implements QueryParameter {
 			if (!this.args[i].equals(r.args[i])) return false;
 		return true;
 	}
-	
-	
-	private class CompareOparator implements Comparator<Object> {
-		public int compare(Object a, Object b) {
-			if (variable(a))
-				if (!variable(b)) return 1;
-			if (variable(b))
-				if (!variable(a)) return -1;
-			
-			if (a.hashCode()>b.hashCode()) return 1;
-			if (a.hashCode()<b.hashCode()) return -1;
-			return 0;
-		}
-	}
-	
-	
+		
 }

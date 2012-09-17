@@ -1,6 +1,7 @@
 package LJava;
 import static LJava.Utils.*;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -15,9 +16,9 @@ public class LJ {
 
 	public static final Association none=new Association("$no_variable_value$");		
 	
-	public static Association LJavaTrueRelation=new Association("$true$");
+	public static final Association LJavaTrueRelation=new Association("$true$");
 
-	public static Association LJavaFalseRelation=new Association("$false$");
+	public static final Association LJavaFalseRelation=new Association("$false$");
 	
 	private static HashMap<Integer, LinkedHashSet<Association>> LJavaRelationTable=new HashMap<Integer, LinkedHashSet<Association>>();
 	
@@ -78,7 +79,7 @@ public class LJ {
 	}
 	
 	
-	public static QueryResult conduct(Relation r, VariableValuesMap varValues) {	
+	protected static QueryResult conduct(Relation r, VariableValuesMap varValues) {	
 		LinkedHashSet<Association> associationsSet = LJavaRelationTable.get(r.argsLength());
 		if (associationsSet!=null) {
 			for (Association element : associationsSet)
@@ -108,23 +109,14 @@ public class LJ {
 	}
 	
 
-	public static VariableValuesMap map(QueryParameter x){
-		if (x instanceof VariableValuesMap) return (VariableValuesMap) x;
-		VariableValuesMap m=new VariableValuesMap();
-		Relation r=(Relation) x;
-		conduct(r,m);		
-		return m;
-	}
-
-	
 	public static VariableValuesMap and(QueryParameter a, QueryParameter b){
-		VariableValuesMap x=map(a);
+		VariableValuesMap x=a.map();
 		if (x.isEmpty()) return x;
-		VariableValuesMap y=map(b);
+		VariableValuesMap y=b.map();
 		if (y.isEmpty()) return y;
-		LinkedHashSet<Object> xValues;
+		ArrayList<Object> xValues;
 		Variable t;
-		for (Map.Entry<Variable, LinkedHashSet<Object>> entry : y.map.entrySet()) {
+		for (Map.Entry<Variable, ArrayList<Object>> entry : y.map.entrySet()) {
 			t=entry.getKey();
 			xValues=x.map.get(t);
 			if (xValues!=null) xValues.retainAll(entry.getValue());
@@ -134,11 +126,11 @@ public class LJ {
 	
 
 	public static VariableValuesMap or(QueryParameter a, QueryParameter b){
-		VariableValuesMap x=map(a);
-		VariableValuesMap y=map(b);
-		LinkedHashSet<Object> xValues;
+		VariableValuesMap x=a.map();
+		VariableValuesMap y=b.map();
+		ArrayList<Object> xValues;
 		Variable t;
-		for (Map.Entry<Variable, LinkedHashSet<Object>> entry : y.map.entrySet()) {
+		for (Map.Entry<Variable, ArrayList<Object>> entry : y.map.entrySet()) {
 			t=entry.getKey();
 			xValues=x.map.get(t);
 			if (xValues==null) x.map.put(t, entry.getValue());
@@ -149,12 +141,12 @@ public class LJ {
 	
 
 	public static VariableValuesMap differ(QueryParameter a, QueryParameter b){
-		VariableValuesMap x=map(a);
+		VariableValuesMap x=a.map();
 		if (x.isEmpty()) return x;
-		VariableValuesMap y=map(b);
-		LinkedHashSet<Object> xValues;
+		VariableValuesMap y=b.map();
+		ArrayList<Object> xValues;
 		Variable t;
-		for (Map.Entry<Variable, LinkedHashSet<Object>> entry : y.map.entrySet()) {
+		for (Map.Entry<Variable, ArrayList<Object>> entry : y.map.entrySet()) {
 			t=entry.getKey();
 			xValues=x.map.get(t);
 			if (xValues!=null) xValues.removeAll(entry.getValue());
@@ -198,7 +190,7 @@ public class LJ {
 //Instantiate all variables to their values according to the given map.
 	private static QueryResult instantiate(VariableValuesMap varValues) {
         boolean answer=true;		
-		for (Map.Entry<Variable, LinkedHashSet<Object>> entry : varValues.map.entrySet()) {													
+		for (Map.Entry<Variable, ArrayList<Object>> entry : varValues.map.entrySet()) {													
 			answer=(entry.getKey().set(entry.getValue().toArray()) && answer);	
 		}
 		if (answer) return SUCCESS;
@@ -219,14 +211,14 @@ public class LJ {
 	
 	
 //Updates variables values map for this current running query.
-	protected static void updateValuesMap(HashMap<Variable,LinkedHashSet<Object>> vars, VariableValuesMap varValues){		
-		LinkedHashSet<Object> v;	
+	protected static void updateValuesMap(HashMap<Variable,ArrayList<Object>> vars, VariableValuesMap varValues){		
+		ArrayList<Object> v;	
 		Variable t;
-		for (Map.Entry<Variable, LinkedHashSet<Object>> entry : vars.entrySet()) {
+		for (Map.Entry<Variable, ArrayList<Object>> entry : vars.entrySet()) {
 			t=entry.getKey();
 			v=varValues.map.get(t);
 			if (v==null) {  
-				v=new LinkedHashSet<Object>();
+				v=new ArrayList<Object>();
 				v.addAll(entry.getValue());
 				varValues.map.put(t, v);
 			}
@@ -241,10 +233,8 @@ public class LJ {
 
 
 /* TBD: 
- * exists for set relations.
- * figure out: is replaceVariables only for Relation or for Group as well?
- * exists using nil.
- * And then ... .FUNCTORS.
+ * exists for group relations.
+ * functors.
  * reverse functors: possible solutions - force definition, linear transmutations (linear algebra).
  */
 

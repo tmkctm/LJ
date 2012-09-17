@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicBoolean;
  
 
-public class Variable {
+public final class Variable {
 	
 	private Object[] value=null;
 	private boolean isVar=true;
@@ -50,7 +50,7 @@ public class Variable {
 	}
 	
 
-	public Object[] getConstrain() {
+	public Object[] getValues() {
 		Object result[];
 		if (isVar()) {
 			result = new Object[1];
@@ -65,10 +65,10 @@ public class Variable {
 	}
 	
 	
-	public HashSet<Object> getFlatConstrain(){
+	public HashSet<Object> getConstraint(){
 		HashSet<Object> valueSet= new HashSet<Object>();
 		for (int i=0; i<value.length; i++) {
-			if (var(value[i])) {
+			if (variable(value[i])) {
 				Variable t=(Variable) value[i];
 				valueSet.add(t.get());
 			}
@@ -78,12 +78,12 @@ public class Variable {
 	}
 	
 	
-	public boolean equalConstrain(Variable x){
-		Object[] arr=this.getConstrain();
-		Object[] arr2=x.getConstrain();
+	public boolean equalConstraint(Variable x){
+		Object[] arr=this.getValues();
+		Object[] arr2=x.getValues();
 		if (arr.length!=arr2.length) return false;
-		Arrays.sort(arr,new CompareOperator());
-		Arrays.sort(arr2,new CompareOperator());
+		Arrays.sort(arr,new HashCompareOperator());
+		Arrays.sort(arr2,new HashCompareOperator());
 		for (int i=0; i<arr.length; i++) {
 			if (!same(arr[i], arr2[i])) return false;
 		}
@@ -137,7 +137,7 @@ public class Variable {
 	}
 
 
-	public boolean isConstrain(){
+	public boolean isConstraint(){
 		if ((!this.isVar()) && (!noValue()))
 			return (value.length>1);
 		return false;
@@ -192,7 +192,7 @@ public class Variable {
 	
 //Tests all required characteristics for this Variable to be of a single value
 	public boolean singleValue(){
-		if (isVar() || noValue() || isConstrain()) return false;
+		if (isVar() || noValue() || isConstraint()) return false;
 		return true;
 	}
 	
@@ -216,7 +216,7 @@ public class Variable {
 	
 
 //A compare operator for inner use for sorting array of objects. 
-	private class CompareOperator implements Comparator<Object>{		
+	private class HashCompareOperator implements Comparator<Object>{		
 		public int compare(Object x, Object y){
 			if (x.hashCode()<y.hashCode()) return -1;
 			if (x.hashCode()>y.hashCode()) return 1;

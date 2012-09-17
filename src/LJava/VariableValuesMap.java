@@ -1,18 +1,23 @@
 package LJava;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 
 public class VariableValuesMap implements QueryParameter{
 	
-	public HashMap<Variable, LinkedHashSet<Object>> map;
+	public HashMap<Variable, ArrayList<Object>> map;
 	
 	public VariableValuesMap() {
-		map=new HashMap<Variable, LinkedHashSet<Object>>();
+		map=new HashMap<Variable, ArrayList<Object>>();
 	}
 	
 	public boolean isEmpty() {
 		return map.isEmpty();
+	}
+	
+	@Override
+	public VariableValuesMap map(){
+		return this;
 	}
 
 }
