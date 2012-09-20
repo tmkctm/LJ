@@ -228,6 +228,7 @@ public class Tester {
 		group(12,2,3,4,5,x,x,y);
 		group(12,12,13,13,x,y,z);
 		group(12,12,12,12,12,13);
+		group(12,12,12,12,12,13,13,13,13,13);
 		group(12,12,14,13,13);
 		assertEquals(exists(12,2,3,4,5,t,t,t),FAILED);
 		assertEquals(exists(12,2,3,4,5,x,x,y),SUCCESS);
@@ -248,5 +249,8 @@ public class Tester {
 		assertEquals(exists(x,x,t,x,t),FAILED);
 		assertTrue(var(x));
 		assertTrue(var(t));
+		exists(x,t,x,t,x,t,x,x,t,t);
+		assertTrue(((Integer) x.get()==12) || ((Integer) x.get()==13));
+		assertTrue(((Integer) t.get()==12) || ((Integer) t.get()==13));
 	}
 }

@@ -96,20 +96,19 @@ public class Group extends Association{
 			for (Map.Entry<Integer, LinkedList<Variable>> entry : sortedVars.entrySet()) {				
 				for (Variable v : entry.getValue()) {
 					int lastKey=sortedVals.lastKey();
-					if (lastKey<entry.getKey()) return false;
-					
+					if (lastKey<entry.getKey()) return false;					
 					valList=sortedVals.get(lastKey);
 					Object o=valList.get(0);
 					varResults.put(v,o);
 					valList.remove(0);
+					if (valList.isEmpty()) sortedVals.remove(lastKey);
 					int place=lastKey-entry.getKey();
 					if (place>0) {
 						valList=sortedVals.get(place);
 						if (valList==null) valList=new LinkedList<Object>();
 						valList.add(o);
 						sortedVals.put(place, valList);
-					}
-					else sortedVals.remove(lastKey);
+					}					
 				}
 			}
 			updateValuesMap(varResults, varValues);
