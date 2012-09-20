@@ -5,9 +5,7 @@ import static LJava.LJ.none;
 import static LJava.LJ.var;
 import static LJava.LJ.nil;
 import static LJava.LJ.LJavaTrueRelation;
-import static LJava.Utils.*;
 
-import java.util.Arrays;
 import java.util.HashMap;
 
 public class Association {
@@ -16,19 +14,13 @@ public class Association {
 	protected final Object[] args;
 	protected final int argsLength;
 	
-	protected Association(boolean sort ,String n, Object... params) {
+	public Association(String n, Object... params) {
 		if ((n==null) || (n=="")) name="#Relation"; 
 		else this.name=n;
-		if (sort) Arrays.sort(params, new CompareOperator());
 		this.args=params;
 		argsLength=params.length;			
 	}
-	
-	
-	public Association(String n, Object... params){
-		this(false, n, params);
-	}
-
+		
 	
 	public String name(){
 		return name;
@@ -110,6 +102,7 @@ public class Association {
 		for (int i=0; i<argsLength; i++)
 			if (!this.args[i].equals(r.args[i])) return false;
 		return true;
+
 	}
 		
 }

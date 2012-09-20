@@ -186,6 +186,14 @@ public class LJ {
 	}
 	
 	
+	public static Object val(Object o) {
+		if (variable(o)) {
+			Variable v=(Variable) o;
+			return v.get();
+		}
+		return o;
+	}
+	
 
 //Instantiate all variables to their values according to the given map.
 	private static QueryResult instantiate(VariableValuesMap varValues) {
@@ -211,18 +219,18 @@ public class LJ {
 	
 	
 //Updates variables values map for this current running query.
-	protected static void updateValuesMap(HashMap<Variable,ArrayList<Object>> vars, VariableValuesMap varValues){		
+	protected static void updateValuesMap(HashMap<Variable,Object> vars, VariableValuesMap varValues){		
 		ArrayList<Object> v;	
 		Variable t;
-		for (Map.Entry<Variable, ArrayList<Object>> entry : vars.entrySet()) {
+		for (Map.Entry<Variable, Object> entry : vars.entrySet()) {
 			t=entry.getKey();
 			v=varValues.map.get(t);
 			if (v==null) {  
 				v=new ArrayList<Object>();
-				v.addAll(entry.getValue());
+				v.add(entry.getValue());
 				varValues.map.put(t, v);
 			}
-			else v.addAll(entry.getValue());
+			else v.add(entry.getValue());
 		}		
 	}
 	
@@ -232,9 +240,10 @@ public class LJ {
 }
 
 
-/* TBD: 
- * exists for group relations.
+/* TBD:
+ * where.
  * functors.
+ * fix Group.satisfy
  * reverse functors: possible solutions - force definition, linear transmutations (linear algebra).
  */
 

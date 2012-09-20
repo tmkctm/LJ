@@ -221,5 +221,22 @@ public class Tester {
 		
 	}
 	
-	
+
+	@Test
+	public void testGroup(){
+		group(12,2,3,4,5,6,7,8,9,0);
+		group(12,2,3,4,5,x,x,y);
+		group(12,12,13,13,x,y,z);
+		assertEquals(exists(12,2,3,4,5,t,t,t),FAILED);
+		assertEquals(exists(12,2,3,4,5,x,x,y),SUCCESS);
+		assertTrue(var(x));
+		exists(12,3,4,5,6,2,7,8,9,y);
+		exists(12,5,4,z,6,2,7,8,9,y);
+		assertEquals(y,0);
+		assertEquals(z,3);
+		assertEquals(exists(12,12,0,3,13,13,x),SUCCESS);
+		x.set(1);
+		assertEquals(exists(12,2,3,4,5,x,x,y),SUCCESS);
+		assertEquals(exists(0,2,1,4,5,3,1,12),SUCCESS);
+	}
 }

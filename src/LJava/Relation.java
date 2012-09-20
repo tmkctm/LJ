@@ -2,7 +2,6 @@ package LJava;
 
 import static LJava.LJ.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Relation extends Association implements QueryParameter{
@@ -13,16 +12,12 @@ public class Relation extends Association implements QueryParameter{
 
 	@Override
 	protected boolean satisfy(Relation r, VariableValuesMap varValues){
-		HashMap<Variable,ArrayList<Object>> vars=new HashMap<Variable, ArrayList<Object>>();		
+		HashMap<Variable,Object> vars=new HashMap<Variable, Object>();		
 		for (int i=0; i<r.argsLength(); i++) {			
-			if (var(r.args[i]))
+			if (var(r.args[i])) {
 				if (vars.containsKey(r.args[i])) {
-					if (!same(vars.get(r.args[i]).get(0), args[i])) return false;   }
-				else {
-					ArrayList<Object> temp=new ArrayList<Object>();
-					temp.add(args[i]);
-					vars.put((Variable) r.args[i], temp);								
-				}
+					if (!same(vars.get(r.args[i]), args[i])) return false;   }
+				else vars.put((Variable) r.args[i], args[i]);   }								
 			else if (!same(r.args[i],args[i])) return false;
 		}
 		updateValuesMap(vars, varValues);

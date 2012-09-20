@@ -18,7 +18,7 @@ public class Utils {
 	}
 	
 	
-	protected static class CompareOperator implements Comparator<Object> {
+	public static class CompareOperator implements Comparator<Object> {
 		public int compare(Object a, Object b) {
 			if (variable(a))
 				if (!variable(b)) return 1;

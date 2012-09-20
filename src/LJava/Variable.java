@@ -68,11 +68,7 @@ public final class Variable {
 	public HashSet<Object> getConstraint(){
 		HashSet<Object> valueSet= new HashSet<Object>();
 		for (int i=0; i<value.length; i++) {
-			if (variable(value[i])) {
-				Variable t=(Variable) value[i];
-				valueSet.add(t.get());
-			}
-			else  valueSet.add(value[i]);
+			valueSet.add(val(value[i]));
 		}
 		return valueSet;
 	}
