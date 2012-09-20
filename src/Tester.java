@@ -227,6 +227,8 @@ public class Tester {
 		group(12,2,3,4,5,6,7,8,9,0);
 		group(12,2,3,4,5,x,x,y);
 		group(12,12,13,13,x,y,z);
+		group(12,12,12,12,12,13);
+		group(12,12,14,13,13);
 		assertEquals(exists(12,2,3,4,5,t,t,t),FAILED);
 		assertEquals(exists(12,2,3,4,5,x,x,y),SUCCESS);
 		assertTrue(var(x));
@@ -238,5 +240,13 @@ public class Tester {
 		x.set(1);
 		assertEquals(exists(12,2,3,4,5,x,x,y),SUCCESS);
 		assertEquals(exists(0,2,1,4,5,3,1,12),SUCCESS);
+		x=var();
+		exists(x,x,t,x,x,x);
+		assertEquals(x,12);
+		assertEquals(t,13);	
+		x=var();   t=var();
+		assertEquals(exists(x,x,t,x,t),FAILED);
+		assertTrue(var(x));
+		assertTrue(var(t));
 	}
 }

@@ -68,6 +68,8 @@ public class Group extends Association{
 			if (vars.isEmpty()) return true;
 			if (constraintMap.isEmpty()) return false;
 					
+			System.out.println(vars);
+			System.out.println(constraintMap);
 			
 			TreeMap<Integer, LinkedList<Object>> sortedVals= new TreeMap<Integer, LinkedList<Object>>();
 			LinkedList<Object> valList=new LinkedList<Object>(); 
@@ -78,7 +80,7 @@ public class Group extends Association{
 				sortedVals.put(entry.getValue(), valList);
 			}
 			
-			TreeMap<Integer, LinkedList<Variable>> sortedVars= new TreeMap<Integer, LinkedList<Variable>>();
+			TreeMap<Integer, LinkedList<Variable>> sortedVars= new TreeMap<Integer, LinkedList<Variable>>(Collections.reverseOrder());
 			LinkedList<Variable> varList=new LinkedList<Variable>(); 
 			for (Map.Entry<Variable, Integer> entry : vars.entrySet()) {
 				varList=sortedVars.get(entry.getValue());
@@ -86,6 +88,9 @@ public class Group extends Association{
 				varList.add(entry.getKey());
 				sortedVars.put(entry.getValue(), varList);
 			}
+			
+			System.out.println(sortedVars);
+			System.out.println(sortedVals);			
 			
 			HashMap<Variable,Object> varResults=new HashMap<Variable, Object>();
 			for (Map.Entry<Integer, LinkedList<Variable>> entry : sortedVars.entrySet()) {				
@@ -103,7 +108,8 @@ public class Group extends Association{
 						if (valList==null) valList=new LinkedList<Object>();
 						valList.add(o);
 						sortedVals.put(place, valList);
-					}					
+					}
+					else sortedVals.remove(lastKey);
 				}
 			}
 			updateValuesMap(varResults, varValues);
