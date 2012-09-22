@@ -10,15 +10,13 @@ import java.util.HashMap;
 
 public class Association {
 
-	protected final String name;
-	protected final Object[] args;
-	protected final int argsLength;
+	private final String name;
+	private final Object[] args;	
 	
 	public Association(String n, Object... params) {
 		if ((n==null) || (n=="")) name="#Relation"; 
 		else this.name=n;
-		this.args=params;
-		argsLength=params.length;			
+		this.args=params;		
 	}
 		
 	
@@ -28,7 +26,7 @@ public class Association {
 	
 	
 	public int argsLength(){
-		return argsLength;
+		return args.length;
 	}	
 	
 
@@ -45,18 +43,18 @@ public class Association {
 	public String toString(){
 		if (this==_) return "_";
 		String s=name+"(";		
-		if (args!=null)
-			if (args.length>0) {
-				for (int i=0; i<args.length-1; i++)
-					s=s+args[i].toString()+",";
-				s=s+args[args.length-1].toString();
-			}
+		if (args!=null && args.length>0) {
+			for (int i=0; i<args.length-1; i++)
+				s=s+args[i].toString()+",";
+			s=s+args[args.length-1].toString();
+		}
 		return s+")";
 	}
 	
 
 	public Relation replaceVariables(String s){
-		HashMap<Variable,Variable> varsMap=new HashMap<Variable,Variable>();		
+		HashMap<Variable,Variable> varsMap=new HashMap<Variable,Variable>();
+		int argsLength=args.length;
 		Object[] arguments=new Object[argsLength];		
 		for (int i=0; i<argsLength; i++)
 			if (var(args[i]))	{
@@ -89,7 +87,7 @@ public class Association {
 	}
 		
 	
-	protected boolean satisfy(Relation r, VariableValuesMap varValues){
+	protected boolean satisfy(Object[] rArgs, VariableValuesMap varValues){
 		if (this==nil || this==LJavaTrueRelation) return true;
 		return false;
 	}
@@ -99,7 +97,7 @@ public class Association {
 	private boolean equalsAssociation(Association r){
 		if (!relationNameCompare(r)) return false;
 		if (this.isGroup() ^ r.isGroup()) return false;
-		for (int i=0; i<argsLength; i++)
+		for (int i=0; i<args.length; i++)
 			if (!this.args[i].equals(r.args[i])) return false;
 		return true;
 

@@ -16,9 +16,9 @@ public class LJ {
 
 	public static final Association none=new Association("$no_variable_value$");		
 	
-	public static final Association LJavaTrueRelation=new Association("$true$");
+	public static final Association LJavaTrueRelation=new Association("$LJava_True_Relation$");
 
-	public static final Association LJavaFalseRelation=new Association("$false$");
+	public static final Association LJavaFalseRelation=new Association("$LJava_False_Relation$");
 	
 	private static HashMap<Integer, LinkedHashSet<Association>> LJavaRelationTable=new HashMap<Integer, LinkedHashSet<Association>>();
 	
@@ -44,7 +44,7 @@ public class LJ {
 	public static void group(Object... args) {		
 		Group r=new Group("#LJavaRelationTableEntry#", args);
 		associate(r);
-	}		
+	}
 	
 			
 // Exists in DB method.
@@ -56,11 +56,19 @@ public class LJ {
 	
 	
 	private static QueryResult exists(Relation r, VariableValuesMap varValues){	
-		LinkedHashSet<Association> associationsSet = LJavaRelationTable.get(r.argsLength());
+		Object[] rArgs=r.args();
+		LinkedHashSet<Association> associationsSet = LJavaRelationTable.get(r.argsLength());		
 		if (associationsSet!=null) {
 			for (Association element : associationsSet)
-				if (satisfy(r, element, varValues))	return SUCCESS;			
+				if (element.relationNameCompare(r))
+					if (satisfy(rArgs, element, varValues))	return SUCCESS;			
 		}
+		associationsSet = LJavaRelationTable.get(-1);		
+		if (associationsSet!=null) {
+			for (Association element : associationsSet)
+				if (element.relationNameCompare(r))
+					if (satisfy(rArgs, element, varValues))	return SUCCESS;			
+		}		
 		return FAILED;
 	}
 	
@@ -80,11 +88,17 @@ public class LJ {
 	
 	
 	protected static QueryResult conduct(Relation r, VariableValuesMap varValues) {	
-		LinkedHashSet<Association> associationsSet = LJavaRelationTable.get(r.argsLength());
+		Object[] rArgs=r.args();
+		LinkedHashSet<Association> associationsSet = LJavaRelationTable.get(r.argsLength());		
 		if (associationsSet!=null) {
-			for (Association element : associationsSet)
-				satisfy(r, element, varValues);			
+			for (Association element : associationsSet) 
+				if (element.relationNameCompare(r)) satisfy(rArgs, element, varValues);				
 		}
+		associationsSet = LJavaRelationTable.get(-1);		
+		if (associationsSet!=null) {
+			for (Association element : associationsSet) 
+				if (element.relationNameCompare(r)) satisfy(rArgs, element, varValues);				
+		}		
 		if (varValues.map.isEmpty()) return FAILED;
 		return SUCCESS;
 	}
@@ -211,10 +225,9 @@ public class LJ {
 //The main part where the logical engine works.
 
 //Checks satisfaction of two relations.	
-	private static boolean satisfy(Relation r, Association candidate, VariableValuesMap varValues){
-		if (!candidate.relationNameCompare(r)) return false;
-		if (r.argsLength()==0) return true;
-		return candidate.satisfy(r,varValues);
+	private static boolean satisfy(Object[] rArgs, Association candidate, VariableValuesMap varValues){		
+		if (rArgs.length==0) return true;
+		return candidate.satisfy(rArgs,varValues);
 	}
 	
 	
@@ -241,8 +254,8 @@ public class LJ {
 
 
 /* TBD:
+ * and,or, differ with functors.
  * where.
- * functors.
  * fix Group.satisfy
  * reverse functors: possible solutions - force definition, linear transmutations (linear algebra).
  */

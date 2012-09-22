@@ -6,10 +6,10 @@ import static org.junit.Assert.*;
 
 public class Tester {
 	
-	Variable x=new Variable();
-	Variable y=new Variable();
-	Variable z=new Variable();
-	Variable t=new Variable();	
+	Variable x=var();
+	Variable y=var();
+	Variable z=var();
+	Variable t=var();	
 		
 	private class TesterLittleHelper{		
 		 private Integer value;
@@ -36,7 +36,7 @@ public class Tester {
 		y.set("a","b","c",_,nil,none,LJavaTrueRelation, LJavaFalseRelation);
 		Relation r=new Relation("try",1,2,3);
 		assertEquals(x.toString(),"[1,2,3,4,5,$nil$()]");
-		assertEquals(y.toString(),"[a,b,c,_,$nil$(),$no_variable_value$(),$true$(),$false$()]");
+		assertEquals(y.toString(),"[a,b,c,_,$nil$(),$no_variable_value$(),$LJava_True_Relation$(),$LJava_False_Relation$()]");
 		assertEquals(r.toString(),"try(1,2,3)");
 	}
 	
@@ -47,7 +47,6 @@ public class Tester {
 		relate(1,2,3,"a","b","c", aClass, z);
 		exists(1,2,3,_,_,_,x,y);
 		assertEquals(x,aClass);
-		aClass.set(2);
 		assertEquals(y,z);
 	}
 	
@@ -58,7 +57,7 @@ public class Tester {
 		exists(2,x,x,_,_,_);
 		assertTrue(var(x));		
 		exists(2,10,20,_,z,z);
-		assertTrue(!var(z));
+		assertFalse(var(z));
 		y.set(100);
 		assertEquals(z,100);
 	}
@@ -103,8 +102,8 @@ public class Tester {
 		exists(5,100,200,y);
 		relate(5,y,6,6);
 		exists(5,x,6,6);
-		assertTrue(!var(y));
-		assertTrue(!var(x));
+		assertFalse(var(y));
+		assertFalse(var(x));
 		x.set(30);
 		assertEquals(x,y);
 		assertEquals(y,nil);
@@ -168,7 +167,7 @@ public class Tester {
 		relate(9,3,"c");
 		query( and( relation(9,x,_) , relation(9,_,x) ));
 		assertEquals(x,3);
-		assertTrue(!x.isConstraint());
+		assertFalse(x.isConstraint());
 		assertTrue(x.isNumber());		
 	}
 	
@@ -195,7 +194,7 @@ public class Tester {
 				)	
 			));
 		assertTrue(x.isConstraint());
-		assertTrue(!y.isConstraint());
+		assertFalse(y.isConstraint());
 		assertEquals(x,6);
 		assertEquals(y,helper);
 	}

@@ -32,12 +32,12 @@ public class Group extends Association{
 	
 	
 	@Override
-	protected boolean satisfy(Relation r, VariableValuesMap varValues){
-		if (r.argsLength>0) {
+	protected boolean satisfy(Object[] rArgs, VariableValuesMap varValues){
+		if (rArgs.length>0) {
 			TreeMap<Integer, LinkedList<Object>> sortedVals=new TreeMap<Integer, LinkedList<Object>>();
 			HashMap<Object, Integer> vals=new HashMap<Object, Integer>();
 			HashMap<Variable, Integer> vars=new HashMap<Variable, Integer>();
-			for (Object element : r.args) { //Mapping r's parameters.
+			for (Object element : rArgs) { //Mapping r's parameters.
 				if (var(element)) increment(vars, (Variable) element);
 				else increment(vals, val(element));
 			}

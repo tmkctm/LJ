@@ -11,14 +11,15 @@ public class Relation extends Association implements QueryParameter{
 	}
 
 	@Override
-	protected boolean satisfy(Relation r, VariableValuesMap varValues){
-		HashMap<Variable,Object> vars=new HashMap<Variable, Object>();		
-		for (int i=0; i<r.argsLength(); i++) {			
-			if (var(r.args[i])) {
-				if (vars.containsKey(r.args[i])) {
-					if (!same(vars.get(r.args[i]), args[i])) return false;   }
-				else vars.put((Variable) r.args[i], args[i]);   }								
-			else if (!same(r.args[i],args[i])) return false;
+	protected boolean satisfy(Object[] rArgs, VariableValuesMap varValues){
+		HashMap<Variable,Object> vars=new HashMap<Variable, Object>();
+		Object[] args=this.args();
+		for (int i=0; i<rArgs.length; i++) {			
+			if (var(rArgs[i])) {
+				if (vars.containsKey(rArgs[i])) {
+					if (!same(vars.get(rArgs[i]), args[i])) return false;   }
+				else vars.put((Variable) rArgs[i], args[i]);   }								
+			else if (!same(rArgs[i],args[i])) return false;
 		}
 		updateValuesMap(vars, varValues);
 		return true;
