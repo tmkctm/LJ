@@ -77,13 +77,20 @@ public class Tester {
 	public void testConduct(){
 		relate(4,z,y,0);
 		relate(4,1,2,3);
-		relate(4,"a","b","c");		
+		relate(4,"a","b","c");
+		Relation r=relation("test");
 		conduct(4,_,x,_);
 		y.set("t");
 		assertEquals(x,"t");
 		Variable c=new Variable();
 		c.set(2,"b","t");
-		assertTrue(x.equalConstraint(c));		
+		assertTrue(x.equalConstraint(c));
+		assertEquals(conduct(r),FAILED);
+		associate(r);
+		assertEquals(conduct(r),SUCCESS);
+		assertEquals(conduct(),FAILED);
+		assertEquals(conduct(4,1,2,3),SUCCESS);
+		assertEquals(conduct("t","m",2,3),FAILED);
 	}
 	
 
@@ -251,5 +258,34 @@ public class Tester {
 		exists(x,t,x,t,x,t,x,x,t,t);
 		assertTrue(((Integer) x.get()==12) || ((Integer) x.get()==13));
 		assertTrue(((Integer) t.get()==12) || ((Integer) t.get()==13));
+	}
+	
+	
+	@Test
+	public void testFunctors() {
+		Functor<Integer,Integer> sum= new Functor<Integer,Integer>("Sum"){
+			@Override
+			protected Integer f(Integer... p) {
+				return p[0]+p[1];
+			}};
+		
+		assertEquals(exists(sum),FAILED);
+		assertEquals(exists(cmp),FAILED);
+		associate(sum);
+		assertEquals(exists(sum),SUCCESS);
+		relate(13,1,2,3);
+		group(13,11,12,14,200,201,202);
+		query( and(
+					relation(x,12,14,11,202,200,201),
+					where(sum,x,4,1)
+				));
+		assertTrue(same(x.toString(),none.toString()));
+
+		query( and(
+					relation(y,12,14,11,202,200,201),
+					where(sum,y,12,1)
+				));	
+		System.out.println(y);
+		assertTrue(same(y,13));		
 	}
 }

@@ -61,13 +61,13 @@ public class LJ {
 		if (associationsSet!=null) {
 			for (Association element : associationsSet)
 				if (element.relationNameCompare(r))
-					if (satisfy(rArgs, element, varValues))	return SUCCESS;			
+					if (element.satisfy(rArgs, varValues))	return SUCCESS;			
 		}
 		associationsSet = LJavaRelationTable.get(-1);		
 		if (associationsSet!=null) {
 			for (Association element : associationsSet)
 				if (element.relationNameCompare(r))
-					if (satisfy(rArgs, element, varValues))	return SUCCESS;			
+					if (element.satisfy(rArgs, varValues))	return SUCCESS;			
 		}		
 		return FAILED;
 	}
@@ -89,15 +89,23 @@ public class LJ {
 	
 	protected static QueryResult conduct(Relation r, VariableValuesMap varValues) {	
 		Object[] rArgs=r.args();
+		boolean gate=false;
+		for (int i=0; i<rArgs.length; i++) {
+			if (var(rArgs[i])) {
+				gate=true;
+				break;
+			}
+		}
+		if (!gate) return exists(r,varValues);
 		LinkedHashSet<Association> associationsSet = LJavaRelationTable.get(r.argsLength());		
 		if (associationsSet!=null) {
 			for (Association element : associationsSet) 
-				if (element.relationNameCompare(r)) satisfy(rArgs, element, varValues);				
+				if (element.relationNameCompare(r)) element.satisfy(rArgs, varValues);			
 		}
 		associationsSet = LJavaRelationTable.get(-1);		
 		if (associationsSet!=null) {
 			for (Association element : associationsSet) 
-				if (element.relationNameCompare(r)) satisfy(rArgs, element, varValues);				
+				if (element.relationNameCompare(r)) element.satisfy(rArgs, varValues);				
 		}		
 		if (varValues.map.isEmpty()) return FAILED;
 		return SUCCESS;
@@ -189,7 +197,6 @@ public class LJ {
 	}
 	
 	
-//Returns a relation when taking the first parameter for naming.
 	public static Relation relation(String n,Object... args) {
 		return new Relation(n,args);
 	}
@@ -197,6 +204,13 @@ public class LJ {
 	
 	public static Relation relation(Object... args) {
 		return new Relation("",args);
+	}
+	
+	
+	public static <P,R> VariableValuesMap where(Functor<P,R> f, Variable x, P...args) {
+		VariableValuesMap m=new VariableValuesMap();
+		if (var(x)) updateValuesMap(x, f.invoke(args), m);
+		return m;
 	}
 	
 	
@@ -219,32 +233,23 @@ public class LJ {
 		return QueryResult.FAILED_INSTANTIATE;
 	}
 
-	
-	
-
-//The main part where the logical engine works.
-
-//Checks satisfaction of two relations.	
-	private static boolean satisfy(Object[] rArgs, Association candidate, VariableValuesMap varValues){		
-		if (rArgs.length==0) return true;
-		return candidate.satisfy(rArgs,varValues);
+		
+//Updates variables values map for this current running query.
+	protected static void updateValuesMap(HashMap<Variable,Object> vars, VariableValuesMap varValues){		
+		for (Map.Entry<Variable, Object> entry : vars.entrySet()) 
+			updateValuesMap(entry.getKey(), entry.getValue(), varValues);			
 	}
 	
 	
-//Updates variables values map for this current running query.
-	protected static void updateValuesMap(HashMap<Variable,Object> vars, VariableValuesMap varValues){		
+	protected static void updateValuesMap(Variable key, Object val, VariableValuesMap varValues) {
 		ArrayList<Object> v;	
-		Variable t;
-		for (Map.Entry<Variable, Object> entry : vars.entrySet()) {
-			t=entry.getKey();
-			v=varValues.map.get(t);
-			if (v==null) {  
-				v=new ArrayList<Object>();
-				v.add(entry.getValue());
-				varValues.map.put(t, v);
-			}
-			else v.add(entry.getValue());
-		}		
+		v=varValues.map.get(key);
+		if (v==null) {  
+			v=new ArrayList<Object>();
+			v.add(val);
+			varValues.map.put(key, v);
+		}
+		else v.add(val);		
 	}
 	
 	

@@ -1,8 +1,5 @@
 package LJava;
-
 import static LJava.LJ.*;
-
-import java.util.HashMap;
 
 public abstract class Functor<P,R> extends Relation{
 
@@ -33,14 +30,13 @@ public abstract class Functor<P,R> extends Relation{
 	@SuppressWarnings("unchecked")
 	@Override
 	protected final boolean satisfy(Object[] rArgs, VariableValuesMap varValues){
+		if (rArgs.length==0) return true;
 		P[] temp=(P[]) new Object[rArgs.length-1];
 		for (int i=1; i<rArgs.length; i++)
 			try {temp[i-1]=(P)rArgs[i];} catch(Exception e){return false;}
 		R value=invoke(temp);
 		if (var(rArgs[0])) {
-			HashMap<Variable,Object> vars=new HashMap<Variable, Object>();
-			vars.put((Variable) rArgs[0], value);
-			updateValuesMap(vars, varValues);
+			updateValuesMap((Variable) rArgs[0], value, varValues);
 			return true;
 		}
 		return same(value,rArgs[0]);
