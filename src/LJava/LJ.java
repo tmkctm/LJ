@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 
 
-public class LJ {
+public final class LJ {
 	
 
 	public final static Association _=new Association("_");
@@ -241,9 +241,8 @@ public class LJ {
 //Instantiate all variables to their values according to the given map.
 	private static QueryResult instantiate(VariableValuesMap varValues) {
         boolean answer=true;		
-		for (Map.Entry<Variable, ArrayList<Object>> entry : varValues.map.entrySet()) {													
+		for (Map.Entry<Variable, ArrayList<Object>> entry : varValues.map.entrySet())													
 			answer=(entry.getKey().set(entry.getValue().toArray()) && answer);	
-		}
 		if (answer) return SUCCESS;
 		return QueryResult.FAILED_INSTANTIATE;
 	}
