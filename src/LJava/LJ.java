@@ -20,7 +20,7 @@ public class LJ {
 
 	public static final Association LJavaFalseRelation=new Association("$LJava_False_Relation$");
 	
-	private static HashMap<Integer, LinkedHashSet<Association>> LJavaRelationTable=new HashMap<Integer, LinkedHashSet<Association>>();
+	private static final HashMap<Integer, LinkedHashSet<Association>> LJavaRelationTable=new HashMap<Integer, LinkedHashSet<Association>>();
 	
 	
 // Relates in order
@@ -48,7 +48,7 @@ public class LJ {
 	
 			
 // Exists in DB method.
-	public static QueryResult exists(Relation r) {
+	public static QueryResult exists(Relation r) {		
 		VariableValuesMap varValues=new VariableValuesMap();		
 		if (exists(r, varValues)==FAILED) return FAILED;
 		return instantiate(varValues);
@@ -57,10 +57,12 @@ public class LJ {
 	
 	private static QueryResult exists(Relation r, VariableValuesMap varValues){	
 		Object[] rArgs=r.args();
-		LinkedHashSet<Association> associationsSet = LJavaRelationTable.get(r.argsLength());		
+		int argsLen=rArgs.length;
+		if (argsLen==0) return nameQuerying(r);
+		LinkedHashSet<Association> associationsSet = LJavaRelationTable.get(argsLen);		
 		if (associationsSet!=null) {
 			for (Association element : associationsSet)
-				if (element.relationNameCompare(r))
+				if (element.relationNameCompare(r))					
 					if (element.satisfy(rArgs, varValues))	return SUCCESS;			
 		}
 		associationsSet = LJavaRelationTable.get(-1);		
@@ -69,6 +71,21 @@ public class LJ {
 				if (element.relationNameCompare(r))
 					if (element.satisfy(rArgs, varValues))	return SUCCESS;			
 		}		
+		return FAILED;
+	}
+	
+	
+	private static QueryResult nameQuerying(Relation r) {
+		LinkedHashSet<Association> associationsSet = LJavaRelationTable.get(r.argsLength());		
+		if (associationsSet!=null) {
+			for (Association element : associationsSet)
+				if (element.relationNameCompare(r))	return SUCCESS;			
+		}
+		associationsSet = LJavaRelationTable.get(-1);		
+		if (associationsSet!=null) {
+			for (Association element : associationsSet)
+				if (element.relationNameCompare(r))	return SUCCESS;			
+		}
 		return FAILED;
 	}
 	
@@ -89,14 +106,12 @@ public class LJ {
 	
 	protected static QueryResult conduct(Relation r, VariableValuesMap varValues) {	
 		Object[] rArgs=r.args();
-		boolean gate=false;
-		for (int i=0; i<rArgs.length; i++) {
+		boolean gate=true;
+		for (int i=0; i<rArgs.length; i++)
 			if (var(rArgs[i])) {
-				gate=true;
-				break;
+				gate=false; 		break;
 			}
-		}
-		if (!gate) return exists(r,varValues);
+		if (gate) return exists(r,varValues);
 		LinkedHashSet<Association> associationsSet = LJavaRelationTable.get(r.argsLength());		
 		if (associationsSet!=null) {
 			for (Association element : associationsSet) 
@@ -250,18 +265,15 @@ public class LJ {
 			varValues.map.put(key, v);
 		}
 		else v.add(val);		
-	}
-	
-	
-	
+	}	
 	
 }
 
 
 /* TBD:
- * and,or, differ with functors.
+ * and, or, differ with functors.
+ * Fix exists and conduct code.
  * where.
- * fix Group.satisfy
  * reverse functors: possible solutions - force definition, linear transmutations (linear algebra).
  */
 

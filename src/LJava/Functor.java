@@ -30,7 +30,6 @@ public abstract class Functor<P,R> extends Relation{
 	@SuppressWarnings("unchecked")
 	@Override
 	protected final boolean satisfy(Object[] rArgs, VariableValuesMap varValues){
-		if (rArgs.length==0) return true;
 		P[] temp=(P[]) new Object[rArgs.length-1];
 		for (int i=1; i<rArgs.length; i++)
 			try {temp[i-1]=(P)rArgs[i];} catch(Exception e){return false;}

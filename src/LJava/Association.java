@@ -14,7 +14,7 @@ public class Association {
 	private final Object[] args;	
 	
 	public Association(String n, Object... params) {
-		if ((n==null) || (n=="")) name="#Relation"; 
+		if (n=="") name="#Relation"; 
 		else this.name=n;
 		this.args=params;		
 	}
@@ -52,7 +52,7 @@ public class Association {
 	}
 	
 
-	public Relation replaceVariables(String s){
+	public Object[] replaceVariables(){
 		HashMap<Variable,Variable> varsMap=new HashMap<Variable,Variable>();
 		int argsLength=args.length;
 		Object[] arguments=new Object[argsLength];		
@@ -65,7 +65,7 @@ public class Association {
 				}					
 			}
 			else arguments[i]=args[i];
-		return new Relation(s,arguments);
+		return arguments;
 	}
 
 
@@ -79,10 +79,8 @@ public class Association {
 	public boolean equals(Object o) {
 		if (this==_ || o==_) return true;
 		if (this==none || o==none) return false;
-		if (o instanceof Association) {
-			Association r=(Association) o;
-			return this.equalsAssociation(r);
-		}
+		if (o instanceof Association) 			
+			return this.equalsAssociation((Association) o);		
 		return o.equals(this);		
 	}
 		
@@ -100,7 +98,6 @@ public class Association {
 		for (int i=0; i<args.length; i++)
 			if (!this.args[i].equals(r.args[i])) return false;
 		return true;
-
 	}
 		
 }

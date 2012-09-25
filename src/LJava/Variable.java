@@ -51,17 +51,9 @@ public final class Variable {
 	
 
 	public Object[] getValues() {
-		Object result[];
-		if (isVar()) {
-			result = new Object[1];
-			result[0]=nil;
-		}		
-		else if (noValue()){
-			result = new Object[1];
-			result[0]=none;		
-		}
-		else result=value.clone();		
-		return result;
+		if (isVar()) return new Object[]{nil};
+		else if (noValue()) return new Object[]{none};
+		return value.clone();		
 	}
 	
 	
@@ -80,9 +72,8 @@ public final class Variable {
 		if (arr.length!=arr2.length) return false;
 		Arrays.sort(arr,new HashCompareOperator());
 		Arrays.sort(arr2,new HashCompareOperator());
-		for (int i=0; i<arr.length; i++) {
+		for (int i=0; i<arr.length; i++) 
 			if (!same(arr[i], arr2[i])) return false;
-		}
 		return true;
 	}
 	

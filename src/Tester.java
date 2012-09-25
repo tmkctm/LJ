@@ -11,9 +11,10 @@ public class Tester {
 	Variable z=var();
 	Variable t=var();	
 		
+	@SuppressWarnings("unused")
 	private class TesterLittleHelper{		
 		 private Integer value;
-		 public void set(int v) {  value=v;  }
+		 public void set(int v) {  value=v;  }		 
 		 public int get() {  return value;  }
 		 public String toString(){ 
 			 if (value==null) return "Helper";
@@ -239,7 +240,7 @@ public class Tester {
 		assertEquals(exists(12,2,3,4,5,t,t,t),FAILED);
 		assertEquals(exists(12,2,3,4,5,x,x,y),SUCCESS);
 		assertTrue(var(x));
-		exists(12,3,4,5,6,2,7,8,9,y);
+		exists(12,3,y,5,6,2,7,8,9,4);
 		exists(12,5,4,z,6,2,7,8,9,y);
 		assertEquals(y,0);
 		assertEquals(z,3);
@@ -285,7 +286,6 @@ public class Tester {
 					relation(y,12,14,11,202,200,201),
 					where(sum,y,12,1)
 				));	
-		System.out.println(y);
 		assertTrue(same(y,13));		
 	}
 }

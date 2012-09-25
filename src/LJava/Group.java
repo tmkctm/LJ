@@ -1,8 +1,8 @@
 package LJava;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -32,84 +32,76 @@ public class Group extends Association{
 	
 	
 	@Override
-	protected boolean satisfy(Object[] rArgs, VariableValuesMap varValues){
-		if (rArgs.length>0) {
-			TreeMap<Integer, LinkedList<Object>> sortedVals=new TreeMap<Integer, LinkedList<Object>>();
-			HashMap<Object, Integer> vals=new HashMap<Object, Integer>();
-			HashMap<Variable, Integer> vars=new HashMap<Variable, Integer>();
-			for (Object element : rArgs) { //Mapping r's parameters.
-				if (var(element)) increment(vars, (Variable) element);
-				else increment(vals, val(element));
+	protected boolean satisfy(Object[] rArgs, VariableValuesMap varValues){	
+		HashMap<Variable, Integer> rVarsCountMap=new HashMap<Variable, Integer>();
+		HashMap<Object, Integer> remainedVals=new HashMap<Object, Integer>();
+		HashMap<Object, Integer> rArgsCountMap=new HashMap<Object, Integer>();
+		
+		for (Object element : rArgs) {
+			if (var(element)) increment(rVarsCountMap,(Variable) element);
+			else increment(rArgsCountMap, val(element));
+		}
+		
+		Integer count=0;
+		for (Map.Entry<Object, Integer> entry : argsMap.entrySet()) { //Differing amounts between group's map and r's map
+			Object key=entry.getKey();
+			Object keyVal=val(key);
+			if (var(keyVal)) count=rVarsCountMap.remove(keyVal);
+			else count=rArgsCountMap.remove(keyVal);
+			if (count==null) count=0; 					
+			count=count-entry.getValue();
+			if (count>0) {
+				if (var(key)) rVarsCountMap.put((Variable) key, count);
+				else return false;
 			}
-					
-			Integer count=0;
-			for (Map.Entry<Object, Integer> entry : argsMap.entrySet()) { //Differing amounts between group's map and r's map
-				Object key=entry.getKey();
-				if (var(key)) {
-					count=vars.get((Variable) key);
-					if (count==null) count=0; 					
-					count=count-entry.getValue();
-					if (count==0) vars.remove((Variable) key);
-					else if (count<0) modifyCountMap(sortedVals, key, -count);
-					else vars.put((Variable) key, count);
-					count=0;
-				}
-				else {
-					count=vals.get(val(key));
-					if (count==null) count=0;
-					else vals.remove(val(key));
-					count=entry.getValue()-count;					
-					if (count>0) modifyCountMap(sortedVals, val(key), count);					
-				}
-				if (count<0) return false;
-			}
-			
-			if (!vals.isEmpty()) return false;			
-			if (vars.isEmpty()) return true;
-			if (sortedVals.isEmpty()) return false;					
-						
-			TreeMap<Integer, LinkedList<Variable>> sortedVars= new TreeMap<Integer, LinkedList<Variable>>(Collections.reverseOrder());
-			for (Map.Entry<Variable, Integer> entry : vars.entrySet()) {
-				modifyCountMap(sortedVars, entry.getKey(), entry.getValue());
-			}
-				
-			
-			HashMap<Variable,Object> varResults=new HashMap<Variable, Object>();
-			LinkedList<Object> valList=new LinkedList<Object>();			
-			for (Map.Entry<Integer, LinkedList<Variable>> entry : sortedVars.entrySet()) {				
-				for (Variable v : entry.getValue()) {
-					int lastKey=sortedVals.lastKey();
-					int place=lastKey-entry.getKey();
-					if (place<0) return false;					
-					valList=sortedVals.get(lastKey);
-					Object o=valList.get(0);
-					varResults.put(v,o);
-					valList.remove(0);
-					if (valList.isEmpty()) sortedVals.remove(lastKey);				
-					if (place>0) modifyCountMap(sortedVals, o, place);
-				}
-			}
-			updateValuesMap(varResults, varValues);
-		}		
+			else if (count<0) remainedVals.put(keyVal, -count); 
+		}	
+		
+		if (!rArgsCountMap.isEmpty()) return false;
+		if (rVarsCountMap.isEmpty()) return true;
+		
+		TreeMap<Variable, Integer> vars = new TreeMap<Variable, Integer>(new MapComparatorByValue<Variable>(rVarsCountMap));
+		vars.putAll(rVarsCountMap);
+		TreeMap<Object, Integer> vals = new TreeMap<Object, Integer>(new MapComparatorByValue<Object>(remainedVals));
+		vals.putAll(remainedVals);	
+		
+		HashMap<Variable,Object> varResults=new HashMap<Variable, Object>();			
+		for (Map.Entry<Variable, Integer> entry : vars.entrySet()) {							
+			Object firstKey=vals.firstKey();			
+			int remain=vals.get(firstKey)-entry.getValue();
+			if (remain<0) return false;					
+			varResults.put(entry.getKey(),firstKey);
+			if (remain==0) vals.remove(firstKey);				
+			else vals.put(firstKey, remain);			
+		}
+		updateValuesMap(varResults, varValues);		
 		return true;
 	}
 	
 	
-	
-	
-	private <T> void increment(HashMap<T, Integer> m, T element) {
+	private <T> void increment(Map<T, Integer> m, T element) {
 		Integer count=m.get(element);
-		if (count==null) m.put(element,1);
-		else m.put(element,count+1);	
+		if (count==null) count=0;
+		m.put(element,count+1);	
+	}
+
+		
+	private class MapComparatorByValue<T> implements Comparator<T> {	
+		Map<T,Integer> sourceMap;		
+		public MapComparatorByValue(HashMap<T,Integer> m) {
+			sourceMap=m;
+		}		
+		@Override
+		public int compare(T a, T b) {
+			if (sourceMap.get(a)>sourceMap.get(b)) return -1;
+			else if (sourceMap.get(a)<sourceMap.get(b)) return 1;
+			int aHash=a.hashCode();
+			int bHash=b.hashCode();
+			if (aHash>bHash) return -1;
+			else if (aHash<bHash) return 1;
+			return 0;
+		}
 	}
 	
-	private <T> void modifyCountMap(Map<Integer, LinkedList<T>> m, T val, Integer key) {
-		LinkedList<T> list=m.get(key);
-		if (list==null) {
-			list=new LinkedList<T>();
-			list.add(val);
-			m.put(key, list);
-		}
-		else list.add(val);
-	}
+	
 }
