@@ -25,13 +25,7 @@ public final class LJ {
 	
 // Relates in order
 	public static void associate(Association r) {
-		LinkedHashSet<Association> set = LJavaRelationTable.get(r.argsLength());
-		if (set==null) {
-			set=new LinkedHashSet<Association>();
-			set.add(r);
-			LJavaRelationTable.put(r.argsLength(), set);
-		}
-		else set.add(r);
+		addTo(LJavaRelationTable, r.argsLength(), r, LinkedHashSet.class);
 	}
 	
 
@@ -251,14 +245,7 @@ public final class LJ {
 	
 	
 	protected static void updateValuesMap(Variable key, Object val, VariableValuesMap varValues) {
-		ArrayList<Object> v;	
-		v=varValues.map.get(key);
-		if (v==null) {  
-			v=new ArrayList<Object>();
-			v.add(val);
-			varValues.map.put(key, v);
-		}
-		else v.add(val);		
+		addTo(varValues.map, key, val, ArrayList.class);
 	}	
 }
 
@@ -268,6 +255,7 @@ public final class LJ {
  * new and operator!!! (Totally not working logically at the moment).
  * where (A functor with variables in the arguments for logical operators).
  * Fix exists and conduct code.
+ * Atomitize the line in Variable.consistWith.
  * reverse functors: possible solutions - force definition, linear transmutations (linear algebra).
  */
 

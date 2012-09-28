@@ -18,10 +18,7 @@ public final class Variable {
 		
 
 	public boolean equals(Object x){		
-		if (variable(x)) {		
-			Variable temp=(Variable) x;
-			x=temp.get();						
-		}			
+		x=val(x);
 		Object o=this.get();		
 		if (o==this) return (o==x);
 		return same(o,x);					
@@ -168,12 +165,7 @@ public final class Variable {
 
 //Returns the variable value.
 	private Object flat(){		
-		Object x=value[0];
-		if (variable(x)) {
-			Variable y=(Variable) x;
-			return y.get();
-		}
-		return x;
+		return val(value[0]);
 	}
 	
 	
@@ -188,12 +180,16 @@ public final class Variable {
 	private boolean consistWith(Variable b) {
 		if (b.isVar()){ 
 			if (!b.inSet.get()) { looksAt.add(b);  return true; }
-			else return false;			
+			else return false;
 		}		
 		for (Variable element : b.looksAt) {			
 			if (element.isVar()) {
 				if (this==element) return false;
-				if (!element.inSet.get()) looksAt.add(element); 
+				
+				//This needs to be atomitized!!!
+				if (!element.inSet.get()) looksAt.add(element);
+				//This needs to be atomitized!!!
+				
 				else return false;			
 			}
 			else if (!this.consistWith(element)) return false;		

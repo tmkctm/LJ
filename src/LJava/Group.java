@@ -67,11 +67,10 @@ public class Group extends Association{
 		HashMap<Variable,Object> varResults=new HashMap<Variable, Object>();			
 		for (Map.Entry<Variable, Integer> entry : vars.entrySet()) {							
 			Object firstKey=vals.firstKey();			
-			int remain=vals.get(firstKey)-entry.getValue();
+			int remain=vals.remove(firstKey)-entry.getValue();
 			if (remain<0) return false;					
 			varResults.put(entry.getKey(),firstKey);
-			if (remain==0) vals.remove(firstKey);				
-			else vals.put(firstKey, remain);			
+			if (remain>0) vals.put(firstKey, remain);			
 		}
 		updateValuesMap(varResults, varValues);		
 		return true;
