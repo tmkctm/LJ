@@ -81,7 +81,7 @@ public class Association {
 		if (this==none || o==none) return false;
 		if (o instanceof Association) 			
 			return this.equalsAssociation((Association) o);		
-		return o.equals(this);		
+		return o.equals(this);	
 	}
 		
 	

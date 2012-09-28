@@ -118,10 +118,10 @@ public final class LJ {
 				if (element.relationNameCompare(r)) element.satisfy(rArgs, varValues);			
 		}
 		associationsSet = LJavaRelationTable.get(-1);		
-		if (associationsSet!=null) {
-			for (Association element : associationsSet) 
-				if (element.relationNameCompare(r)) element.satisfy(rArgs, varValues);				
-		}		
+			if (associationsSet!=null) {
+				for (Association element : associationsSet) 
+					if (element.relationNameCompare(r)) element.satisfy(rArgs, varValues);				
+		}
 		if (varValues.map.isEmpty()) return FAILED;
 		return SUCCESS;
 	}
@@ -141,8 +141,15 @@ public final class LJ {
 	
 	
 //Query and Logical operators
-	public static QueryResult query(VariableValuesMap varValues){
-		return instantiate(varValues);
+	public static QueryResult query(QueryParameter a, LogicOperator op, QueryParameter b){
+		if (op==LogicOperator.OR) return instantiate(or(a,b));
+		if (op==LogicOperator.AND) return instantiate(and(a,b));
+		return instantiate(differ(a,b));
+	}
+	
+	
+	public static QueryResult query(VariableValuesMap m){
+		return instantiate(m);
 	}
 	
 
@@ -150,13 +157,11 @@ public final class LJ {
 		VariableValuesMap x=a.map();
 		if (x.isEmpty()) return x;
 		VariableValuesMap y=b.map();
-		if (y.isEmpty()) return y;
 		ArrayList<Object> xValues;
-		Variable t;
 		for (Map.Entry<Variable, ArrayList<Object>> entry : y.map.entrySet()) {
-			t=entry.getKey();
-			xValues=x.map.get(t);
+			xValues=x.map.get(entry.getKey());
 			if (xValues!=null) xValues.retainAll(entry.getValue());
+			if (xValues.isEmpty()) x.map.remove(entry.getKey());
 		}		
 		return x;
 	}
@@ -166,11 +171,9 @@ public final class LJ {
 		VariableValuesMap x=a.map();
 		VariableValuesMap y=b.map();
 		ArrayList<Object> xValues;
-		Variable t;
 		for (Map.Entry<Variable, ArrayList<Object>> entry : y.map.entrySet()) {
-			t=entry.getKey();
-			xValues=x.map.get(t);
-			if (xValues==null) x.map.put(t, entry.getValue());
+			xValues=x.map.get(entry.getKey());
+			if (xValues==null) x.map.put(entry.getKey(), entry.getValue());
 			else xValues.addAll(entry.getValue());
 		}		
 		return x;
@@ -182,11 +185,10 @@ public final class LJ {
 		if (x.isEmpty()) return x;
 		VariableValuesMap y=b.map();
 		ArrayList<Object> xValues;
-		Variable t;
 		for (Map.Entry<Variable, ArrayList<Object>> entry : y.map.entrySet()) {
-			t=entry.getKey();
-			xValues=x.map.get(t);
+			xValues=x.map.get(entry.getKey());
 			if (xValues!=null) xValues.removeAll(entry.getValue());
+			if (xValues.isEmpty()) x.map.remove(entry.getKey());			
 		}		
 		return x;	
 	}
@@ -219,13 +221,6 @@ public final class LJ {
 	
 	public static Relation relation(Object... args) {
 		return new Relation("",args);
-	}
-	
-	
-	public static <P,R> VariableValuesMap where(Functor<P,R> f, Variable x, P...args) {
-		VariableValuesMap m=new VariableValuesMap();
-		if (var(x)) updateValuesMap(x, f.invoke(args), m);
-		return m;
 	}
 	
 	
@@ -265,14 +260,14 @@ public final class LJ {
 		}
 		else v.add(val);		
 	}	
-	
 }
 
 
-/* TBD:
- * and, or, differ with functors.
+/* Future Plan:
+ * or, differ with functors (think about it).
+ * new and operator!!! (Totally not working logically at the moment).
+ * where (A functor with variables in the arguments for logical operators).
  * Fix exists and conduct code.
- * where.
  * reverse functors: possible solutions - force definition, linear transmutations (linear algebra).
  */
 

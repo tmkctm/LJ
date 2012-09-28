@@ -183,12 +183,12 @@ public class Tester {
 	@Test
 	public void testLogicQuery(){
 		TesterLittleHelper helper=new TesterLittleHelper();
-		helper.set(1);
+		helper.set(1000);
 		relate(10,1,2,3,4,5,6);
 		relate(10,70);
 		relate(10,6);
 		relate(10,0,9,8,7,6,5,4,3,2,helper);
-		relate(10,0,9,8,7,1600,5,4,3,2,1);
+		relate(10,700,9,8,7,1600,5,4,3,2,1);
 		relate(10,helper,10,helper,10,helper);
 		relate(10,0,10,0,10,0);
 		query( or(
@@ -264,7 +264,7 @@ public class Tester {
 	
 	@Test
 	public void testFunctors() {
-		Functor<Integer,Integer> sum= new Functor<Integer,Integer>("Sum"){
+		Functor<Integer,Integer> sum=new Functor<Integer,Integer>("Sum", Integer.class){
 			@Override
 			protected Integer f(Integer... p) {
 				return p[0]+p[1];
@@ -274,18 +274,14 @@ public class Tester {
 		assertEquals(exists(cmp),FAILED);
 		associate(sum);
 		assertEquals(exists(sum),SUCCESS);
+		exists(relation("Sum",t,4,5));
+		assertTrue(same(t,9));
 		relate(13,1,2,3);
 		group(13,11,12,14,200,201,202);
-		query( and(
-					relation(x,12,14,11,202,200,201),
-					where(sum,x,4,1)
-				));
-		assertTrue(same(x.toString(),none.toString()));
-
-		query( and(
-					relation(y,12,14,11,202,200,201),
-					where(sum,y,12,1)
-				));	
+		query(relation(x,12,14,11,202,200,201),AND,relation("Sum",x,4,1));		
+		assertFalse(same(x.toString(),none.toString()));
+		assertTrue(var(x));
+		query(relation(y,12,14,11,202,200,201),AND,relation("Sum",y,12,1));	
 		assertTrue(same(y,13));		
 	}
 }

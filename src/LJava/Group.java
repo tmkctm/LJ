@@ -51,7 +51,7 @@ public class Group extends Association{
 			if (count==null) count=0; 					
 			count=count-entry.getValue();
 			if (count>0) {
-				if (var(key)) rVarsCountMap.put((Variable) key, count);
+				if (var(keyVal)) rVarsCountMap.put((Variable) keyVal, count);
 				else return false;
 			}
 			else if (count<0) remainedVals.put(keyVal, -count); 
@@ -64,7 +64,6 @@ public class Group extends Association{
 		vars.putAll(rVarsCountMap);
 		TreeMap<Object, Integer> vals = new TreeMap<Object, Integer>(new MapComparatorByValue<Object>(remainedVals));
 		vals.putAll(remainedVals);	
-		
 		HashMap<Variable,Object> varResults=new HashMap<Variable, Object>();			
 		for (Map.Entry<Variable, Integer> entry : vars.entrySet()) {							
 			Object firstKey=vals.firstKey();			
