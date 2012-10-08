@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 
 public class Utils {
-	
+			
 	static public final LogicOperator OR=LogicOperator.OR;
 	static public final LogicOperator AND=LogicOperator.AND;
 	static public final LogicOperator DIFFER=LogicOperator.DIFFER;

@@ -69,7 +69,7 @@ public class Association {
 	}
 
 
-	protected boolean relationNameCompare(Association r) {			
+	protected boolean associationNameCompare(Association r) {			
 		if ((name.charAt(0)!='#') || (r.name.charAt(0)!='#'))
 			if (!name.equals(r.name)) return false;
 		return true;
@@ -93,7 +93,7 @@ public class Association {
 	
 //Compares between 2 relations.
 	private boolean equalsAssociation(Association r){
-		if (!relationNameCompare(r)) return false;
+		if (!associationNameCompare(r)) return false;
 		if (this.isGroup() ^ r.isGroup()) return false;
 		for (int i=0; i<args.length; i++)
 			if (!this.args[i].equals(r.args[i])) return false;

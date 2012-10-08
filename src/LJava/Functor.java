@@ -7,9 +7,10 @@ public abstract class Functor<P,R> extends Relation{
 
 	private final Class<P> parametersType;
 	
-	public Functor(String n, Class<P> pType) {		
+	
+	public Functor(String n, Class<P> type) {		
 		super(n);
-		parametersType=pType;
+		parametersType=type;
 	}
 	
 		

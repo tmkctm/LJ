@@ -9,21 +9,14 @@ import java.util.LinkedHashSet;
 
 public final class LJ {
 	
-
 	public final static Association _=new Association("_");
-
 	public final static Association nil=new Association("$nil$");
-
 	public static final Association none=new Association("$no_variable_value$");		
-	
 	public static final Association LJavaTrueRelation=new Association("$LJava_True_Relation$");
-
 	public static final Association LJavaFalseRelation=new Association("$LJava_False_Relation$");
-	
 	private static final HashMap<Integer, LinkedHashSet<Association>> LJavaRelationTable=new HashMap<Integer, LinkedHashSet<Association>>();
+
 	
-	
-// Relates in order
 	public static void associate(Association r) {
 		addTo(LJavaRelationTable, r.argsLength(), r, LinkedHashSet.class);
 	}
@@ -41,112 +34,91 @@ public final class LJ {
 	}
 	
 			
-// Exists in DB method.
-	public static QueryResult exists(Relation r) {		
+	public static QueryResult e(Relation r) {		
 		VariableValuesMap varValues=new VariableValuesMap();		
-		if (exists(r, varValues)==FAILED) return FAILED;
+		if (conduct(r, varValues, true)==FAILED) return FAILED;
 		return instantiate(varValues);
 	}
 	
 	
-	private static QueryResult exists(Relation r, VariableValuesMap varValues){	
-		Object[] rArgs=r.args();
-		int argsLen=rArgs.length;
-		if (argsLen==0) return nameQuerying(r);
-		LinkedHashSet<Association> associationsSet = LJavaRelationTable.get(argsLen);		
-		if (associationsSet!=null) {
-			for (Association element : associationsSet)
-				if (element.relationNameCompare(r))					
-					if (element.satisfy(rArgs, varValues))	return SUCCESS;			
-		}
-		associationsSet = LJavaRelationTable.get(-1);		
-		if (associationsSet!=null) {
-			for (Association element : associationsSet)
-				if (element.relationNameCompare(r))
-					if (element.satisfy(rArgs, varValues))	return SUCCESS;			
-		}		
-		return FAILED;
-	}
-	
-	
-	private static QueryResult nameQuerying(Relation r) {
-		LinkedHashSet<Association> associationsSet = LJavaRelationTable.get(r.argsLength());		
-		if (associationsSet!=null) {
-			for (Association element : associationsSet)
-				if (element.relationNameCompare(r))	return SUCCESS;			
-		}
-		associationsSet = LJavaRelationTable.get(-1);		
-		if (associationsSet!=null) {
-			for (Association element : associationsSet)
-				if (element.relationNameCompare(r))	return SUCCESS;			
-		}
-		return FAILED;
-	}
-	
-	
-	public static QueryResult exists(Object... args) {
+	public static QueryResult e(Object... args) {
 		Relation r=new Relation("#query",args);
-		return exists(r);
+		return e(r);
 	}
 		
 
-//Conducts
-	public static QueryResult conduct(Relation r){		
+	public static QueryResult a(Relation r){		
 		VariableValuesMap varValues=new VariableValuesMap(); 
-		if (conduct(r, varValues)==FAILED) return FAILED;
+		if (conduct(r, varValues, false)==FAILED) return FAILED;
 		return instantiate(varValues);
 	}
 	
 	
-	protected static QueryResult conduct(Relation r, VariableValuesMap varValues) {	
-		Object[] rArgs=r.args();
-		boolean gate=true;
-		for (int i=0; i<rArgs.length; i++)
-			if (var(rArgs[i])) {
-				gate=false; 		break;
-			}
-		if (gate) return exists(r,varValues);
-		LinkedHashSet<Association> associationsSet = LJavaRelationTable.get(r.argsLength());		
-		if (associationsSet!=null) {
-			for (Association element : associationsSet) 
-				if (element.relationNameCompare(r)) element.satisfy(rArgs, varValues);			
-		}
-		associationsSet = LJavaRelationTable.get(-1);		
-			if (associationsSet!=null) {
-				for (Association element : associationsSet) 
-					if (element.relationNameCompare(r)) element.satisfy(rArgs, varValues);				
-		}
-		if (varValues.map.isEmpty()) return FAILED;
-		return SUCCESS;
-	}
-	
-	
-	public static QueryResult conduct(Object... args){
-		Relation r=new Relation("#query",args);
-		return conduct(r);		
-	}
-	
-
-	public static boolean same(Object a, Object b) {		
-		if ( (variable(a)) || (a instanceof Association) )
-				return a.equals(b);
-		return b.equals(a);
-	}	
-	
-	
-//Query and Logical operators
-	public static QueryResult query(QueryParameter a, LogicOperator op, QueryParameter b){
+	public static QueryResult a(QueryParameter a, LogicOperator op, QueryParameter b){
 		if (op==LogicOperator.OR) return instantiate(or(a,b));
 		if (op==LogicOperator.AND) return instantiate(and(a,b));
 		return instantiate(differ(a,b));
 	}
 	
 	
-	public static QueryResult query(VariableValuesMap m){
+	public static QueryResult a(VariableValuesMap m){
 		return instantiate(m);
+	}	
+	
+	
+	public static QueryResult a(Object... args){
+		Relation r=new Relation("#query",args);
+		return a(r);		
+	}	
+	
+	
+	private static boolean searchOnIndexByName(int index, Relation r) {
+		LinkedHashSet<Association> associationsSet = LJavaRelationTable.get(index);		
+		if (associationsSet!=null) {
+			for (Association element : associationsSet)
+				if (element.associationNameCompare(r))	return true;			
+		}
+		return false;
 	}
 	
-
+	
+	private static QueryResult nameQuerying(Relation r) {
+		if (searchOnIndexByName(0, r)) return SUCCESS;
+		if (searchOnIndexByName(-1, r)) return SUCCESS;
+		return FAILED;
+	}
+	
+	
+	private static boolean searchOnIndex(int index, Relation r, Object[] rArgs, VariableValuesMap varValues, boolean cut) {
+		LinkedHashSet<Association> associationsSet = LJavaRelationTable.get(index);		
+		if (associationsSet!=null) {
+			for (Association element : associationsSet) 
+				if (element.associationNameCompare(r))
+					if (element.satisfy(rArgs, varValues))
+						if (cut) return true;
+		}
+		if (varValues.map.isEmpty()) return false;
+		return true;	
+	}
+	
+	
+	protected static QueryResult conduct(Relation r, VariableValuesMap varValues, boolean cut) {	
+		Object[] rArgs=r.args();
+		if (rArgs.length==0) return nameQuerying(r);
+		if (!cut) {
+			for (int i=0; i<rArgs.length; i++)
+				if (var(rArgs[i])) {	cut=true;	break;	}
+			cut=(!cut);
+		}
+		if (searchOnIndex(rArgs.length, r, rArgs, varValues, cut))
+			if (cut) return SUCCESS;
+		if (searchOnIndex(-1, r, rArgs, varValues, cut))
+			if (cut) return SUCCESS;
+		if (varValues.map.isEmpty()) return FAILED;
+		return SUCCESS;		
+	}
+	
+	
 	public static VariableValuesMap and(QueryParameter a, QueryParameter b){
 		VariableValuesMap x=a.map();
 		if (x.isEmpty()) return x;
@@ -188,7 +160,6 @@ public final class LJ {
 	}
 	
 	
-//Recognizing Variables
 	public static boolean var(Object x) {
 		if (variable(x)) {
 			Variable y=(Variable) x;
@@ -226,8 +197,14 @@ public final class LJ {
 		return o;
 	}
 	
+	
+	public static boolean same(Object a, Object b) {		
+		if ( (variable(a)) || (a instanceof Association) )
+				return a.equals(b);
+		return b.equals(a);
+	}	
+	
 
-//Instantiate all variables to their values according to the given map.
 	private static QueryResult instantiate(VariableValuesMap varValues) {
         boolean answer=true;		
 		for (Map.Entry<Variable, ArrayList<Object>> entry : varValues.map.entrySet())													
@@ -237,7 +214,6 @@ public final class LJ {
 	}
 
 		
-//Updates variables values map for this current running query.
 	protected static void updateValuesMap(HashMap<Variable,Object> vars, VariableValuesMap varValues){		
 		for (Map.Entry<Variable, Object> entry : vars.entrySet()) 
 			updateValuesMap(entry.getKey(), entry.getValue(), varValues);			
@@ -251,12 +227,12 @@ public final class LJ {
 
 
 /* Future Plan:
- * or, differ with functors (think about it).
- * new and operator!!! (Totally not working logically at the moment).
+ * Logical operators: for exists, with functors, logically correct AND, smarter!  
  * where (A functor with variables in the arguments for logical operators).
- * Fix exists and conduct code.
  * Atomitize the line in Variable.consistWith.
- * reverse functors: possible solutions - force definition, linear transmutations (linear algebra).
+ * Utils Functors: sum, sub, multi, div, mod, sqr, sqrt, pow.
+ * Fixed size Functors.
+ * reverse functors: By receiving an array of functors, one for each param. returning the relation none if no functor to a certain index.
  */
 
 
