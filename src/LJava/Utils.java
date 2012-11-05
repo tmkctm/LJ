@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 
 public class Utils {
-			
+		
 	static public final LogicOperator OR=LogicOperator.OR;
 	static public final LogicOperator AND=LogicOperator.AND;
 	static public final LogicOperator DIFFER=LogicOperator.DIFFER;
@@ -17,7 +17,6 @@ public class Utils {
 	static public enum  QueryResult{
 		SUCCESS, FAILED_INSTANTIATE, FAILED		}
 		
-	
 	public static boolean variable(Object x) {
 		return (x instanceof Variable);
 	}
@@ -37,7 +36,7 @@ public class Utils {
 	
 	
 //Predefined Functors
-	public static final Functor<Number,Double> max=new Functor<Number,Double>("Max", Number.class) {
+	public static final Formula<Number,Double> max=new Formula<Number,Double>("Max", Number.class) {
 		@Override
 		protected Double f(Number... p) {
 			Double result=Double.MIN_VALUE;
@@ -46,7 +45,7 @@ public class Utils {
 			return result;
 		}};
 	
-	public static final Functor<Number,Double> min=new Functor<Number,Double>("Min", Number.class){
+	public static final Formula<Number,Double> min=new Formula<Number,Double>("Min", Number.class){
 		@Override
 		protected Double f(Number... p) {
 			if (p.length==0) return Double.MIN_VALUE;
@@ -56,7 +55,7 @@ public class Utils {
 			return result;
 		}};
 
-	public static final Functor<Object,Integer> cmp=new Functor<Object,Integer>("Compare", Object.class) {
+	public static final Formula<Object,Integer> cmp=new Formula<Object,Integer>("Compare", Object.class) {
 		@Override
 		protected Integer f(Object... p) {
 			if (p.length!=2) return Integer.MIN_VALUE;

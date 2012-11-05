@@ -28,7 +28,7 @@ public class Relation extends Association implements QueryParameter{
 	@Override
 	public VariableValuesMap map(){
 		VariableValuesMap m=new VariableValuesMap();
-		conduct(this,m, false);
+		conduct(this, m, false);
 		return m;
 	}
 	

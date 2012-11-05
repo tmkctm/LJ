@@ -102,18 +102,18 @@ public final class LJ {
 	}
 	
 	
-	protected static QueryResult conduct(Relation r, VariableValuesMap varValues, boolean cut) {	
+	protected static QueryResult conduct(Relation r, VariableValuesMap varValues, boolean cutFlag) {	
 		Object[] rArgs=r.args();
 		if (rArgs.length==0) return nameQuerying(r);
-		if (!cut) {
+		if (!cutFlag) {
 			for (int i=0; i<rArgs.length; i++)
-				if (var(rArgs[i])) {	cut=true;	break;	}
-			cut=(!cut);
+				if (var(rArgs[i])) {	cutFlag=true;	break;	}
+			cutFlag=(!cutFlag);
 		}
-		if (searchOnIndex(rArgs.length, r, rArgs, varValues, cut))
-			if (cut) return SUCCESS;
-		if (searchOnIndex(-1, r, rArgs, varValues, cut))
-			if (cut) return SUCCESS;
+		if (searchOnIndex(rArgs.length, r, rArgs, varValues, cutFlag))
+			if (cutFlag) return SUCCESS;
+		if (searchOnIndex(-1, r, rArgs, varValues, cutFlag))
+			if (cutFlag) return SUCCESS;
 		if (varValues.map.isEmpty()) return FAILED;
 		return SUCCESS;		
 	}
@@ -233,6 +233,7 @@ public final class LJ {
  * Utils Functors: sum, sub, multi, div, mod, sqr, sqrt, pow.
  * Fixed size Functors.
  * reverse functors: By receiving an array of functors, one for each param. returning the relation none if no functor to a certain index.
+ * Logical AI.
  */
 
 

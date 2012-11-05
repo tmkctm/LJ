@@ -263,8 +263,8 @@ public class Tester {
 	
 	
 	@Test
-	public void testFunctors() {
-		Functor<Integer,Integer> sum=new Functor<Integer,Integer>("Sum", Integer.class){
+	public void testFormulas() {
+		Formula<Integer,Integer> sum=new Formula<Integer,Integer>("Sum", Integer.class){
 			@Override
 			protected Integer f(Integer... p) {
 				return p[0]+p[1];

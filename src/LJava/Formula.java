@@ -3,12 +3,12 @@ import static LJava.LJ.*;
 
 import java.lang.reflect.Array;
 
-public abstract class Functor<P,R> extends Relation{
+public abstract class Formula<P,R> extends Relation{
 
 	private final Class<P> parametersType;
 	
 	
-	public Functor(String n, Class<P> type) {		
+	public Formula(String n, Class<P> type) {		
 		super(n);
 		parametersType=type;
 	}
