@@ -278,10 +278,12 @@ public class Tester {
 		assertTrue(same(t,9));
 		relate(13,1,2,3);
 		group(13,11,12,14,200,201,202);
-		a(relation(x,12,14,11,202,200,201),AND,relation("Sum",x,4,1));		
+		a(relation(x,12,14,11,202,200,201),AND,relation("Sum",x,4,1));	
 		assertFalse(same(x.toString(),none.toString()));
 		assertTrue(var(x));
-		a(relation(y,12,14,11,202,200,201),AND,relation("Sum",y,12,1));	
-		assertTrue(same(y,13));		
+		a(relation(y,12,14,11,202,200,201),AND,relation("Sum",y,12,1));		
+		assertTrue(same(y,13));
+		e(relation("Sum",x,y,7));
+		assertTrue(same(x,20));
 	}
 }

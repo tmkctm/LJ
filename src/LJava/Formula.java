@@ -23,7 +23,7 @@ public abstract class Formula<P,R> extends Relation{
 	
 	
 	public final R invoke(P... params) {
-		return this.f(params);	
+		return this.f(params);
 	}
 	
 	
@@ -38,8 +38,8 @@ public abstract class Formula<P,R> extends Relation{
 	protected final boolean satisfy(Object[] rArgs, VariableValuesMap varValues){
 		P[] temp=(P[]) Array.newInstance(parametersType, rArgs.length-1);
 		for (int i=1; i<rArgs.length; i++) {
-			if (!rArgs[i].getClass().equals(parametersType)) return false;
-			temp[i-1]=(P) rArgs[i];
+			if (!val(rArgs[i]).getClass().equals(parametersType)) return false;
+			temp[i-1]=(P) val(rArgs[i]);
 		}			
 		R value=invoke(temp);
 		if (var(rArgs[0])) {
