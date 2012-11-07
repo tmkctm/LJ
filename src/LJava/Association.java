@@ -1,11 +1,9 @@
 package LJava;
 
-import static LJava.LJ._;
-import static LJava.LJ.none;
-import static LJava.LJ.var;
-import static LJava.LJ.nil;
-import static LJava.LJ.LJavaTrueRelation;
+import static LJava.LJ.*;
+import static LJava.Utils.*;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class Association {
@@ -31,7 +29,7 @@ public class Association {
 	
 
 	public Object[] args(){ 
-		return args.clone(); 
+		return Arrays.copyOf(args,args.length); 
 	}
 	
 	
@@ -86,7 +84,7 @@ public class Association {
 		
 	
 	protected boolean satisfy(Object[] rArgs, VariableValuesMap varValues){
-		if (this==nil || this==LJavaTrueRelation) return true;
+		if (this==nil || this==LJTrue) return true;
 		return false;
 	}
 	

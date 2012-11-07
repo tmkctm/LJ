@@ -9,13 +9,13 @@ public class Utils {
 	static public final LogicOperator AND=LogicOperator.AND;
 	static public final LogicOperator DIFFER=LogicOperator.DIFFER;
 	static public enum  LogicOperator{
-		OR, AND, DIFFER 	}
+		OR, AND, DIFFER , NONE 	}
 	
 	public static final QueryResult SUCCESS=QueryResult.SUCCESS;
 	public static final QueryResult FAILED=QueryResult.FAILED;	
 	public static final QueryResult FAILED_INSTANTIATE=QueryResult.FAILED_INSTANTIATE;
 	static public enum  QueryResult{
-		SUCCESS, FAILED_INSTANTIATE, FAILED		}
+		SUCCESS, FAILED_INSTANTIATE, FAILED 	}
 		
 	public static boolean variable(Object x) {
 		return (x instanceof Variable);
@@ -71,6 +71,18 @@ public class Utils {
 			if (a>b) return 1;
 			if (a<b) return -1;
 			return 0;
+		}};
+
+	public static final Formula<Object, Boolean> LJTrue=new Formula<Object,Boolean>("$LJava_True$", Object.class) {
+		@Override
+		protected Boolean f(Object... p) {
+			return true;
+		}};
+
+	public static final Formula<Object, Boolean> LJFalse=new Formula<Object,Boolean>("$LJava_False$", Object.class) {
+		@Override
+		protected Boolean f(Object... p) {
+			return false;
 		}};
 //End of predefined functors
 }

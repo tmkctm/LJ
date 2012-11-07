@@ -12,8 +12,6 @@ public final class LJ {
 	public final static Association _=new Association("_");
 	public final static Association nil=new Association("$nil$");
 	public static final Association none=new Association("$no_variable_value$");		
-	public static final Association LJavaTrueRelation=new Association("$LJava_True_Relation$");
-	public static final Association LJavaFalseRelation=new Association("$LJava_False_Relation$");
 	private static final HashMap<Integer, LinkedHashSet<Association>> LJavaRelationTable=new HashMap<Integer, LinkedHashSet<Association>>();
 
 	
@@ -55,9 +53,10 @@ public final class LJ {
 	
 	
 	public static QueryResult a(QueryParameter a, LogicOperator op, QueryParameter b){
-		if (op==LogicOperator.OR) return instantiate(or(a,b));
-		if (op==LogicOperator.AND) return instantiate(and(a,b));
-		return instantiate(differ(a,b));
+		if (op==OR) return instantiate(or(a,b));
+		if (op==AND) return instantiate(and(a,b));
+		if (op==DIFFER) return instantiate(differ(a,b));
+		return FAILED;
 	}
 	
 	

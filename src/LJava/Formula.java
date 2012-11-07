@@ -3,10 +3,9 @@ import static LJava.LJ.*;
 
 import java.lang.reflect.Array;
 
-public abstract class Formula<P,R> extends Relation{
+public abstract class Formula<P,R> extends Relation {
 
-	private final Class<P> parametersType;
-	
+	protected final Class<P> parametersType;
 	
 	public Formula(String n, Class<P> type) {		
 		super(n);

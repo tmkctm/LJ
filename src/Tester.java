@@ -34,10 +34,10 @@ public class Tester {
 	@Test 
 	public void checkString() {
 		x.set(1,2,3,4,5,x);
-		y.set("a","b","c",_,nil,none,LJavaTrueRelation, LJavaFalseRelation);
+		y.set("a","b","c",_,nil,none,LJTrue, LJFalse);
 		Relation r=new Relation("try",1,2,3);
 		assertEquals(x.toString(),"[1,2,3,4,5,$nil$()]");
-		assertEquals(y.toString(),"[a,b,c,_,$nil$(),$no_variable_value$(),$LJava_True_Relation$(),$LJava_False_Relation$()]");
+		assertEquals(y.toString(),"[a,b,c,_,$nil$(),$no_variable_value$(),$LJava_True$(),$LJava_False$()]");
 		assertEquals(r.toString(),"try(1,2,3)");
 	}
 	
@@ -85,7 +85,7 @@ public class Tester {
 		assertEquals(x,"t");
 		Variable c=new Variable();
 		c.set(2,"b","t");
-		assertTrue(x.equalConstraint(c));
+		assertTrue(x.equalValuesSet(c));
 		assertEquals(a(r),FAILED);
 		associate(r);
 		assertEquals(a(r),SUCCESS);
@@ -150,7 +150,7 @@ public class Tester {
 		e(7,7,8,y);	
 		Variable c=new Variable();
 		c.set(y,1,"a",helper);
-		assertTrue(x.equalConstraint(c));
+		assertTrue(x.equalValuesSet(c));
 		assertEquals(x,nil);
 	}
 	
@@ -164,7 +164,7 @@ public class Tester {
 		assertEquals(x,1);
 		Variable c=new Variable();
 		c.set(1,2,3,"a","b","c");
-		assertTrue(x.equalConstraint(c));
+		assertTrue(x.equalValuesSet(c));
 	}
 	
 	

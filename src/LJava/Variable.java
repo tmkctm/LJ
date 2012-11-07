@@ -3,8 +3,6 @@ import static LJava.LJ.*;
 import static LJava.Utils.*;
 
 import java.util.LinkedHashSet;
-import java.util.Comparator;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicBoolean;
  
@@ -54,7 +52,7 @@ public final class Variable {
 	}
 	
 	
-	public HashSet<Object> getConstraint(){
+	public HashSet<Object> getValuesSet(){
 		HashSet<Object> valueSet= new HashSet<Object>();
 		for (int i=0; i<value.length; i++)
 			valueSet.add(val(value[i]));
@@ -62,41 +60,37 @@ public final class Variable {
 	}
 	
 	
-	public boolean equalConstraint(Variable x){
-		Object[] arr=this.getValues();
-		Object[] arr2=x.getValues();
-		if (arr.length!=arr2.length) return false;
-		Arrays.sort(arr,new HashCompareOperator());
-		Arrays.sort(arr2,new HashCompareOperator());
-		for (int i=0; i<arr.length; i++) 
-			if (!same(arr[i], arr2[i])) return false;
-		return true;
+	public boolean equalValuesSet(Variable x){
+		HashSet<Object> set1 = this.getValuesSet();
+		HashSet<Object> set2 = this.getValuesSet();
+		for (Object o : set1)
+			if (set2.remove(o)==false) return false;
+		if (set2.isEmpty()) return true;
+		return false;
 	}
 	
 
 
 //Turns the mutable Variable that has no value to an Immutable Variable that has meaning.
 	public boolean set(Object... args){		
-		if (isVar){
-			if (inSet.compareAndSet(false,true)) {				
-				if (args!=null) {
-					Variable temp=new Variable();
-					temp.value=new Object[args.length];
-					for (int i=0; i<temp.value.length; i++) {
-						if (variable(args[i])) {
-							Variable y=(Variable) args[i];					
-							if (!this.consistWith(y)) {							
-								temp.value[i]=nil;
-								continue;
-							}							
-						}
-						temp.value[i]=args[i];
+		if (isVar && inSet.compareAndSet(false,true)){
+			if (args!=null) {
+				Variable temp=new Variable();
+				temp.value=new Object[args.length];
+				for (int i=0; i<temp.value.length; i++) {
+					if (variable(args[i])) {
+						Variable y=(Variable) args[i];					
+						if (!this.consistWith(y)) {							
+							temp.value[i]=nil;
+							continue;
+						}							
 					}
+					temp.value[i]=args[i];
+				}
 				this.value=temp.value;
-				}				
-				isVar=false;
-				return true;						
-			}
+			}				
+			isVar=false;
+			return true;						
 		}
 		return false;
 	}
@@ -195,14 +189,4 @@ public final class Variable {
 		}		
 		return true;			
 	}
-	
-
-//A compare operator for inner use for sorting array of objects. 
-	private class HashCompareOperator implements Comparator<Object>{		
-		public int compare(Object x, Object y){
-			if (x.hashCode()<y.hashCode()) return -1;
-			if (x.hashCode()>y.hashCode()) return 1;
-			return 0;
-		}		
-	}	
 }
