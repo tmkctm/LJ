@@ -227,13 +227,9 @@ public final class LJ {
 
 /* Future Plan:
  * Logical operators: for exists, with functors, logically correct AND, smarter!
- * Solving infinite and finite groups of values from formula into variable - simply if the formula result is boolean or a value.
- * where (A formula with variables in the arguments for logical operators).
  * Atomitize the line in Variable.consistWith.
  * Utils Functors: sum, sub, multi, div, mod, sqr, sqrt, pow.
- * Fixed size Functors.
  * reverse functors: By receiving an array of functors, one for each param. returning the relation none if no functor to a certain index.
- * Logical AI.
  */
 
 
