@@ -37,7 +37,7 @@ public abstract class Formula<P,R> extends Relation {
 	protected final boolean satisfy(Object[] rArgs, VariableValuesMap varValues){
 		P[] temp=(P[]) Array.newInstance(parametersType, rArgs.length-1);
 		for (int i=1; i<rArgs.length; i++) {
-			if (!val(rArgs[i]).getClass().equals(parametersType)) return false;
+			if (!parametersType.isAssignableFrom(val(rArgs[i]).getClass())) return false;
 			temp[i-1]=(P) val(rArgs[i]);
 		}
 		R value = null;
@@ -46,7 +46,6 @@ public abstract class Formula<P,R> extends Relation {
 			updateValuesMap((Variable) rArgs[0], value, varValues);
 			return true;
 		}
-		return same(value,rArgs[0]);
+		return (same(value,rArgs[0]));
 	}	
-	
 }

@@ -13,6 +13,7 @@ public final class Variable {
 	private boolean isVar=true;
 	private AtomicBoolean inSet=new AtomicBoolean(false);
 	private LinkedHashSet<Variable> looksAt= new LinkedHashSet<Variable>();
+	private Constraint constraint;
 		
 
 	public boolean equals(Object x){		
@@ -34,7 +35,9 @@ public final class Variable {
 			int lim=value.length-1;
 			if (lim>=0) s=s+value[lim].toString();
 		}
-		return s+"]";
+		s=s+"]";
+		if (constraint!=null) s=s+" UNION "+constraint.toString();
+		return s;
 	}
 	
 
@@ -88,6 +91,7 @@ public final class Variable {
 					temp.value[i]=args[i];
 				}
 				this.value=temp.value;
+				constraint=null;
 			}				
 			isVar=false;
 			return true;						
@@ -116,7 +120,7 @@ public final class Variable {
 
 	public boolean isConstraint(){
 		if ((!this.isVar()) && (!noValue()))
-			return (value.length>1);
+			return (value.length>1 || constraint!=null);
 		return false;
 	}
 	

@@ -68,8 +68,8 @@ public class Utils {
 				a=p[0].hashCode();
 				b=p[1].hashCode();
 			}
-			if (a>b) return 1;
-			if (a<b) return -1;
+			if (a>b) return -1;
+			if (a<b) return 1;
 			return 0;
 		}};
 

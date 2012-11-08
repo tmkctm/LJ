@@ -119,51 +119,25 @@ public final class LJ {
 	
 	
 	public static VariableValuesMap and(QueryParameter a, QueryParameter b){
-		VariableValuesMap x=a.map();
-		if (x.isEmpty()) return x;
-		VariableValuesMap y=b.map();
-		ArrayList<Object> xValues;
-		for (Map.Entry<Variable, ArrayList<Object>> entry : y.map.entrySet()) {
-			xValues=x.map.get(entry.getKey());
-			if (xValues!=null) xValues.retainAll(entry.getValue());
-			if (xValues.isEmpty()) x.map.remove(entry.getKey());
-		}		
-		return x;
+		//TBD 
+		return null;
 	}
 	
 
 	public static VariableValuesMap or(QueryParameter a, QueryParameter b){
-		VariableValuesMap x=a.map();
-		VariableValuesMap y=b.map();
-		ArrayList<Object> xValues;
-		for (Map.Entry<Variable, ArrayList<Object>> entry : y.map.entrySet()) {
-			xValues=x.map.get(entry.getKey());
-			if (xValues==null) x.map.put(entry.getKey(), entry.getValue());
-			else xValues.addAll(entry.getValue());
-		}		
-		return x;
+		//TBD
+		return null;
 	}	
 	
 
 	public static VariableValuesMap differ(QueryParameter a, QueryParameter b){
-		VariableValuesMap x=a.map();
-		if (x.isEmpty()) return x;
-		VariableValuesMap y=b.map();
-		ArrayList<Object> xValues;
-		for (Map.Entry<Variable, ArrayList<Object>> entry : y.map.entrySet()) {
-			xValues=x.map.get(entry.getKey());
-			if (xValues!=null) xValues.removeAll(entry.getValue());
-			if (xValues.isEmpty()) x.map.remove(entry.getKey());			
-		}		
-		return x;	
+		//TBD
+		return null;	
 	}
 	
 	
 	public static boolean var(Object x) {
-		if (variable(x)) {
-			Variable y=(Variable) x;
-			return var(y);
-		}
+		if (variable(x)) return var(((Variable) x));
 		return false;
 	}
 	
@@ -189,17 +163,16 @@ public final class LJ {
 	
 	
 	public static Object val(Object o) {
-		if (variable(o)) {
-			Variable v=(Variable) o;
-			return v.get();
-		}
+		if (variable(o)) return ((Variable) o).get(); 
 		return o;
 	}
 	
 	
 	public static boolean same(Object a, Object b) {		
-		if ( (variable(a)) || (a instanceof Association) )
+		if ((variable(a)) || (a instanceof Association) )
 				return a.equals(b);
+		if ((a instanceof Number) && (b instanceof Number))
+				return ((Number) a).doubleValue()==((Number) b).doubleValue();
 		return b.equals(a);
 	}	
 	
