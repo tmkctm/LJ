@@ -8,8 +8,9 @@ public class Utils {
 	static public final LogicOperator OR=LogicOperator.OR;
 	static public final LogicOperator AND=LogicOperator.AND;
 	static public final LogicOperator DIFFER=LogicOperator.DIFFER;
+	static public final LogicOperator WHERE=LogicOperator.WHERE;
 	static public enum  LogicOperator{
-		OR, AND, DIFFER , NONE 	}
+		OR, AND, DIFFER , NONE, WHERE  }
 	
 	public static final QueryResult SUCCESS=QueryResult.SUCCESS;
 	public static final QueryResult FAILED=QueryResult.FAILED;	

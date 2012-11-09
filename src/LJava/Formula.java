@@ -1,6 +1,6 @@
 package LJava;
 import static LJava.LJ.*;
-
+import static LJava.Utils.*;
 import java.lang.reflect.Array;
 
 public abstract class Formula<P,R> extends Relation {
@@ -32,9 +32,17 @@ public abstract class Formula<P,R> extends Relation {
 	}
 	
 	
+	@Override
+	public boolean isFormula() {
+		return true;
+	}
+	
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	protected final boolean satisfy(Object[] rArgs, VariableValuesMap varValues){
+		if (this==LJTrue) return true;
+		if (this==LJFalse) return false;
 		P[] temp=(P[]) Array.newInstance(parametersType, rArgs.length-1);
 		for (int i=1; i<rArgs.length; i++) {
 			if (!parametersType.isAssignableFrom(val(rArgs[i]).getClass())) return false;
@@ -47,5 +55,5 @@ public abstract class Formula<P,R> extends Relation {
 			return true;
 		}
 		return (same(value,rArgs[0]));
-	}	
+	}
 }

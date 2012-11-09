@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Set;
 
 
 public final class LJ {
@@ -32,27 +33,14 @@ public final class LJ {
 	}
 	
 			
-	public static QueryResult e(Relation r) {		
+	public static QueryResult exists(Relation r) {		
 		VariableValuesMap varValues=new VariableValuesMap();		
 		if (conduct(r, varValues, true)==FAILED) return FAILED;
 		return instantiate(varValues);
 	}
 	
 	
-	public static QueryResult e(Object... args) {
-		Relation r=new Relation("#query",args);
-		return e(r);
-	}
-		
-
-	public static QueryResult a(Relation r){		
-		VariableValuesMap varValues=new VariableValuesMap(); 
-		if (conduct(r, varValues, false)==FAILED) return FAILED;
-		return instantiate(varValues);
-	}
-	
-	
-	public static QueryResult a(QueryParameter a, LogicOperator op, QueryParameter b){
+	public static QueryResult exists(QueryParameter a, LogicOperator op, QueryParameter b){
 		if (op==OR) return instantiate(or(a,b));
 		if (op==AND) return instantiate(and(a,b));
 		if (op==DIFFER) return instantiate(differ(a,b));
@@ -60,15 +48,43 @@ public final class LJ {
 	}
 	
 	
-	public static QueryResult a(VariableValuesMap m){
+	public static QueryResult exists(Object... args) {
+		Relation r=new Relation("#query",args);
+		return exists(r);
+	}
+		
+
+	public static QueryResult all(Relation r){		
+		VariableValuesMap varValues=new VariableValuesMap(); 
+		if (conduct(r, varValues, false)==FAILED) return FAILED;
+		return instantiate(varValues);
+	}
+	
+	
+	public static QueryResult all(QueryParameter a, LogicOperator op, QueryParameter b){
+		if (op==OR) return instantiate(or(a,b));
+		if (op==AND || op==WHERE) return instantiate(and(a,b));
+		if (op==DIFFER) return instantiate(differ(a,b));
+		return FAILED;
+	}
+	
+	
+	public static QueryResult all(VariableValuesMap m){
 		return instantiate(m);
 	}	
 	
 	
-	public static QueryResult a(Object... args){
+	public static QueryResult all(Object... args){
 		Relation r=new Relation("#query",args);
-		return a(r);		
-	}	
+		return all(r);		
+	}
+	
+	
+	public static  VariableValuesMap where(Variable x, Constraint c) {
+		VariableValuesMap m = new VariableValuesMap();
+		m.constraints.put(x,c);
+		return m;
+	}
 	
 	
 	private static boolean searchOnIndexByName(int index, Relation r) {
@@ -92,8 +108,7 @@ public final class LJ {
 		LinkedHashSet<Association> associationsSet = LJavaRelationTable.get(index);		
 		if (associationsSet!=null) {
 			for (Association element : associationsSet) 
-				if (element.associationNameCompare(r))
-					if (element.satisfy(rArgs, varValues))
+				if (element.associationNameCompare(r) && element.satisfy(rArgs, varValues))
 						if (cut) return true;
 		}
 		if (varValues.map.isEmpty()) return false;
@@ -162,6 +177,12 @@ public final class LJ {
 	}
 	
 	
+	@SuppressWarnings("rawtypes")
+	public static Constraint constraint(Formula f, Object... args) {
+		return new Constraint(f, args);
+	}
+	
+	
 	public static Object val(Object o) {
 		if (variable(o)) return ((Variable) o).get(); 
 		return o;
@@ -178,9 +199,11 @@ public final class LJ {
 	
 
 	private static QueryResult instantiate(VariableValuesMap varValues) {
-        boolean answer=true;		
-		for (Map.Entry<Variable, ArrayList<Object>> entry : varValues.map.entrySet())													
-			answer=(entry.getKey().set(entry.getValue().toArray()) && answer);	
+        boolean answer=true;
+        Set<Variable> varset = varValues.map.keySet();
+        varset.addAll(varValues.constraints.keySet());
+		for (Variable v : varset)													
+			answer=(v.instantiate(varValues.map.get(v).toArray(), varValues.constraints.get(v)) && answer);	
 		if (answer) return SUCCESS;
 		return QueryResult.FAILED_INSTANTIATE;
 	}

@@ -9,7 +9,7 @@ import java.util.HashMap;
 public class Association {
 
 	private final String name;
-	private final Object[] args;	
+	public final Object[] args;	
 	
 	public Association(String n, Object... params) {
 		if (n=="") name="#Relation"; 
@@ -35,13 +35,18 @@ public class Association {
 	
 	public boolean isGroup() {
 		return false;
-	}		
+	}
+	
+	
+	public boolean isFormula() {
+		return false;
+	}
 	
 	
 	public String toString(){
 		if (this==_) return "_";
 		String s=name+"(";		
-		if (args!=null && args.length>0) {
+		if (args.length>0) {
 			for (int i=0; i<args.length-1; i++)
 				s=s+args[i].toString()+",";
 			s=s+args[args.length-1].toString();

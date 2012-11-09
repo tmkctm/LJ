@@ -2,6 +2,7 @@ package LJava;
 import static LJava.LJ.*;
 import static LJava.Utils.*;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -9,7 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class Variable {
 	
-	private Object[] value=null;
+	private Object[] value=new Object[0];
 	private boolean isVar=true;
 	private AtomicBoolean inSet=new AtomicBoolean(false);
 	private LinkedHashSet<Variable> looksAt= new LinkedHashSet<Variable>();
@@ -36,7 +37,7 @@ public final class Variable {
 			if (lim>=0) s=s+value[lim].toString();
 		}
 		s=s+"]";
-		if (constraint!=null) s=s+" UNION "+constraint.toString();
+		if (constraint!=null) s=s+" Union "+constraint.toString();
 		return s;
 	}
 	
@@ -47,7 +48,14 @@ public final class Variable {
 		return flat();
 	}
 	
-
+	
+	public boolean contains(Object o) {
+		for (int i=0; i<value.length; i++)
+			if (same(val(value[i]),o)) return true;
+		return constraint.satisfy(this, o);
+	}
+	
+	
 	public Object[] getValues() {
 		if (isVar()) return new Object[]{nil};
 		else if (noValue()) return new Object[]{none};
@@ -75,28 +83,33 @@ public final class Variable {
 
 
 //Turns the mutable Variable that has no value to an Immutable Variable that has meaning.
-	public boolean set(Object... args){		
-		if (isVar && inSet.compareAndSet(false,true)){
-			if (args!=null) {
-				Variable temp=new Variable();
-				temp.value=new Object[args.length];
-				for (int i=0; i<temp.value.length; i++) {
-					if (variable(args[i])) {
-						Variable y=(Variable) args[i];					
-						if (!this.consistWith(y)) {							
-							temp.value[i]=nil;
+	public boolean instantiate(Object[] vals, Constraint c){		
+		if (isVar && inSet.compareAndSet(false,true)){			
+			if (vals!=null && vals.length>0) {
+				ArrayList<Object> correct= new ArrayList<Object>();
+				if (c==null) c=new Constraint(LJTrue);
+				for (int i=0; i<vals.length; i++) {
+					if (variable(vals[i])) {
+						if (!this.consistWith((Variable) vals[i])) {							
+							correct.add(nil);
 							continue;
 						}							
 					}
-					temp.value[i]=args[i];
-				}
-				this.value=temp.value;
-				constraint=null;
-			}				
+					if (c.satisfy(this, vals[i])) correct.add(vals[i]);
+				}			
+				c=new Constraint(LJFalse);
+				if (!correct.isEmpty()) this.value=correct.toArray();
+			}
+			this.constraint=c;
 			isVar=false;
 			return true;						
 		}
 		return false;
+	}
+	
+	
+	public boolean set(Object... args) {
+		return instantiate(args, new Constraint(LJTrue));
 	}
 				
 	
@@ -108,7 +121,6 @@ public final class Variable {
 
 	public boolean noValue(){
 		if (isVar()) return false;
-		if (value==null) return true;
 		return (value.length==0);
 	}
 	
@@ -120,7 +132,7 @@ public final class Variable {
 
 	public boolean isConstraint(){
 		if ((!this.isVar()) && (!noValue()))
-			return (value.length>1 || constraint!=null);
+			return (value.length>1 || constraint.asFormula()!=LJFalse);
 		return false;
 	}
 	
