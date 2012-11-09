@@ -49,6 +49,11 @@ public final class Variable {
 	}
 	
 	
+	public Constraint getConstraint() {
+		return constraint.replaceVariable(this,this);
+	}
+	
+	
 	public boolean contains(Object o) {
 		for (int i=0; i<value.length; i++)
 			if (same(val(value[i]),o)) return true;
@@ -83,11 +88,12 @@ public final class Variable {
 
 
 //Turns the mutable Variable that has no value to an Immutable Variable that has meaning.
-	public boolean instantiate(Object[] vals, Constraint c){		
-		if (isVar && inSet.compareAndSet(false,true)){			
+	public boolean instantiate(Object[] vals, Constraint where, Constraint valByConstraint){		
+		if (isVar && inSet.compareAndSet(false,true)){
+			if (valByConstraint==null) valByConstraint=new Constraint(LJFalse);			
 			if (vals!=null && vals.length>0) {
 				ArrayList<Object> correct= new ArrayList<Object>();
-				if (c==null) c=new Constraint(LJTrue);
+				if (where==null) where=new Constraint(LJTrue);
 				for (int i=0; i<vals.length; i++) {
 					if (variable(vals[i])) {
 						if (!this.consistWith((Variable) vals[i])) {							
@@ -95,12 +101,15 @@ public final class Variable {
 							continue;
 						}							
 					}
-					if (c.satisfy(this, vals[i])) correct.add(vals[i]);
+					if (where.satisfy(this, vals[i])) correct.add(vals[i]);
 				}			
-				c=new Constraint(LJFalse);
 				if (!correct.isEmpty()) this.value=correct.toArray();
+				this.constraint=valByConstraint;
 			}
-			this.constraint=c;
+			else {
+				if (where==null) this.constraint=valByConstraint;
+				else this.constraint=new Constraint(where,OR,valByConstraint);
+			}
 			isVar=false;
 			return true;						
 		}
@@ -109,7 +118,7 @@ public final class Variable {
 	
 	
 	public boolean set(Object... args) {
-		return instantiate(args, new Constraint(LJTrue));
+		return instantiate(args, null, null);
 	}
 				
 	
@@ -121,7 +130,7 @@ public final class Variable {
 
 	public boolean noValue(){
 		if (isVar()) return false;
-		return (value.length==0);
+		return (value.length==0 && constraint.asFormula()==LJFalse);
 	}
 	
 

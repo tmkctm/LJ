@@ -203,7 +203,7 @@ public final class LJ {
         Set<Variable> varset = varValues.map.keySet();
         varset.addAll(varValues.constraints.keySet());
 		for (Variable v : varset)													
-			answer=(v.instantiate(varValues.map.get(v).toArray(), varValues.constraints.get(v)) && answer);	
+			answer=(v.instantiate(varValues.map.get(v).toArray(), varValues.constraints.get(v), varValues.valsByConstrains.get(v)) && answer);	
 		if (answer) return SUCCESS;
 		return QueryResult.FAILED_INSTANTIATE;
 	}
@@ -224,7 +224,7 @@ public final class LJ {
 /* Future Plan:
  * Logical operators: for exists, with functors, logically correct AND, smarter!
  * Atomitize the line in Variable.consistWith.
- * Utils Functors: sum, sub, multi, div, mod, sqr, sqrt, pow.
+ * Utils Functors: sum, multi, mod, sqr, sqrt, pow, avg.
  * reverse functors: By receiving an array of functors, one for each param. returning the relation none if no functor to a certain index.
  */
 

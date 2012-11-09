@@ -26,7 +26,15 @@ public class Main {
 		System.out.println(c1.satisfy(vs,os));
 		y.set(7);
 		System.out.println(c1.satisfy(x,400));
-		x.instantiate(arr, c);
+		x.instantiate(arr, c, new Constraint(LJFalse));
 		System.out.println(x);
+		Variable z=var();
+		Constraint zConstraint=c.replaceVariable(x, z);
+		System.out.println(zConstraint);
+		z.instantiate(null, zConstraint, new Constraint(cmp,0,z,50));
+		System.out.println(z);
+		System.out.println(z.contains(90));
+		System.out.println(z.contains(50));
+		System.out.println(z.contains(5));
 	}
 }

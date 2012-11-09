@@ -1,6 +1,5 @@
 package LJava;
 import static LJava.Utils.*;
-
 import java.util.HashMap;
 
 @SuppressWarnings("rawtypes")
@@ -15,17 +14,40 @@ public class Constraint {
 			args=params;
 		}
 		
-		public String toString() {
+		public Atom(Atom a, Variable v1, Variable v2) {
+			f=a.f;
+			args = new Object[a.args.length];
+			for (int i=0; i<args.length; i++) {
+				if (a.args[i]==v1) args[i]=v2;
+				else args[i]=a.args[i];
+			}
+		}
+		
+		public String toString() {			
 			String s = f.name()+"(";
+			int counter=1;
+			HashMap<Variable, String> names = new HashMap<Variable, String>();
 			if (args.length>0) {
-				for (int i=0; i<args.length-1; i++)
-					s=s+args[i].toString()+",";
-				s=s+args[args.length-1].toString();
+				for (int i=0; i<args.length; i++) {
+					if (variable(args[i])) {
+						String tag = names.get((Variable) args[i]);
+						if (tag==null) {
+							tag="[var"+counter+"]";
+							counter++;
+							names.put((Variable) args[i], tag);
+						}
+						s=s+tag+",";
+					}
+					else s=s+args[i].toString()+",";
+				}
+				s=s.substring(0,s.length()-1);
 			}
 			return s+")";
 		}
 		
 		public boolean satisfy(HashMap<Variable, Object> map) {
+			if (f==LJFalse) return false;
+			if (f==LJTrue) return true;
 			Object[] arr = new Object[args.length];
 			for (int i=0; i<arr.length; i++) {
 				if (map.containsKey(args[i])) arr[i]=map.get(args[i]);
@@ -77,9 +99,9 @@ public class Constraint {
 	
 	
 	private boolean testSatisfy(HashMap<Variable, Object> map) {
-		if (op==AND || op==WHERE) return (left.testSatisfy(map) && right.testSatisfy(map));
-		if (op==OR) return (left.testSatisfy(map) || right.testSatisfy(map));
-		if (op==DIFFER) return (left.testSatisfy(map) && !right.testSatisfy(map));
+		if (op==AND || op==WHERE) return ((left==null || left.testSatisfy(map)) && (right==null || right.testSatisfy(map)));
+		if (op==OR) return ((left==null || left.testSatisfy(map)) || (right==null || right.testSatisfy(map)));
+		if (op==DIFFER) return ((left==null || left.testSatisfy(map)) && !(right==null || right.testSatisfy(map)));
 		return f.satisfy(map);		
 	}
 	
@@ -102,6 +124,19 @@ public class Constraint {
 	
 	public boolean isFormula() {
 		return (op == LogicOperator.NONE);
+	}
+	
+	
+	public Constraint replaceVariable(Variable v1, Variable v2) {
+		if (left==null && right==null) {
+			Atom a=new Atom(f,v1,v2);
+			return new Constraint(a.f, a.args);
+		}
+		if (left==null || right==null) { 
+			if (left!=null) return left.replaceVariable(v1, v2);
+			else return right.replaceVariable(v1, v2);
+		}
+		return new Constraint(left.replaceVariable(v1, v2),op,right.replaceVariable(v1, v2));
 	}
 	
 }
