@@ -5,7 +5,7 @@ import java.util.HashMap;
 @SuppressWarnings("rawtypes")
 public class Constraint {
 	
-	private class Atom {
+	private final class Atom {
 		private Formula f;
 		private Object[] args;
 		
@@ -62,6 +62,7 @@ public class Constraint {
 	private final Constraint right;
 	private final Atom f;
 	
+	
 	public Constraint(Formula formula, Object... params) {
 		f = new Atom(formula, params);
 		left = null;
@@ -97,12 +98,12 @@ public class Constraint {
 		return testSatisfy(map);
 	}
 	
-	
-	private boolean testSatisfy(HashMap<Variable, Object> map) {
+	//THIS IS WRONG!!!!
+	private boolean testSatisfy(HashMap<Variable, Object> map) { 
 		if (op==AND || op==WHERE) return ((left==null || left.testSatisfy(map)) && (right==null || right.testSatisfy(map)));
 		if (op==OR) return ((left==null || left.testSatisfy(map)) || (right==null || right.testSatisfy(map)));
 		if (op==DIFFER) return ((left==null || left.testSatisfy(map)) && !(right==null || right.testSatisfy(map)));
-		return f.satisfy(map);		
+		return f.satisfy(map);	
 	}
 	
 	

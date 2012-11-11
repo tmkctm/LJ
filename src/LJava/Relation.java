@@ -21,14 +21,14 @@ public class Relation extends Association implements QueryParameter{
 				else vars.put((Variable) rArgs[i], args[i]);   }								
 			else if (!same(rArgs[i],args[i])) return false;
 		}
-		updateValuesMap(vars, varValues);
+		varValues.updateValuesMap(vars);
 		return true;
 	}			
 
 	@Override
-	public VariableValuesMap map(){
+	public VariableValuesMap map(boolean cut){
 		VariableValuesMap m=new VariableValuesMap();
-		conduct(this, m, false);
+		conduct(this, m, cut);
 		return m;
 	}
 	

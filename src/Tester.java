@@ -282,8 +282,9 @@ public class Tester {
 		all(relation(x,12,14,11,202,200,201),AND,relation("Sum",x,4,1));	
 		assertFalse(same(x.toString(),none.toString()));
 		assertTrue(var(x));
-		all(relation(y,12,14,11,202,200,201),AND,relation("Sum",y,12,1));		
+		all(relation(y,12,14,11,202,200,201),OR,relation("Sum",y,12,15));		
 		assertTrue(same(y,13));
+		assertTrue(y.contains(27));
 		exists(relation("Sum",x,y,7));
 		assertTrue(same(x,20));
 	}

@@ -12,7 +12,7 @@ public abstract class Formula<P,R> extends Relation {
 		parametersType=type;
 	}
 	
-		
+	
 	protected abstract R f(P... p);
 	
 	
@@ -51,7 +51,7 @@ public abstract class Formula<P,R> extends Relation {
 		R value = null;
 		try { value=invoke(temp); } catch (Exception e) { return false; }
 		if (var(rArgs[0])) {
-			updateValuesMap((Variable) rArgs[0], value, varValues);
+			varValues.updateValuesMap((Variable) rArgs[0], value);
 			return true;
 		}
 		return (same(value,rArgs[0]));

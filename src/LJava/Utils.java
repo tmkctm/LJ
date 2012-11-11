@@ -3,8 +3,9 @@ package LJava;
 import java.util.Collection;
 import java.util.Map;
 
-public class Utils {
-		
+public final class Utils {
+	
+	static public final boolean CUT=true;
 	static public final LogicOperator OR=LogicOperator.OR;
 	static public final LogicOperator AND=LogicOperator.AND;
 	static public final LogicOperator DIFFER=LogicOperator.DIFFER;
@@ -22,7 +23,7 @@ public class Utils {
 		return (x instanceof Variable);
 	}
 	
-	
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected static <K,V> void addTo(Map map, K key, V val, Class<?> type) {
 		Collection collection=(Collection) map.get(key);
@@ -33,9 +34,19 @@ public class Utils {
 			}catch (Exception e){}
 		}
 		collection.add(val);
-	}
+	}	
 	
 	
+	@SuppressWarnings("unchecked")
+	protected static <K,V> V getFrom(Map<K,V> map, K key, Class<?> type) {
+		V val = map.get(key);
+		try {
+			if (val==null) return (V) type.newInstance();
+		}catch (Exception e) {}
+		return val;
+	}		
+	
+
 //Predefined Functors
 	public static final Formula<Number,Double> max=new Formula<Number,Double>("Max", Number.class) {
 		@Override

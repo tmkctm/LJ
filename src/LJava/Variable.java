@@ -6,18 +6,20 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
  
 
-public final class Variable {
+public class Variable {
 	
 	private Object[] value=new Object[0];
 	private boolean isVar=true;
 	private AtomicBoolean inSet=new AtomicBoolean(false);
 	private LinkedHashSet<Variable> looksAt= new LinkedHashSet<Variable>();
 	private Constraint constraint;
+	private static ReentrantLock lockKey = new ReentrantLock();
 		
 
-	public boolean equals(Object x){		
+	public final boolean equals(Object x){		
 		x=val(x);
 		Object o=this.get();		
 		if (o==this) return (o==x);
@@ -26,7 +28,7 @@ public final class Variable {
 		
 
 //Properties		
-	public String toString(){
+	public final String toString(){
 		if (this.noValue()) return none.toString();
 		String s="[";
 		if (!this.isVar()) {
@@ -42,33 +44,33 @@ public final class Variable {
 	}
 	
 
-	public Object get(){
+	public final Object get(){
 		if (isVar()) return this;
 		if (noValue()) return none;
 		return flat();
 	}
 	
 	
-	public Constraint getConstraint() {
+	public final Constraint getConstraint() {
 		return constraint.replaceVariable(this,this);
 	}
 	
 	
-	public boolean contains(Object o) {
+	public final boolean contains(Object o) {
 		for (int i=0; i<value.length; i++)
 			if (same(val(value[i]),o)) return true;
 		return constraint.satisfy(this, o);
 	}
 	
 	
-	public Object[] getValues() {
+	public final Object[] getValues() {
 		if (isVar()) return new Object[]{nil};
 		else if (noValue()) return new Object[]{none};
 		return value.clone();		
 	}
 	
 	
-	public HashSet<Object> getValuesSet(){
+	public final HashSet<Object> getValuesSet(){
 		HashSet<Object> valueSet= new HashSet<Object>();
 		for (int i=0; i<value.length; i++)
 			valueSet.add(val(value[i]));
@@ -76,7 +78,7 @@ public final class Variable {
 	}
 	
 	
-	public boolean equalValuesSet(Variable x){
+	public final boolean equalValuesSet(Variable x){
 		HashSet<Object> set1 = this.getValuesSet();
 		HashSet<Object> set2 = this.getValuesSet();
 		for (Object o : set1)
@@ -88,8 +90,10 @@ public final class Variable {
 
 
 //Turns the mutable Variable that has no value to an Immutable Variable that has meaning.
-	public boolean instantiate(Object[] vals, Constraint where, Constraint valByConstraint){		
+	public final boolean instantiate(Object[] vals, Constraint where, Constraint valByConstraint){
+		lockKey.lock();
 		if (isVar && inSet.compareAndSet(false,true)){
+			lockKey.unlock();
 			if (valByConstraint==null) valByConstraint=new Constraint(LJFalse);			
 			if (vals!=null && vals.length>0) {
 				ArrayList<Object> correct= new ArrayList<Object>();
@@ -103,99 +107,96 @@ public final class Variable {
 					}
 					if (where.satisfy(this, vals[i])) correct.add(vals[i]);
 				}			
-				if (!correct.isEmpty()) this.value=correct.toArray();
-				this.constraint=valByConstraint;
+				if (!correct.isEmpty()) this.value=correct.toArray();				
 			}
-			else {
-				if (where==null) this.constraint=valByConstraint;
-				else this.constraint=new Constraint(where,OR,valByConstraint);
-			}
+			this.constraint=valByConstraint;
 			isVar=false;
 			return true;						
 		}
+		lockKey.unlock();
 		return false;
 	}
 	
 	
-	public boolean set(Object... args) {
+	public final boolean set(Object... args) {
 		return instantiate(args, null, null);
 	}
 				
 	
 //Identifying characteristics of this Variable
-	public boolean isVar(){
+	public final boolean isVar(){
 		return isVar;
 	}
 
 
-	public boolean noValue(){
+	public final boolean noValue(){
 		if (isVar()) return false;
 		return (value.length==0 && constraint.asFormula()==LJFalse);
 	}
 	
 
-	public boolean isPrimitive(){
+	public final boolean isPrimitive(){
 		return (get().getClass().isPrimitive());
 	}
 
 
-	public boolean isConstraint(){
+	public final boolean isConstraint(){
 		if ((!this.isVar()) && (!noValue()))
 			return (value.length>1 || constraint.asFormula()!=LJFalse);
 		return false;
 	}
 	
 
-	public boolean isRelation(){
+	public final boolean isRelation(){
 		return (get() instanceof Relation);
 	}
 	
 
-	public boolean isString(){
+	public final boolean isString(){
 		return (get() instanceof String);
 	}
 	
 
-	public boolean isInteger(){
+	public final boolean isInteger(){
 		return (get() instanceof Integer);
 	}
 	
 
-	public boolean isDouble(){
+	public final boolean isDouble(){
 		return (get() instanceof Double);	
 	}
 
 
-	public boolean isFloat(){
+	public final boolean isFloat(){
 		return (get() instanceof Float);	
 	}
 	
 
-	public boolean ofClass(Class<?> c){						
+	public final boolean ofClass(Class<?> c){						
 		return (get().getClass().equals(c));
 	}
 	
 
-	public boolean isNumber(){
+	public final boolean isNumber(){
 		return (get() instanceof Number);		
 	}		
 	
 
 //Returns the variable value.
-	private Object flat(){		
+	private final Object flat(){		
 		return val(value[0]);
 	}
 	
 	
 //Tests all required characteristics for this Variable to be of a single value
-	public boolean singleValue(){
+	public final boolean singleValue(){
 		if (isVar() || noValue() || isConstraint()) return false;
 		return true;
 	}
 	
 	
 //A consistency check for this Variable against another Variable.				
-	private boolean consistWith(Variable b) {
+	private final boolean consistWith(Variable b) {
 		if (b.isVar()){ 
 			if (!b.inSet.get()) { looksAt.add(b);  return true; }
 			else return false;
@@ -204,11 +205,16 @@ public final class Variable {
 			if (element.isVar()) {
 				if (this==element) return false;
 				
-				//This needs to be atomitized!!!
-				if (!element.inSet.get()) looksAt.add(element);
-				//This needs to be atomitized!!!
+				lockKey.lock();
+					if (!element.inSet.get()) //<-----
+						looksAt.add(element);
+					else {
+						lockKey.unlock();
+						return false;			
+					}
+				lockKey.unlock();
+					
 				
-				else return false;			
 			}
 			else if (!this.consistWith(element)) return false;		
 		}		

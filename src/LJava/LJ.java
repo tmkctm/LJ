@@ -1,12 +1,8 @@
 package LJava;
 import static LJava.Utils.*;
 
-import java.util.ArrayList;
-import java.util.Map;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.Set;
-
 
 public final class LJ {
 	
@@ -41,9 +37,9 @@ public final class LJ {
 	
 	
 	public static QueryResult exists(QueryParameter a, LogicOperator op, QueryParameter b){
-		if (op==OR) return instantiate(or(a,b));
-		if (op==AND) return instantiate(and(a,b));
-		if (op==DIFFER) return instantiate(differ(a,b));
+		if (op==OR) return instantiate(or(a,b,true));
+		if (op==AND) return instantiate(and(a,b,true));
+		if (op==DIFFER) return instantiate(differ(a,b,true));
 		return FAILED;
 	}
 	
@@ -62,9 +58,9 @@ public final class LJ {
 	
 	
 	public static QueryResult all(QueryParameter a, LogicOperator op, QueryParameter b){
-		if (op==OR) return instantiate(or(a,b));
-		if (op==AND || op==WHERE) return instantiate(and(a,b));
-		if (op==DIFFER) return instantiate(differ(a,b));
+		if (op==OR) return instantiate(or(a,b,false));
+		if (op==AND || op==WHERE) return instantiate(and(a,b,false));
+		if (op==DIFFER) return instantiate(differ(a,b,false));
 		return FAILED;
 	}
 	
@@ -111,43 +107,40 @@ public final class LJ {
 				if (element.associationNameCompare(r) && element.satisfy(rArgs, varValues))
 						if (cut) return true;
 		}
-		if (varValues.map.isEmpty()) return false;
+		if (varValues.isEmpty()) return false;
 		return true;	
 	}
 	
 	
 	protected static QueryResult conduct(Relation r, VariableValuesMap varValues, boolean cutFlag) {	
 		Object[] rArgs=r.args();
-		if (rArgs.length==0) return nameQuerying(r);
 		if (!cutFlag) {
-			for (int i=0; i<rArgs.length; i++)
-				if (var(rArgs[i])) {	cutFlag=true;	break;	}
-			cutFlag=(!cutFlag);
+			for (Object o : rArgs) if (var(o)) { cutFlag=true;   break; }
+			cutFlag=!cutFlag;
 		}
+		if (rArgs.length==0) return nameQuerying(r);
 		if (searchOnIndex(rArgs.length, r, rArgs, varValues, cutFlag))
 			if (cutFlag) return SUCCESS;
 		if (searchOnIndex(-1, r, rArgs, varValues, cutFlag))
 			if (cutFlag) return SUCCESS;
-		if (varValues.map.isEmpty()) return FAILED;
-		return SUCCESS;		
+		if (varValues.isEmpty()) return FAILED;
+		return SUCCESS;
 	}
 	
 	
-	public static VariableValuesMap and(QueryParameter a, QueryParameter b){
-		//TBD 
+	public static VariableValuesMap and(QueryParameter a, QueryParameter b, boolean cut){
+		//TBD
 		return null;
 	}
 	
 
-	public static VariableValuesMap or(QueryParameter a, QueryParameter b){
-		//TBD
-		return null;
+	public static VariableValuesMap or(QueryParameter a, QueryParameter b, boolean cut){
+		return a.map(cut).uniteWith(b.map(cut));
 	}	
 	
 
-	public static VariableValuesMap differ(QueryParameter a, QueryParameter b){
-		//TBD
-		return null;	
+	public static VariableValuesMap differ(QueryParameter a, QueryParameter b, boolean cut){
+		return a.map(cut).differFrom(b.map(cut));
 	}
 	
 	
@@ -200,30 +193,24 @@ public final class LJ {
 
 	private static QueryResult instantiate(VariableValuesMap varValues) {
         boolean answer=true;
-        Set<Variable> varset = varValues.map.keySet();
-        varset.addAll(varValues.constraints.keySet());
-		for (Variable v : varset)													
-			answer=(v.instantiate(varValues.map.get(v).toArray(), varValues.constraints.get(v), varValues.valsByConstrains.get(v)) && answer);	
+		for (Variable v : varValues.getVars())													
+			answer=(v.instantiate(varValues.map.get(v).toArray(), null, varValues.constraints.get(v)) && answer);	
 		if (answer) return SUCCESS;
 		return QueryResult.FAILED_INSTANTIATE;
 	}
 
 		
-	protected static void updateValuesMap(HashMap<Variable,Object> vars, VariableValuesMap varValues){		
-		for (Map.Entry<Variable, Object> entry : vars.entrySet()) 
-			updateValuesMap(entry.getKey(), entry.getValue(), varValues);			
-	}
-	
-	
-	protected static void updateValuesMap(Variable key, Object val, VariableValuesMap varValues) {
-		addTo(varValues.map, key, val, ArrayList.class);
-	}	
+
 }
 
 
 /* Future Plan:
- * Logical operators: for exists, with functors, logically correct AND, smarter!
- * Atomitize the line in Variable.consistWith.
+ * Make Group know how to back-track and really represent multiple entries...
+ * Logical operators in exists (the code works like all right now which is incorrect... )
+ * Change in all() : there is a difference between and and where - where doesn't search DB.
+ * testSatisfy() in Constraint is incorrect. Overcome saving nulls!
+ * Must enter empty sets of values to each variable in the case of AND into the valuesMap otherwise it wont work. Delete them if the variable gets any value.
+ * fix satisfy of Formula to handle vars in parameters (by reversing if exists or by applying constraint) 
  * Utils Functors: sum, multi, mod, sqr, sqrt, pow, avg.
  * reverse functors: By receiving an array of functors, one for each param. returning the relation none if no functor to a certain index.
  */

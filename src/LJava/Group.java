@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static LJava.LJ.updateValuesMap;
 import static LJava.LJ.var;
 import static LJava.LJ.val;
 
@@ -72,7 +71,7 @@ public class Group extends Association{
 			varResults.put(entry.getKey(),firstKey);
 			if (remain>0) vals.put(firstKey, remain);			
 		}
-		updateValuesMap(varResults, varValues);		
+		varValues.updateValuesMap(varResults);		
 		return true;
 	}
 	

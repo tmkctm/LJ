@@ -9,7 +9,7 @@ import java.util.HashMap;
 public class Association {
 
 	private final String name;
-	public final Object[] args;	
+	private final Object[] args;	
 	
 	public Association(String n, Object... params) {
 		if (n=="") name="#Relation"; 
@@ -57,9 +57,8 @@ public class Association {
 
 	public Object[] replaceVariables(){
 		HashMap<Variable,Variable> varsMap=new HashMap<Variable,Variable>();
-		int argsLength=args.length;
-		Object[] arguments=new Object[argsLength];		
-		for (int i=0; i<argsLength; i++)
+		Object[] arguments=new Object[args.length];		
+		for (int i=0; i<args.length; i++)
 			if (var(args[i]))	{
 				if (varsMap.containsKey(args[i])) arguments[i]=varsMap.get(args[i]);
 				else {
