@@ -198,15 +198,12 @@ public final class LJ {
 		if (answer) return SUCCESS;
 		return QueryResult.FAILED_INSTANTIATE;
 	}
-
-		
-
 }
 
 
 /* Future Plan:
- * Make Group know how to back-track and really represent multiple entries...
  * Logical operators in exists (the code works like all right now which is incorrect... )
+ * Make Group know how to back-track and really represent multiple entries...
  * Change in all() : there is a difference between and and where - where doesn't search DB.
  * testSatisfy() in Constraint is incorrect. Overcome saving nulls!
  * Must enter empty sets of values to each variable in the case of AND into the valuesMap otherwise it wont work. Delete them if the variable gets any value.

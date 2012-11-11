@@ -99,11 +99,11 @@ public class Variable {
 				ArrayList<Object> correct= new ArrayList<Object>();
 				if (where==null) where=new Constraint(LJTrue);
 				for (int i=0; i<vals.length; i++) {
-					if (variable(vals[i])) {
+					if (variable(vals[i])) { 
 						if (!this.consistWith((Variable) vals[i])) {							
 							correct.add(nil);
 							continue;
-						}							
+						}					
 					}
 					if (where.satisfy(this, vals[i])) correct.add(vals[i]);
 				}			
@@ -198,23 +198,22 @@ public class Variable {
 //A consistency check for this Variable against another Variable.				
 	private final boolean consistWith(Variable b) {
 		if (b.isVar()){ 
-			if (!b.inSet.get()) { looksAt.add(b);  return true; }
+			if (!b.inSet.get()) { 
+				looksAt.add(b);  
+				return true; 
+			}
 			else return false;
 		}		
 		for (Variable element : b.looksAt) {			
 			if (element.isVar()) {
 				if (this==element) return false;
-				
 				lockKey.lock();
-					if (!element.inSet.get()) //<-----
-						looksAt.add(element);
-					else {
-						lockKey.unlock();
-						return false;			
-					}
+				if (!element.inSet.get()) looksAt.add(element);
+				else {
+					lockKey.unlock();
+					return false;			
+				}
 				lockKey.unlock();
-					
-				
 			}
 			else if (!this.consistWith(element)) return false;		
 		}		
