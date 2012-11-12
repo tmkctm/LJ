@@ -3,7 +3,6 @@ import static LJava.LJ.*;
 import static LJava.Utils.*;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
@@ -14,7 +13,7 @@ public class Variable {
 	private Object[] value=new Object[0];
 	private boolean isVar=true;
 	private AtomicBoolean inSet=new AtomicBoolean(false);
-	private LinkedHashSet<Variable> looksAt= new LinkedHashSet<Variable>();
+	private HashSet<Variable> looksAt= new HashSet<Variable>();
 	private Constraint constraint;
 	private static ReentrantLock lockKey = new ReentrantLock();
 		
@@ -30,17 +29,17 @@ public class Variable {
 //Properties		
 	public final String toString(){
 		if (this.noValue()) return none.toString();
-		String s="[";
+		StringBuilder s= new StringBuilder("[");
 		if (!this.isVar()) {
 			for (int i=0; i<value.length-1; i++)
-				if (value[i]==null) s=s+"(null),";
-				else s=s+value[i].toString()+",";
+				if (value[i]==null) s.append("(null),");
+				else s.append(value[i].toString()+",");
 			int lim=value.length-1;
-			if (lim>=0) s=s+value[lim].toString();
+			if (lim>=0) s.append(value[lim].toString());
 		}
-		s=s+"]";
-		if (constraint!=null) s=s+" Union "+constraint.toString();
-		return s;
+		s.append("]");
+		if (constraint!=null) s.append(" Union "+constraint.toString());
+		return s.toString();
 	}
 	
 

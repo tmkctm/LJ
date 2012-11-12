@@ -323,6 +323,6 @@ public class Tester {
 		assertFalse(v.contains(90));
 		assertFalse(v.contains(0));
 		assertTrue(v.contains(50));
-		assertTrue(v.contains(5));		
+		assertFalse(v.contains(5));
 	}
 }

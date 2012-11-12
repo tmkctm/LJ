@@ -19,7 +19,7 @@ public class VariableValuesMap implements QueryParameter{
 	
 	
 	@Override
-	public VariableValuesMap map(boolean cut){
+	public VariableValuesMap map(){
 		return this;
 	}
 

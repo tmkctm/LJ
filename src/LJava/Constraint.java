@@ -24,7 +24,7 @@ public class Constraint {
 		}
 		
 		public String toString() {			
-			String s = f.name()+"(";
+			StringBuilder s = new StringBuilder(f.name()+"(");
 			int counter=1;
 			HashMap<Variable, String> names = new HashMap<Variable, String>();
 			if (args.length>0) {
@@ -36,13 +36,14 @@ public class Constraint {
 							counter++;
 							names.put((Variable) args[i], tag);
 						}
-						s=s+tag+",";
+						s.append(tag+",");
 					}
-					else s=s+args[i].toString()+",";
+					else s.append(args[i].toString()+",");
 				}
-				s=s.substring(0,s.length()-1);
+				int len = s.length();
+				s.replace(len-1, len, ")");
 			}
-			return s+")";
+			return s.toString();
 		}
 		
 		public boolean satisfy(HashMap<Variable, Object> map) {
@@ -108,13 +109,13 @@ public class Constraint {
 	
 	
 	public String toString() {
-		String s = "(";
-		if (op==AND) s=s+(left+" AND "+right);
-		else if (op==WHERE) s=s+(left+" WHERE "+right);
-		else if (op==OR) s=s+(left+" OR "+right);
-		else if (op==DIFFER) s=s+(left+" AND NOT "+right);
-		else s=s+f.toString();
-		return s+")";
+		StringBuilder s = new StringBuilder("(");
+		if (op==AND) s.append(left+" AND "+right);
+		else if (op==WHERE) s.append(left+" WHERE "+right);
+		else if (op==OR) s.append(left+" OR "+right);
+		else if (op==DIFFER) s.append(left+" AND NOT "+right);
+		else s.append(f.toString()+")");
+		return s.toString();
 	}
 	
 	

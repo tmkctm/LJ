@@ -45,13 +45,14 @@ public class Association {
 	
 	public String toString(){
 		if (this==_) return "_";
-		String s=name+"(";		
+		StringBuilder s = new StringBuilder(name+"(");
 		if (args.length>0) {
 			for (int i=0; i<args.length-1; i++)
-				s=s+args[i].toString()+",";
-			s=s+args[args.length-1].toString();
+				s.append(args[i].toString()+",");
+			s.append(args[args.length-1].toString());
 		}
-		return s+")";
+		s.append(")");
+		return s.toString();
 	}
 	
 

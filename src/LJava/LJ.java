@@ -37,9 +37,7 @@ public final class LJ {
 	
 	
 	public static QueryResult exists(QueryParameter a, LogicOperator op, QueryParameter b){
-		if (op==OR) return instantiate(or(a,b,true));
-		if (op==AND) return instantiate(and(a,b,true));
-		if (op==DIFFER) return instantiate(differ(a,b,true));
+		//TBD
 		return FAILED;
 	}
 	
@@ -58,9 +56,9 @@ public final class LJ {
 	
 	
 	public static QueryResult all(QueryParameter a, LogicOperator op, QueryParameter b){
-		if (op==OR) return instantiate(or(a,b,false));
-		if (op==AND || op==WHERE) return instantiate(and(a,b,false));
-		if (op==DIFFER) return instantiate(differ(a,b,false));
+		if (op==OR) return instantiate(or(a,b));
+		if (op==AND || op==WHERE) return instantiate(and(a,b));
+		if (op==DIFFER) return instantiate(differ(a,b));
 		return FAILED;
 	}
 	
@@ -128,19 +126,19 @@ public final class LJ {
 	}
 	
 	
-	public static VariableValuesMap and(QueryParameter a, QueryParameter b, boolean cut){
+	public static VariableValuesMap and(QueryParameter a, QueryParameter b){
 		//TBD
 		return null;
 	}
 	
 
-	public static VariableValuesMap or(QueryParameter a, QueryParameter b, boolean cut){
-		return a.map(cut).uniteWith(b.map(cut));
+	public static VariableValuesMap or(QueryParameter a, QueryParameter b){
+		return a.map().uniteWith(b.map());
 	}	
 	
 
-	public static VariableValuesMap differ(QueryParameter a, QueryParameter b, boolean cut){
-		return a.map(cut).differFrom(b.map(cut));
+	public static VariableValuesMap differ(QueryParameter a, QueryParameter b){
+		return a.map().differFrom(b.map());
 	}
 	
 	
@@ -201,15 +199,14 @@ public final class LJ {
 }
 
 
-/* Future Plan:
+/* TODO list:
+ * fix all toString() to work with StringBuilder and make it cleaner.
+ * Turn everything to be declared like in Math Logic - this will solve many general cases. 
  * Logical operators in exists (the code works like all right now which is incorrect... )
  * Make Group know how to back-track and really represent multiple entries...
  * Change in all() : there is a difference between and and where - where doesn't search DB.
  * testSatisfy() in Constraint is incorrect. Overcome saving nulls!
- * Must enter empty sets of values to each variable in the case of AND into the valuesMap otherwise it wont work. Delete them if the variable gets any value.
- * fix satisfy of Formula to handle vars in parameters (by reversing if exists or by applying constraint) 
- * Utils Functors: sum, multi, mod, sqr, sqrt, pow, avg.
- * reverse functors: By receiving an array of functors, one for each param. returning the relation none if no functor to a certain index.
+ * fix satisfy of Formula to handle vars in parameters. 
  */
 
 
