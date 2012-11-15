@@ -12,9 +12,10 @@ public class Association {
 	private final Object[] args;	
 	
 	public Association(String n, Object... params) {
-		if (n=="") name="#Relation"; 
+		if (n==null || n=="") name="#Relation"; 
 		else this.name=n;
-		this.args=params;		
+		if (params==null) args=new Object[0];
+		else this.args=params;
 	}
 		
 	
@@ -47,8 +48,7 @@ public class Association {
 		if (this==_) return "_";
 		StringBuilder s = new StringBuilder(name+"(");
 		if (args.length>0) {
-			for (int i=0; i<args.length-1; i++)
-				s.append(args[i].toString()+",");
+			for (int i=0; i<args.length-1; i++)	s.append(args[i].toString()+",");
 			s.append(args[args.length-1].toString());
 		}
 		s.append(")");
@@ -61,9 +61,9 @@ public class Association {
 		Object[] arguments=new Object[args.length];		
 		for (int i=0; i<args.length; i++)
 			if (var(args[i]))	{
-				if (varsMap.containsKey(args[i])) arguments[i]=varsMap.get(args[i]);
-				else {
-					arguments[i]=new Variable();
+				arguments[i]=varsMap.get(args[i]);
+				if (arguments[i]==null) {
+					arguments[i]=var();
 					varsMap.put((Variable) args[i], (Variable) arguments[i]);
 				}					
 			}
@@ -80,8 +80,8 @@ public class Association {
 	
 
 	public boolean equals(Object o) {
-		if (this==_ || o==_) return true;
-		if (this==none || o==none) return false;
+		if (this==_) return true;
+		if (this==none) return false;
 		if (o instanceof Association) 			
 			return this.equalsAssociation((Association) o);		
 		return o.equals(this);	
@@ -99,7 +99,7 @@ public class Association {
 		if (!associationNameCompare(r)) return false;
 		if (this.isGroup() ^ r.isGroup()) return false;
 		for (int i=0; i<args.length; i++)
-			if (!this.args[i].equals(r.args[i])) return false;
+			if (!same(this.args[i],r.args[i])) return false;
 		return true;
 	}
 		

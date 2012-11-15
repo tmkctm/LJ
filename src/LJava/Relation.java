@@ -31,5 +31,4 @@ public class Relation extends Association implements QueryParameter{
 		conduct(this, m, false);
 		return m;
 	}
-	
 }

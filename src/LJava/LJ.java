@@ -57,8 +57,10 @@ public final class LJ {
 	
 	public static QueryResult all(QueryParameter a, LogicOperator op, QueryParameter b){
 		if (op==OR) return instantiate(or(a,b));
-		if (op==AND || op==WHERE) return instantiate(and(a,b));
+		if (op==AND) return instantiate(and(a,b));
 		if (op==DIFFER) return instantiate(differ(a,b));
+		//TBD
+		if (op==WHERE) return FAILED; 
 		return FAILED;
 	}
 	
@@ -74,10 +76,9 @@ public final class LJ {
 	}
 	
 	
-	public static  VariableValuesMap where(Variable x, Constraint c) {
-		VariableValuesMap m = new VariableValuesMap();
-		m.constraints.put(x,c);
-		return m;
+	public static VariableValuesMap where(Variable x, Constraint c) {
+		//TBD
+		return null;
 	}
 	
 	
@@ -133,12 +134,14 @@ public final class LJ {
 	
 
 	public static VariableValuesMap or(QueryParameter a, QueryParameter b){
-		return a.map().uniteWith(b.map());
+		//TBD
+		return null;
 	}	
 	
 
 	public static VariableValuesMap differ(QueryParameter a, QueryParameter b){
-		return a.map().differFrom(b.map());
+		//TBD
+		return null;
 	}
 	
 	
@@ -199,14 +202,18 @@ public final class LJ {
 }
 
 
-/* TODO list:
- * fix all toString() to work with StringBuilder and make it cleaner.
- * Turn everything to be declared like in Math Logic - this will solve many general cases. 
- * Logical operators in exists (the code works like all right now which is incorrect... )
- * Make Group know how to back-track and really represent multiple entries...
- * Change in all() : there is a difference between and and where - where doesn't search DB.
- * testSatisfy() in Constraint is incorrect. Overcome saving nulls!
- * fix satisfy of Formula to handle vars in parameters. 
+/* Problems to solve:
+ * exists(relation(1,2,x),LogicalOperator,relation(1,3,x))
+ * exists/all(relation(1,2,x),LogicalOperator,formula(cmp,1,y,x))
+ * exists/all(relation(1,2,x),LogicalOperator,formula(cmp,1,y,3))
+ * exists/all(relation(1,2,x),LogicalOperator,relation(1,y,x))
+ * exists/all(relation(1,2,x),LogicalOperator,relation(1,y,3))
+ * exists/all(group(1,2,x),LogicalOperator,formula(cmp,1,x,3))
+ * exists/all(group(1,2,x),LogicalOperator,formula(cmp,1,x,y))
+ * exists/all(group(1,2,x),LogicalOperator,formula(cmp,1,y,3))
+ * 
+ * to fix:
+ * All the TBD in the class.
  */
 
 

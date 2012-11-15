@@ -19,7 +19,7 @@ public final class Utils {
 	static public enum  QueryResult{
 		SUCCESS, FAILED_INSTANTIATE, FAILED 	}
 		
-	public static boolean variable(Object x) {
+	public static final boolean variable(Object x) {
 		return (x instanceof Variable);
 	}
 	
@@ -48,7 +48,7 @@ public final class Utils {
 	
 
 //Predefined Functors
-	public static final Formula<Number,Double> max=new Formula<Number,Double>("Max", Number.class) {
+	public static Formula<Number,Double> max=new Formula<Number,Double>("Max", Number.class) {
 		@Override
 		protected Double f(Number... p) {
 			Double result=Double.MIN_VALUE;
@@ -57,7 +57,7 @@ public final class Utils {
 			return result;
 		}};
 	
-	public static final Formula<Number,Double> min=new Formula<Number,Double>("Min", Number.class){
+	public static Formula<Number,Double> min=new Formula<Number,Double>("Min", Number.class){
 		@Override
 		protected Double f(Number... p) {
 			if (p.length==0) return Double.MIN_VALUE;
@@ -67,7 +67,7 @@ public final class Utils {
 			return result;
 		}};
 
-	public static final Formula<Object,Integer> cmp=new Formula<Object,Integer>("Compare", Object.class) {
+	public static Formula<Object,Integer> cmp=new Formula<Object,Integer>("Compare", Object.class) {
 		@Override
 		protected Integer f(Object... p) {
 			if (p.length!=2) return Integer.MIN_VALUE;
@@ -85,13 +85,13 @@ public final class Utils {
 			return 0;
 		}};
 
-	public static final Formula<Object, Boolean> LJTrue=new Formula<Object,Boolean>("$LJava_True$", Object.class) {
+	public static Formula<Object, Boolean> LJTrue=new Formula<Object,Boolean>("$LJava_True$", Object.class) {
 		@Override
 		protected Boolean f(Object... p) {
 			return true;
 		}};
 
-	public static final Formula<Object, Boolean> LJFalse=new Formula<Object,Boolean>("$LJava_False$", Object.class) {
+	public static Formula<Object, Boolean> LJFalse=new Formula<Object,Boolean>("$LJava_False$", Object.class) {
 		@Override
 		protected Boolean f(Object... p) {
 			return false;

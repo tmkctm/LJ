@@ -37,8 +37,8 @@ public class Tester {
 		x.set(1,2,3,4,5,x);
 		y.set("a","b","c",_,nil,none,LJTrue, LJFalse);
 		Relation r=new Relation("try",1,2,3);
-		assertEquals(x.toString(),"[1,2,3,4,5,$nil$()] Union ($LJava_False$())");
-		assertEquals(y.toString(),"[a,b,c,_,$nil$(),$no_variable_value$(),$LJava_True$(),$LJava_False$()] Union ($LJava_False$())");
+		assertEquals(x.toString(),"[1,2,3,4,5,$nil$()]");
+		assertEquals(y.toString(),"[a,b,c,_,$nil$(),$no_variable_value$(),$LJava_True$(),$LJava_False$()]");
 		assertEquals(r.toString(),"try(1,2,3)");
 	}
 	
@@ -302,7 +302,8 @@ public class Tester {
 		Constraint c2 = new Constraint(cmp,-1,a,1);
 		Constraint c3 = new Constraint(cmp,0,a,9);
 		Constraint c = new Constraint(new Constraint(c1,AND,c2),OR, c3);
-		assertEquals(c.toString(),"(((Compare(1,[var1],[var2])) AND (Compare(-1,[var1],1))) OR (Compare(0,[var1],9)))");
+		
+		assertEquals(c.toString(),"((Compare(1,[var1],[var2])) AND (Compare(-1,[var1],1))) OR (Compare(0,[var1],9))");
 		assertTrue(c1.satisfy(a,400));
 		Variable[] vs = {a,b};
 		Object[] os = {400,1400};
@@ -312,17 +313,18 @@ public class Tester {
 		b.set(7);
 		assertFalse(c1.satisfy(a,400));
 		assertTrue(a.instantiate(arr, c, new Constraint(LJFalse)));
-		assertEquals(a.toString(),"[2,3,4,5,6,9] Union ($LJava_False$())");
+		assertEquals(a.toString(),"[2,3,4,5,6,9]");
 		assertTrue(a.isConstraint());
 		assertTrue(a.contains(3));
 		assertTrue(a.contains(9));
 		assertFalse(a.contains(1));
 		Variable v=var();
 		Constraint vConstraint=c.replaceVariable(a, v);
-		v.instantiate(null, vConstraint, new Constraint(cmp,0,v,50));
+		v.instantiate(null, vConstraint, new Constraint(cmp,0,v,50));		
 		assertFalse(v.contains(90));
 		assertFalse(v.contains(0));
 		assertTrue(v.contains(50));
 		assertFalse(v.contains(5));
+		assertEquals(v.toString(),"[] OR Compare(0,[var1],50)");
 	}
 }

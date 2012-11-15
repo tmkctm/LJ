@@ -17,9 +17,8 @@ public class Group extends Association{
 	public Group(String n, Object... params) {
 		super(n, params);
 		HashMap<Object, Integer> map=new HashMap<Object, Integer>();
-		if (params!=null) {
+		if (params!=null)
 			for (Object element : params) increment(map, element);		
-		}
 		argsMap=Collections.unmodifiableMap(map);
 	}
 	
@@ -100,5 +99,9 @@ public class Group extends Association{
 		}
 	}
 	
+	
+/* to fix:
+ * Group should produce permutations of herself in case of backtracking.	
+ */
 	
 }

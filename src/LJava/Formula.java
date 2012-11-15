@@ -16,18 +16,18 @@ public abstract class Formula<P,R> extends Relation {
 	protected abstract R f(P... p);
 	
 	
-	public final boolean satisfy(Object val, P... params) {
+	public boolean satisfy(Object val, P... params) {
 		return (same(val,invoke(params)));
 	}
 	
 	
-	public final R invoke(P... params) {
+	public R invoke(P... params) {
 		return this.f(params);
 	}
 	
 	
 	@Override
-	public final int argsLength() {
+	public int argsLength() {
 		return -1;
 	}
 	
@@ -40,7 +40,7 @@ public abstract class Formula<P,R> extends Relation {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	protected final boolean satisfy(Object[] rArgs, VariableValuesMap varValues){
+	protected boolean satisfy(Object[] rArgs, VariableValuesMap varValues){
 		if (this==LJTrue) return true;
 		if (this==LJFalse) return false;
 		P[] temp=(P[]) Array.newInstance(parametersType, rArgs.length-1);
@@ -56,4 +56,10 @@ public abstract class Formula<P,R> extends Relation {
 		}
 		return (same(value,rArgs[0]));
 	}
+	
+/* to fix:
+ * satisfy with vars in the rArgs.
+ */
+	
+	
 }

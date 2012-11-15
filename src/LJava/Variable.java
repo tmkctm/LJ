@@ -14,7 +14,7 @@ public class Variable {
 	private boolean isVar=true;
 	private AtomicBoolean inSet=new AtomicBoolean(false);
 	private HashSet<Variable> looksAt= new HashSet<Variable>();
-	private Constraint constraint;
+	private Constraint constraint=new Constraint(LJFalse);
 	private static ReentrantLock lockKey = new ReentrantLock();
 		
 
@@ -30,15 +30,12 @@ public class Variable {
 	public final String toString(){
 		if (this.noValue()) return none.toString();
 		StringBuilder s= new StringBuilder("[");
-		if (!this.isVar()) {
-			for (int i=0; i<value.length-1; i++)
-				if (value[i]==null) s.append("(null),");
-				else s.append(value[i].toString()+",");
-			int lim=value.length-1;
-			if (lim>=0) s.append(value[lim].toString());
+		if (value.length>0) {
+			for (int i=0; i<value.length-1; i++) s.append(value[i]+",");
+			s.append(value[value.length-1].toString());
 		}
 		s.append("]");
-		if (constraint!=null) s.append(" Union "+constraint.toString());
+		if (constraint.asFormula()!=LJFalse) s.append(" OR "+constraint.toString());
 		return s.toString();
 	}
 	
@@ -65,7 +62,9 @@ public class Variable {
 	public final Object[] getValues() {
 		if (isVar()) return new Object[]{nil};
 		else if (noValue()) return new Object[]{none};
-		return value.clone();		
+		Object[] result = new Object[value.length];
+		for (int i=0; i<value.length; i++) result[i]=val(value[i]);
+		return result;
 	}
 	
 	
