@@ -30,7 +30,7 @@ public class Group extends Association{
 	
 	
 	@Override
-	protected boolean satisfy(Object[] rArgs, VariableValuesMap varValues){	
+	protected boolean satisfy(Object[] rArgs, VariableMap varValues){	
 		HashMap<Variable, Integer> rVarsCountMap=new HashMap<Variable, Integer>();
 		HashMap<Object, Integer> remainedVals=new HashMap<Object, Integer>();
 		HashMap<Object, Integer> rArgsCountMap=new HashMap<Object, Integer>();

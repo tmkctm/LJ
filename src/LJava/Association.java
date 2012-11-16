@@ -88,8 +88,8 @@ public class Association {
 	}
 		
 	
-	protected boolean satisfy(Object[] rArgs, VariableValuesMap varValues){
-		if (this==nil || this==LJTrue) return true;
+	protected boolean satisfy(Object[] rArgs, VariableMap varValues) {
+		if (this==LJTrue) return true;
 		return false;
 	}
 	

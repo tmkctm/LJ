@@ -1,5 +1,5 @@
 package LJava;
 
 public interface QueryParameter {
-	public VariableValuesMap map();	
+	public VariableMap map();	
 }

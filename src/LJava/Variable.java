@@ -1,21 +1,16 @@
 package LJava;
 import static LJava.LJ.*;
 import static LJava.Utils.*;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.ReentrantLock;
- 
 
 public class Variable {
 	
 	private Object[] value=new Object[0];
 	private boolean isVar=true;
 	private AtomicBoolean inSet=new AtomicBoolean(false);
-	private HashSet<Variable> looksAt= new HashSet<Variable>();
 	private Constraint constraint=new Constraint(LJFalse);
-	private static ReentrantLock lockKey = new ReentrantLock();
 		
 
 	public final boolean equals(Object x){		
@@ -31,8 +26,12 @@ public class Variable {
 		if (this.noValue()) return none.toString();
 		StringBuilder s= new StringBuilder("[");
 		if (value.length>0) {
-			for (int i=0; i<value.length-1; i++) s.append(value[i]+",");
-			s.append(value[value.length-1].toString());
+			for (int i=0; i<value.length-1; i++) {
+				if (value[i]==this) s.append(undefined+",");
+				else s.append(value[i]+",");
+			}
+			if (value[value.length-1]==this) s.append(undefined.toString());
+			else s.append(value[value.length-1].toString());
 		}
 		s.append("]");
 		if (constraint.asFormula()!=LJFalse) s.append(" OR "+constraint.toString());
@@ -40,10 +39,15 @@ public class Variable {
 	}
 	
 
-	public final Object get(){
+	public final Object get() {
+		return get(this);
+	}
+	
+	
+	private final Object get(Variable v){
 		if (isVar()) return this;
 		if (noValue()) return none;
-		return flat();
+		return flat(v);
 	}
 	
 	
@@ -60,7 +64,7 @@ public class Variable {
 	
 	
 	public final Object[] getValues() {
-		if (isVar()) return new Object[]{nil};
+		if (isVar()) return new Object[]{undefined};
 		else if (noValue()) return new Object[]{none};
 		Object[] result = new Object[value.length];
 		for (int i=0; i<value.length; i++) result[i]=val(value[i]);
@@ -80,7 +84,7 @@ public class Variable {
 		HashSet<Object> set1 = this.getValuesSet();
 		HashSet<Object> set2 = this.getValuesSet();
 		for (Object o : set1)
-			if (set2.remove(o)==false) return false;
+			if (!set2.remove(o)) return false;
 		if (set2.isEmpty()) return true;
 		return false;
 	}
@@ -89,29 +93,19 @@ public class Variable {
 
 //Turns the mutable Variable that has no value to an Immutable Variable that has meaning.
 	public final boolean instantiate(Object[] vals, Constraint where, Constraint valByConstraint){
-		lockKey.lock();
 		if (isVar && inSet.compareAndSet(false,true)){
-			lockKey.unlock();
 			if (valByConstraint==null) valByConstraint=new Constraint(LJFalse);			
 			if (vals!=null && vals.length>0) {
 				ArrayList<Object> correct= new ArrayList<Object>();
 				if (where==null) where=new Constraint(LJTrue);
-				for (int i=0; i<vals.length; i++) {
-					if (variable(vals[i])) { 
-						if (!this.consistWith((Variable) vals[i])) {							
-							correct.add(nil);
-							continue;
-						}					
-					}
+				for (int i=0; i<vals.length; i++) 
 					if (where.satisfy(this, vals[i])) correct.add(vals[i]);
-				}			
 				if (!correct.isEmpty()) this.value=correct.toArray();				
 			}
 			this.constraint=valByConstraint;
 			isVar=false;
 			return true;						
 		}
-		lockKey.unlock();
 		return false;
 	}
 	
@@ -181,7 +175,9 @@ public class Variable {
 	
 
 //Returns the variable value.
-	private final Object flat(){		
+	private final Object flat(Variable v){
+		if (value.length==0|| value[0]==v) return undefined;
+		if (variable(value[0])) return ((Variable) value[0]).get(v);
 		return val(value[0]);
 	}
 	
@@ -192,29 +188,4 @@ public class Variable {
 		return true;
 	}
 	
-	
-//A consistency check for this Variable against another Variable.				
-	private final boolean consistWith(Variable b) {
-		if (b.isVar()){ 
-			if (!b.inSet.get()) { 
-				looksAt.add(b);  
-				return true; 
-			}
-			else return false;
-		}		
-		for (Variable element : b.looksAt) {			
-			if (element.isVar()) {
-				if (this==element) return false;
-				lockKey.lock();
-				if (!element.inSet.get()) looksAt.add(element);
-				else {
-					lockKey.unlock();
-					return false;			
-				}
-				lockKey.unlock();
-			}
-			else if (!this.consistWith(element)) return false;		
-		}		
-		return true;			
-	}
 }

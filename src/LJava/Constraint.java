@@ -63,7 +63,7 @@ public class Constraint {
 				arr[i]=map.get(args[i]);
 				if (arr[i]==null) arr[i]=args[i];
 			}
-			return f.satisfy(arr, new VariableValuesMap());
+			return f.satisfy(arr, new VariableMap());
 		}
 		
 		@Override

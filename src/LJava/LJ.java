@@ -7,7 +7,7 @@ import java.util.LinkedHashSet;
 public final class LJ {
 	
 	public final static Association _=new Association("_");
-	public final static Association nil=new Association("$nil$");
+	public final static Association undefined=new Association("$undefined$");
 	public static final Association none=new Association("$no_variable_value$");		
 	private static final HashMap<Integer, LinkedHashSet<Association>> LJavaRelationTable=new HashMap<Integer, LinkedHashSet<Association>>();
 
@@ -29,54 +29,54 @@ public final class LJ {
 	}
 	
 			
-	public static QueryResult exists(Relation r) {		
-		VariableValuesMap varValues=new VariableValuesMap();		
-		if (conduct(r, varValues, true)==FAILED) return FAILED;
+	public static boolean exists(Relation r) {		
+		VariableMap varValues=new VariableMap();		
+		if (!conduct(r, varValues, true)) return false;
 		return instantiate(varValues);
 	}
 	
 	
-	public static QueryResult exists(QueryParameter a, LogicOperator op, QueryParameter b){
+	public static boolean exists(QueryParameter a, LogicOperator op, QueryParameter b){
 		//TBD
-		return FAILED;
+		return false;
 	}
 	
 	
-	public static QueryResult exists(Object... args) {
+	public static boolean exists(Object... args) {
 		Relation r=new Relation("#query",args);
 		return exists(r);
 	}
 		
 
-	public static QueryResult all(Relation r){		
-		VariableValuesMap varValues=new VariableValuesMap(); 
-		if (conduct(r, varValues, false)==FAILED) return FAILED;
+	public static boolean all(Relation r){		
+		VariableMap varValues=new VariableMap(); 
+		if (!conduct(r, varValues, false)) return false;
 		return instantiate(varValues);
 	}
 	
 	
-	public static QueryResult all(QueryParameter a, LogicOperator op, QueryParameter b){
+	public static boolean all(QueryParameter a, LogicOperator op, QueryParameter b){
 		if (op==OR) return instantiate(or(a,b));
 		if (op==AND) return instantiate(and(a,b));
 		if (op==DIFFER) return instantiate(differ(a,b));
 		//TBD
-		if (op==WHERE) return FAILED; 
-		return FAILED;
+		if (op==WHERE) return false; 
+		return false;
 	}
 	
 	
-	public static QueryResult all(VariableValuesMap m){
+	public static boolean all(VariableMap m){
 		return instantiate(m);
 	}	
 	
 	
-	public static QueryResult all(Object... args){
+	public static boolean all(Object... args){
 		Relation r=new Relation("#query",args);
 		return all(r);		
 	}
 	
 	
-	public static VariableValuesMap where(Variable x, Constraint c) {
+	public static VariableMap where(Variable x, Constraint c) {
 		//TBD
 		return null;
 	}
@@ -92,26 +92,24 @@ public final class LJ {
 	}
 	
 	
-	private static QueryResult nameQuerying(Relation r) {
-		if (searchOnIndexByName(0, r)) return SUCCESS;
-		if (searchOnIndexByName(-1, r)) return SUCCESS;
-		return FAILED;
+	private static boolean nameQuerying(Relation r) {
+		if (searchOnIndexByName(0, r)) return true;
+		if (searchOnIndexByName(-1, r)) return true;
+		return false;
 	}
 	
 	
-	private static boolean searchOnIndex(int index, Relation r, Object[] rArgs, VariableValuesMap varValues, boolean cut) {
+	private static boolean searchOnIndex(int index, Relation r, Object[] rArgs, VariableMap varValues, boolean cut) {
 		LinkedHashSet<Association> associationsSet = LJavaRelationTable.get(index);		
-		if (associationsSet!=null) {
+		if (associationsSet!=null)
 			for (Association element : associationsSet) 
 				if (element.associationNameCompare(r) && element.satisfy(rArgs, varValues))
 						if (cut) return true;
-		}
-		if (varValues.isEmpty()) return false;
-		return true;	
+		return !varValues.isEmpty();
 	}
 	
 	
-	protected static QueryResult conduct(Relation r, VariableValuesMap varValues, boolean cutFlag) {	
+	protected static boolean conduct(Relation r, VariableMap varValues, boolean cutFlag) {	
 		Object[] rArgs=r.args();
 		if (!cutFlag) {
 			for (Object o : rArgs) if (var(o)) { cutFlag=true;   break; }
@@ -119,29 +117,29 @@ public final class LJ {
 		}
 		if (rArgs.length==0) return nameQuerying(r);
 		if (searchOnIndex(rArgs.length, r, rArgs, varValues, cutFlag))
-			if (cutFlag) return SUCCESS;
+			if (cutFlag) return true;
 		if (searchOnIndex(-1, r, rArgs, varValues, cutFlag))
-			if (cutFlag) return SUCCESS;
-		if (varValues.isEmpty()) return FAILED;
-		return SUCCESS;
+			if (cutFlag) return true;
+		if (varValues.isEmpty()) return false;
+		return true;
 	}
 	
 	
-	public static VariableValuesMap and(QueryParameter a, QueryParameter b){
+	public static VariableMap and(QueryParameter a, QueryParameter b){
 		//TBD
-		return null;
+		return new VariableMap();
 	}
 	
 
-	public static VariableValuesMap or(QueryParameter a, QueryParameter b){
+	public static VariableMap or(QueryParameter a, QueryParameter b){
 		//TBD
-		return null;
+		return new VariableMap();
 	}	
 	
 
-	public static VariableValuesMap differ(QueryParameter a, QueryParameter b){
+	public static VariableMap differ(QueryParameter a, QueryParameter b){
 		//TBD
-		return null;
+		return new VariableMap();
 	}
 	
 	
@@ -192,12 +190,11 @@ public final class LJ {
 	}	
 	
 
-	private static QueryResult instantiate(VariableValuesMap varValues) {
+	private static synchronized boolean instantiate(VariableMap varValues) {
         boolean answer=true;
 		for (Variable v : varValues.getVars())													
 			answer=(v.instantiate(varValues.map.get(v).toArray(), null, varValues.constraints.get(v)) && answer);	
-		if (answer) return SUCCESS;
-		return QueryResult.FAILED_INSTANTIATE;
+		return answer;
 	}
 }
 
@@ -214,6 +211,7 @@ public final class LJ {
  * 
  * to fix:
  * All the TBD in the class.
+ * instantiate is synchronized because a variable might get instantiated while it's follower will return false from instantiation and that's incoherent. Need to figure out how to do it in a different way.
  */
 
 

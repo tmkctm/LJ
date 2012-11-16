@@ -35,10 +35,10 @@ public class Tester {
 	@Test 
 	public void checkString() {
 		x.set(1,2,3,4,5,x);
-		y.set("a","b","c",_,nil,none,LJTrue, LJFalse);
+		y.set("a","b","c",_,undefined,none,LJTrue, LJFalse);
 		Relation r=new Relation("try",1,2,3);
-		assertEquals(x.toString(),"[1,2,3,4,5,$nil$()]");
-		assertEquals(y.toString(),"[a,b,c,_,$nil$(),$no_variable_value$(),$LJava_True$(),$LJava_False$()]");
+		assertEquals(x.toString(),"[1,2,3,4,5,$undefined$()]");
+		assertEquals(y.toString(),"[a,b,c,_,$undefined$(),$no_variable_value$(),$LJava_True$(),$LJava_False$()]");
 		assertEquals(r.toString(),"try(1,2,3)");
 	}
 	
@@ -87,12 +87,12 @@ public class Tester {
 		Variable c=new Variable();
 		c.set(2,"b","t");
 		assertTrue(x.equalValuesSet(c));
-		assertEquals(all(r),FAILED);
+		assertEquals(all(r),false);
 		associate(r);
-		assertEquals(all(r),SUCCESS);
-		assertEquals(all(),FAILED);
-		assertEquals(all(4,1,2,3),SUCCESS);
-		assertEquals(all("t","m",2,3),FAILED);
+		assertEquals(all(r),true);
+		assertEquals(all(),false);
+		assertEquals(all(4,1,2,3),true);
+		assertEquals(all("t","m",2,3),false);
 	}
 	
 
@@ -101,7 +101,7 @@ public class Tester {
 		relate(12,100,200,x);
 		exists(12,100,200,x);
 		assertFalse(var(x));
-		assertEquals(x,nil);
+		assertEquals(x,undefined);
 	}
 	
 	
@@ -115,7 +115,7 @@ public class Tester {
 		assertFalse(var(x));
 		x.set(30);
 		assertEquals(x,y);
-		assertEquals(y,nil);
+		assertEquals(y,undefined);
 	}
 	
 	
@@ -131,7 +131,7 @@ public class Tester {
 		exists(6,3,x,3);
 		assertEquals(x,z);
 		assertEquals(y,t);
-		assertEquals(x,nil);
+		assertEquals(x,undefined);
 	}
 	
 	
@@ -152,7 +152,7 @@ public class Tester {
 		Variable c=new Variable();
 		c.set(y,1,"a",helper);
 		assertTrue(x.equalValuesSet(c));
-		assertEquals(x,nil);
+		assertEquals(x,undefined);
 	}
 	
 	
@@ -225,7 +225,7 @@ public class Tester {
 							relation(11,1,11,1,11,2)
 					)	
 				))
-				,SUCCESS);
+				,true);
 		
 	}
 	
@@ -238,23 +238,23 @@ public class Tester {
 		group(12,12,12,12,12,13);
 		group(12,12,12,12,12,13,13,13,13,13);
 		group(12,12,14,13,13);
-		assertEquals(exists(12,2,3,4,5,t,t,t),FAILED);
-		assertEquals(exists(12,2,3,4,5,x,x,y),SUCCESS);
+		assertEquals(exists(12,2,3,4,5,t,t,t),false);
+		assertEquals(exists(12,2,3,4,5,x,x,y),true);
 		assertTrue(var(x));
 		exists(12,3,y,5,6,2,7,8,9,4);
 		exists(12,5,4,z,6,2,7,8,9,y);
 		assertEquals(y,0);
 		assertEquals(z,3);
-		assertEquals(exists(12,12,0,3,13,13,x),SUCCESS);
+		assertEquals(exists(12,12,0,3,13,13,x),true);
 		x.set(1);
-		assertEquals(exists(12,2,3,4,5,x,x,y),SUCCESS);
-		assertEquals(exists(0,2,1,4,5,3,1,12),SUCCESS);
+		assertEquals(exists(12,2,3,4,5,x,x,y),true);
+		assertEquals(exists(0,2,1,4,5,3,1,12),true);
 		x=var();
 		exists(x,x,t,x,x,x);
 		assertEquals(x,12);
 		assertEquals(t,13);	
 		x=var();   t=var();
-		assertEquals(exists(x,x,t,x,t),FAILED);
+		assertEquals(exists(x,x,t,x,t),false);
 		assertTrue(var(x));
 		assertTrue(var(t));
 		exists(x,t,x,t,x,t,x,x,t,t);
@@ -271,10 +271,10 @@ public class Tester {
 				return p[0]+p[1];
 			}};
 		
-		assertEquals(exists(sum),FAILED);
-		assertEquals(exists(cmp),FAILED);
+		assertEquals(exists(sum),false);
+		assertEquals(exists(cmp),false);
 		associate(sum);
-		assertEquals(exists(sum),SUCCESS);
+		assertEquals(exists(sum),true);
 		exists(relation("Sum",t,4,5));
 		assertTrue(same(t,9));
 		relate(13,1,2,3);

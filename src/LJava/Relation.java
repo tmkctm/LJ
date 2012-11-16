@@ -1,7 +1,6 @@
 package LJava;
 
 import static LJava.LJ.*;
-
 import java.util.HashMap;
 
 public class Relation extends Association implements QueryParameter{
@@ -11,7 +10,7 @@ public class Relation extends Association implements QueryParameter{
 	}
 
 	@Override
-	protected boolean satisfy(Object[] rArgs, VariableValuesMap varValues){
+	protected boolean satisfy(Object[] rArgs, VariableMap varValues){
 		HashMap<Variable,Object> vars=new HashMap<Variable, Object>();
 		Object[] args=this.args();
 		for (int i=0; i<rArgs.length; i++) {			
@@ -26,8 +25,8 @@ public class Relation extends Association implements QueryParameter{
 	}			
 
 	@Override
-	public VariableValuesMap map(){
-		VariableValuesMap m=new VariableValuesMap();
+	public VariableMap map(){
+		VariableMap m=new VariableMap();
 		conduct(this, m, false);
 		return m;
 	}

@@ -13,17 +13,12 @@ public final class Utils {
 	static public enum  LogicOperator{
 		OR, AND, DIFFER , NONE, WHERE  }
 	
-	public static final QueryResult SUCCESS=QueryResult.SUCCESS;
-	public static final QueryResult FAILED=QueryResult.FAILED;	
-	public static final QueryResult FAILED_INSTANTIATE=QueryResult.FAILED_INSTANTIATE;
-	static public enum  QueryResult{
-		SUCCESS, FAILED_INSTANTIATE, FAILED 	}
-		
+
 	public static final boolean variable(Object x) {
 		return (x instanceof Variable);
 	}
 	
-
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected static <K,V> void addTo(Map map, K key, V val, Class<?> type) {
 		Collection collection=(Collection) map.get(key);
