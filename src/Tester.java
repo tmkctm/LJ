@@ -129,9 +129,12 @@ public class Tester {
 		exists(6,0,0,z);
 		exists(6,t,1,1);
 		exists(6,3,x,3);
+		Variable a = var();
+		exists(6,a,5,5);
 		assertEquals(x,z);
 		assertEquals(y,t);
 		assertEquals(x,undefined);
+		assertEquals(a, undefined);
 	}
 	
 	
@@ -302,7 +305,7 @@ public class Tester {
 		Constraint c2 = new Constraint(cmp,-1,a,1);
 		Constraint c3 = new Constraint(cmp,0,a,9);
 		Constraint c = new Constraint(new Constraint(c1,AND,c2),OR, c3);
-		
+
 		assertEquals(c.toString(),"((Compare(1,[var1],[var2])) AND (Compare(-1,[var1],1))) OR (Compare(0,[var1],9))");
 		assertTrue(c1.satisfy(a,400));
 		Variable[] vs = {a,b};
