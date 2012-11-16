@@ -85,8 +85,12 @@ public class Tester {
 		y.set("t");
 		assertEquals(x,"t");
 		Variable c=new Variable();
-		c.set(2,"b","t");
-		assertTrue(x.equalValuesSet(c));
+		Variable d=new Variable();
+		c.set("t",2,"b");
+		d.set(2,"t","b");
+		assertTrue(x.equalValues(c));
+		assertFalse(x.equalValues(d));
+		assertTrue(x.equalValuesSet(d));
 		assertEquals(all(r),false);
 		associate(r);
 		assertEquals(all(r),true);
@@ -154,7 +158,7 @@ public class Tester {
 		exists(7,7,8,y);	
 		Variable c=new Variable();
 		c.set(y,1,"a",helper);
-		assertTrue(x.equalValuesSet(c));
+		assertTrue(x.equalValues(c));
 		assertEquals(x,undefined);
 	}
 	
@@ -168,7 +172,7 @@ public class Tester {
 		assertEquals(x,1);
 		Variable c=new Variable();
 		c.set(1,2,3,"a","b","c");
-		assertTrue(x.equalValuesSet(c));
+		assertTrue(x.equalValues(c));
 	}
 	
 	
@@ -282,6 +286,14 @@ public class Tester {
 		assertTrue(same(t,9));
 		relate(13,1,2,3);
 		group(13,11,12,14,200,201,202);
+		Variable a = var();
+		all(relation("Sum",z,a,10));
+		assertFalse(var(z));
+		assertTrue(var(a));
+		assertFalse(z.contains(10000));
+		assertFalse(a.contains(10000));
+		assertTrue(a.set(100));
+		assertTrue(z.contains(110));
 		all(relation(x,12,14,11,202,200,201),AND,relation("Sum",x,4,1));	
 		assertFalse(same(x.toString(),none.toString()));
 		assertTrue(var(x));
@@ -296,34 +308,29 @@ public class Tester {
 	@Test
 	public void testConstraint() {
 		Integer[] arr = {1,2,3,4,5,6,7,8,9,0};
-		Variable a = var();
-		Variable b = var();
-		Object[] arr2 = new Object[arr.length+1];
-		arr2[0] = a;
-		for (int i=0; i<arr.length; i++) arr2[i+1]=arr[i];
-		Constraint c1 = new Constraint(cmp,1,a,b);
-		Constraint c2 = new Constraint(cmp,-1,a,1);
-		Constraint c3 = new Constraint(cmp,0,a,9);
+		Constraint c1 = new Constraint(cmp,1,x,y);
+		Constraint c2 = new Constraint(cmp,-1,x,1);
+		Constraint c3 = new Constraint(cmp,0,x,9);
 		Constraint c = new Constraint(new Constraint(c1,AND,c2),OR, c3);
-
 		assertEquals(c.toString(),"((Compare(1,[var1],[var2])) AND (Compare(-1,[var1],1))) OR (Compare(0,[var1],9))");
-		assertTrue(c1.satisfy(a,400));
-		Variable[] vs = {a,b};
+		assertFalse(c1.satisfy(x,400));
+		assertTrue(c2.satisfy(x,400));
+		Variable[] vs = {x,y};
 		Object[] os = {400,1400};
-		assertTrue(var(a));
-		assertTrue(var(b));
+		assertTrue(var(x));
+		assertTrue(var(y));
 		assertTrue(c1.satisfy(vs,os));
-		b.set(7);
-		assertFalse(c1.satisfy(a,400));
-		assertTrue(a.instantiate(arr, c, new Constraint(LJFalse)));
-		assertEquals(a.toString(),"[2,3,4,5,6,9]");
-		assertTrue(a.isConstraint());
-		assertTrue(a.contains(3));
-		assertTrue(a.contains(9));
-		assertFalse(a.contains(1));
+		y.set(7);
+		assertFalse(c1.satisfy(x,400));
+		assertTrue(x.instantiate(arr, c, new Constraint(LJFalse)));
+		assertEquals(x.toString(),"[2,3,4,5,6,9]");
+		assertTrue(x.isConstraint());
+		assertTrue(x.contains(3));
+		assertTrue(x.contains(9));
+		assertFalse(x.contains(1));
 		Variable v=var();
-		Constraint vConstraint=c.replaceVariable(a, v);
-		v.instantiate(null, vConstraint, new Constraint(cmp,0,v,50));		
+		Constraint vConstraint=c.replaceVariable(x, v);
+		v.instantiateByList(null, vConstraint, new Constraint(cmp,0,v,50));		
 		assertFalse(v.contains(90));
 		assertFalse(v.contains(0));
 		assertTrue(v.contains(50));

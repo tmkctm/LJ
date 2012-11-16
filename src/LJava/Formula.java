@@ -2,7 +2,6 @@ package LJava;
 import static LJava.LJ.*;
 import static LJava.Utils.*;
 import java.lang.reflect.Array;
-import java.util.HashMap;
 
 public abstract class Formula<P,R> extends Relation {
 
@@ -45,32 +44,32 @@ public abstract class Formula<P,R> extends Relation {
 		if (this==LJTrue) return true;
 		if (this==LJFalse) return false;
 		P[] temp=(P[]) Array.newInstance(parametersType, rArgs.length-1);
-		HashMap<Variable, Constraint> vars = new HashMap<Variable, Constraint>(); 
+		boolean varInArgs=false;
 		for (int i=1; i<rArgs.length; i++) {			
-			if (var(rArgs[i])) vars.put((Variable) rArgs[i], new Constraint(this,rArgs));
+			Object val = val(rArgs[i]);
+			if (var(val)) varInArgs=true;
 			else {
-				Object val = val(rArgs[i]);
 				if (!parametersType.isAssignableFrom(val.getClass())) return false;
 				temp[i-1]=(P) val;
 			}
 		}
-		if (vars.isEmpty()) {
-			try { 
-				R value=invoke(temp);
-				if (var(rArgs[0])) {
-					varValues.updateValuesMap((Variable) rArgs[0], value);
-					return true;
-				}
-				return same(value,rArgs[0]);
-			} catch (Exception e) { return false; }
+		if (varInArgs) {
+			if (var(rArgs[0])) {
+				varValues.updateConstraintsMap((Variable) rArgs[0], new Constraint(this, rArgs));
+				return true;
+			}
+			return false;
 		}
-		if (var(rArgs[0])) vars.put((Variable) rArgs[0], new Constraint(this,rArgs));
-		varValues.updateConstraintsMap(vars);
-		return true;
+		R value=invoke(temp);
+		if (var(rArgs[0])) {
+			varValues.updateValuesMap((Variable) rArgs[0], value);
+			return true;
+		}
+		return same(value,rArgs[0]);
 	}
 	
 /* to fix:
- * satisfy for a var in the rArgs instead of saving a constraint - requires reversing the formula.
+ * satisfy for a var in args - requires reversing the formula.
  */
 	
 	

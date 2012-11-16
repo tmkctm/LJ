@@ -37,7 +37,7 @@ public class VariableMap implements QueryParameter{
 	
 	public final void updateConstraintsMap(HashMap<Variable, Constraint> vars) {
 		for (Map.Entry<Variable, Constraint> entry : vars.entrySet()) 
-			updateValuesMap(entry.getKey(), entry.getValue());			
+			updateConstraintsMap(entry.getKey(), entry.getValue());			
 	}
 	
 	

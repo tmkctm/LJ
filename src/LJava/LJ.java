@@ -193,7 +193,7 @@ public final class LJ {
 	private static synchronized boolean instantiate(VariableMap varValues) {
         boolean answer=true;
 		for (Variable v : varValues.getVars())													
-			answer=(v.instantiate(varValues.map.get(v).toArray(), null, varValues.constraints.get(v)) && answer);	
+			answer=(v.instantiateByList(varValues.map.get(v), null, varValues.constraints.get(v)) && answer);	
 		return answer;
 	}
 }

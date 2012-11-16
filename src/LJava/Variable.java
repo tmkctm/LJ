@@ -4,6 +4,8 @@ import static LJava.Utils.*;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
  
@@ -18,7 +20,7 @@ public class Variable {
 	private static ReentrantLock lockKey = new ReentrantLock();
 
 
-	public final boolean equals(Object x){		
+	public final boolean equals(Object x) {		
 		x=val(x);
 		Object o=this.get();		
 		if (o==this) return (o==x);
@@ -53,8 +55,8 @@ public class Variable {
 
 
 	public final boolean contains(Object o) {
-		for (int i=0; i<value.length; i++)
-			if (same(val(value[i]),o)) return true;
+		for (Object v : value)
+			if (same(v,o)) return true;
 		return constraint.satisfy(this, o);
 	}
 
@@ -69,25 +71,40 @@ public class Variable {
 
 
 	public final HashSet<Object> getValuesSet(){
-		HashSet<Object> valueSet= new HashSet<Object>();
+		HashSet<Object> valueSet = new HashSet<Object>();
 		for (int i=0; i<value.length; i++)
 			valueSet.add(val(value[i]));
 		return valueSet;
 	}
 
 
-	public final boolean equalValuesSet(Variable x){
-		HashSet<Object> set1 = this.getValuesSet();
-		HashSet<Object> set2 = this.getValuesSet();
-		for (Object o : set1)
-			if (!set2.remove(o)) return false;
-		if (set2.isEmpty()) return true;
-		return false;
+	public final boolean equalValues(Variable x) {
+		if (x.value.length!=value.length) return false;
+		for (int i=0; i<value.length; i++)
+			if (!same(value[i],x.value[i])) return false;
+		return true;
+	}
+	
+	
+	public final boolean equalValuesSet(Variable x) {
+		HashSet<Object> thisSet = getValuesSet();
+		HashSet<Object> xSet = x.getValuesSet();
+		for (Object o : thisSet) if (!xSet.remove(o)) return false;
+		if (!xSet.isEmpty()) return false;
+		return true;
 	}
 
 
-
 //Turns the mutable Variable that has no value to an Immutable Variable that has meaning.
+	public final boolean instantiateByList(List<Object> vals, Constraint where, Constraint valByConstraint){
+		if (vals==null) vals = new LinkedList<Object>();
+		return instantiate(vals.toArray(), where, valByConstraint);
+	}
+	
+	public final boolean set(Object... args) {
+		return instantiate(args, null, null);
+	}
+	
 	public final boolean instantiate(Object[] vals, Constraint where, Constraint valByConstraint){
 		lockKey.lock();
 		if (isVar && inSet.compareAndSet(false,true)){
@@ -115,12 +132,7 @@ public class Variable {
 		return false;
 	}
 
-
-	public final boolean set(Object... args) {
-		return instantiate(args, null, null);
-	}
-
-
+	
 //Identifying characteristics of this Variable
 	public final boolean isVar(){
 		return isVar;
