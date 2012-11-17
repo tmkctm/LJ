@@ -1,3 +1,5 @@
+import java.util.LinkedList;
+
 import LJava.*;
 import static LJava.LJ.*;
 import static LJava.Utils.*;
@@ -330,7 +332,7 @@ public class Tester {
 		assertFalse(x.contains(1));
 		Variable v=var();
 		Constraint vConstraint=c.replaceVariable(x, v);
-		v.instantiateByList(null, vConstraint, new Constraint(cmp,0,v,50));		
+		v.instantiate(new LinkedList<Object>(), vConstraint, new Constraint(cmp,0,v,50));		
 		assertFalse(v.contains(90));
 		assertFalse(v.contains(0));
 		assertTrue(v.contains(50));

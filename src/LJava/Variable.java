@@ -96,7 +96,7 @@ public class Variable {
 
 
 //Turns the mutable Variable that has no value to an Immutable Variable that has meaning.
-	public final boolean instantiateByList(List<Object> vals, Constraint where, Constraint valByConstraint){
+	public final boolean instantiate(List<Object> vals, Constraint where, Constraint valByConstraint){
 		if (vals==null) vals = new LinkedList<Object>();
 		return instantiate(vals.toArray(), where, valByConstraint);
 	}
