@@ -5,52 +5,36 @@ import java.util.HashMap;
 @SuppressWarnings("rawtypes")
 public class Constraint {
 	
-	private interface AtomInConstraint {
+	private interface ItemInConstraint {
 		public boolean satisfy(HashMap<Variable, Object> map);
 		public Constraint replaceVariable(Variable v1, Variable v2);
 	}
 	
-	private final class Atom implements AtomInConstraint {
+	private final class Atom implements ItemInConstraint {
 		private final Formula f;
 		private final Object[] args;
 		
 		public Atom(Formula formula, Object... params) {
-			if (formula==null) f=LJTrue;
-			else f=formula;
-			if (params==null) args=new Object[0];
-			else args=params;
+			f = (formula==null) ? LJTrue : formula;
+			args = (params==null) ? new Object[0] : params;
 		}
 		
 		public Atom(Atom a, Variable v1, Variable v2) {
 			f=a.f;
 			args = new Object[a.args.length];
-			for (int i=0; i<args.length; i++) {
-				if (a.args[i]==v1) args[i]=v2;
-				else args[i]=a.args[i];
-			}
+			for (int i=0; i<args.length; i++)
+				args[i] = (a.args[i]==v1) ? v2 : a.args[i];
 		}
 		
-		public String toString() {			
-			StringBuilder s = new StringBuilder(f.name());
-			int counter=1;
-			HashMap<Variable, String> names = new HashMap<Variable, String>();
+		public String toString() {	
+			StringBuilder s = new StringBuilder(f.name()+"(");
 			if (args.length>0) {
-				s.append("(");
-				for (int i=0; i<args.length; i++) {
-					if (variable(args[i])) {
-						String tag = names.get((Variable) args[i]);
-						if (tag==null) {
-							tag="[var"+counter+"]";
-							counter++;
-							names.put((Variable) args[i], tag);
-						}
-						s.append(tag+",");
-					}
-					else s.append(args[i].toString()+",");
-				}
-				int len = s.length();
-				s.replace(len-1, len, ")");
+				for (int i=0; i<args.length-1; i++)	
+					if (variable(args[i])) s.append("[],");
+					else s.append(args[i]+",");
+				s.append(args[args.length-1].toString());
 			}
+			s.append(")");
 			return s.toString();
 		}
 		
@@ -73,18 +57,15 @@ public class Constraint {
 		}
 	}
 	
-	private final class Junction implements AtomInConstraint {
+	private final class Junction implements ItemInConstraint {
 		private final Constraint left;
 		private final Constraint right;
 		private final LogicOperator op;
 		
 		public Junction(Constraint l, LogicOperator lp, Constraint r) {
-			if (r==null) right = new Constraint(LJTrue);
-			else right = r;
-			if (l==null) left = new Constraint(LJTrue);
-			else left = l;
-			if (lp==null) op=LogicOperator.NONE;
-			else op = lp;
+			right = (r==null) ? new Constraint(LJTrue) : r;
+			left = (l==null) ? new Constraint(LJTrue) : l;
+			op = (lp==null) ? LogicOperator.NONE : lp;
 		}		
 		
 		@Override
@@ -96,13 +77,7 @@ public class Constraint {
 		}
 		
 		public String toString() {
-			StringBuilder s = new StringBuilder("(");
-			if (op==AND) s.append(left+") AND ("+right);
-			else if (op==WHERE) s.append(left+") WHERE ("+right);
-			else if (op==OR) s.append(left+") OR ("+right);
-			else if (op==DIFFER) s.append(left+") AND NOT ("+right);
-			s.append(")");
-			return s.toString();
+			return ("("+left+") "+op+" ("+right+")");
 		}
 		
 		@Override
@@ -111,7 +86,7 @@ public class Constraint {
 		}
 	}
 	
-	private final AtomInConstraint atom;
+	private final ItemInConstraint atom;
 
 	
 	public Constraint(Formula formula, Object... params) {

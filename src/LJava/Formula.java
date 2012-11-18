@@ -47,25 +47,22 @@ public abstract class Formula<P,R> extends Relation {
 		boolean varInArgs=false;
 		for (int i=1; i<rArgs.length; i++) {			
 			Object val = val(rArgs[i]);
-			if (var(val)) varInArgs=true;
-			else {
-				if (!parametersType.isAssignableFrom(val.getClass())) return false;
-				temp[i-1]=(P) val;
+			if (!parametersType.isAssignableFrom(val.getClass())) {
+				if (!var(val)) return false;
+				varInArgs=true;
 			}
+			else temp[i-1]=(P) val;
 		}
 		if (varInArgs) {
-			if (var(rArgs[0])) {
-				varValues.updateConstraintsMap((Variable) rArgs[0], new Constraint(this, rArgs));
-				return true;
-			}
-			return false;
+			if (!var(rArgs[0])) return false;
+			varValues.updateConstraintsMap((Variable) rArgs[0], new Constraint(this, rArgs));
 		}
-		R value=invoke(temp);
-		if (var(rArgs[0])) {
+		else {
+			R value=invoke(temp);
+			if (!var(rArgs[0])) return same(value,rArgs[0]);
 			varValues.updateValuesMap((Variable) rArgs[0], value);
-			return true;
 		}
-		return same(value,rArgs[0]);
+		return true;
 	}
 	
 /* to fix:

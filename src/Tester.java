@@ -17,7 +17,7 @@ public class Tester {
 	@SuppressWarnings("unused")
 	private class TesterLittleHelper{		
 		 private Integer value;
-		 public void set(int v) {  value=v;  }		 
+		 public void set(int v) {  value=v;  } 
 		 public int get() {  return value;  }
 		 public String toString(){ 
 			 if (value==null) return "Helper";
@@ -311,21 +311,21 @@ public class Tester {
 	public void testConstraint() {
 		Integer[] arr = {1,2,3,4,5,6,7,8,9,0};
 		Constraint c1 = new Constraint(cmp,1,x,y);
-		Constraint c2 = new Constraint(cmp,-1,x,1);
+		Constraint c2 = new Constraint(cmp,-1,x,4);
 		Constraint c3 = new Constraint(cmp,0,x,9);
 		Constraint c = new Constraint(new Constraint(c1,AND,c2),OR, c3);
-		assertEquals(c.toString(),"((Compare(1,[var1],[var2])) AND (Compare(-1,[var1],1))) OR (Compare(0,[var1],9))");
+		assertEquals(c.toString(),"((Compare(1,[],[])) AND (Compare(-1,[],4))) OR (Compare(0,[],9))");
 		assertFalse(c1.satisfy(x,400));
-		assertTrue(c2.satisfy(x,400));
+		assertTrue(c2.satisfy(x,-400));
 		Variable[] vs = {x,y};
-		Object[] os = {400,1400};
+		Object[] os = {1400,400};
 		assertTrue(var(x));
 		assertTrue(var(y));
 		assertTrue(c1.satisfy(vs,os));
-		y.set(7);
-		assertFalse(c1.satisfy(x,400));
+		y.set(1);
+		assertTrue(c1.satisfy(x,400));
 		assertTrue(x.instantiate(arr, c, new Constraint(LJFalse)));
-		assertEquals(x.toString(),"[2,3,4,5,6,9]");
+		assertEquals(x.toString(),"[2,3,9]");
 		assertTrue(x.isConstraint());
 		assertTrue(x.contains(3));
 		assertTrue(x.contains(9));
@@ -337,6 +337,6 @@ public class Tester {
 		assertFalse(v.contains(0));
 		assertTrue(v.contains(50));
 		assertFalse(v.contains(5));
-		assertEquals(v.toString(),"[] OR Compare(0,[var1],50)");
+		assertEquals(v.toString(),"[] OR Compare(0,[],50)");
 	}
 }
