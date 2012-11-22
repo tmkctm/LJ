@@ -70,12 +70,12 @@ public class Group extends Association{
 		while (valIterator.hasNext()) {
 			Map.Entry<Object, Integer> valAmount = valIterator.next();
 			if (valAmount.getValue()<varAmount) continue;
-			int remain=valAmount.getValue()-varAmount;
-			valAmount.setValue(remain);
+			int amount=valAmount.getValue();
+			valAmount.setValue(valAmount.getValue()-varAmount);
 			int recordsReturned=setValsToVars(vars, vals, varResults, 0);
 			if (recordsReturned<1) break;
 			recordsAdded=recordsAdded+recordsReturned; 
-			valAmount.setValue(remain+varAmount);
+			valAmount.setValue(amount);
 			for (int i=0; i<recordsReturned; i ++) varResults.updateValsMap(var, valAmount.getKey());
 		}
 		vars.put(var, varAmount);
@@ -109,7 +109,6 @@ public class Group extends Association{
 	
 	
 /* to fix:
- * currently Group is running permutations of itself even if it already found an answer to exists(). It is slower then it can be: should CUT inside Group as needed.
- * Still running on all values (including those with amount=0). It might be slightly more efficient...	
+ * CUT within the group permutations at setValsToVars().
  */
 }

@@ -208,9 +208,9 @@ public class Variable {
 
 //A consistency check for this Variable against another Variable.				
 	private final boolean consistWith(Variable b) {
-		if (b.isVar()){ 
-			if (b.inSet.get()) return false;
+		if (b.isVar()){
 			lockKey.lock();
+			if (b.inSet.get()) return false;
 			looksAt.add(b);
 			lockKey.unlock();
 			return true;
