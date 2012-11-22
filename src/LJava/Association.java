@@ -12,10 +12,8 @@ public class Association {
 	private final Object[] args;	
 	
 	public Association(String n, Object... params) {
-		if (n==null || n=="") name="#Relation"; 
-		else this.name=n;
-		if (params==null) args=new Object[0];
-		else this.args=params;
+		name = (n==null || n=="") ? "#Relation" : n;
+		args = (params==null) ? new Object[0] : params;
 	}
 		
 	
@@ -48,7 +46,7 @@ public class Association {
 		if (this==_) return "_";
 		StringBuilder s = new StringBuilder(name+"(");
 		if (args.length>0) {
-			for (int i=0; i<args.length-1; i++)	s.append(args[i].toString()+",");
+			for (int i=0; i<args.length-1; i++)	s.append(args[i]+",");
 			s.append(args[args.length-1].toString());
 		}
 		s.append(")");
@@ -98,6 +96,7 @@ public class Association {
 	private boolean equalsAssociation(Association r){
 		if (!associationNameCompare(r)) return false;
 		if (this.isGroup() ^ r.isGroup()) return false;
+		if (this.isFormula() ^ r.isFormula()) return false;
 		for (int i=0; i<args.length; i++)
 			if (!same(this.args[i],r.args[i])) return false;
 		return true;
