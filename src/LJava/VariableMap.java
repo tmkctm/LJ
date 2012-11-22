@@ -24,13 +24,13 @@ public class VariableMap implements QueryParameter{
 	}
 
 	
-	public final void updateValuesMap(HashMap<Variable,Object> vars) {		
+	public final void updateValsMap(HashMap<Variable,Object> vars) {		
 		for (Map.Entry<Variable, Object> entry : vars.entrySet()) 
-			updateValuesMap(entry.getKey(), entry.getValue());			
+			updateValsMap(entry.getKey(), entry.getValue());			
 	}
 	
 	
-	public final void updateValuesMap(Variable key, Object val) {
+	public final void updateValsMap(Variable key, Object val) {
 		addTo(map, key, val, ArrayList.class);
 	}
 	

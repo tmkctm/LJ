@@ -60,7 +60,7 @@ public abstract class Formula<P,R> extends Relation {
 		else {
 			R value=invoke(temp);
 			if (!var(rArgs[0])) return same(value,rArgs[0]);
-			varValues.updateValuesMap((Variable) rArgs[0], value);
+			varValues.updateValsMap((Variable) rArgs[0], value);
 		}
 		return true;
 	}

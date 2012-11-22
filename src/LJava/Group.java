@@ -3,6 +3,7 @@ package LJava;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -18,7 +19,7 @@ public class Group extends Association{
 		super(n, params);
 		HashMap<Object, Integer> map=new HashMap<Object, Integer>();
 		if (params!=null)
-			for (Object element : params) increment(map, element);		
+			for (Object element : params) increment(map, element,1);		
 		argsMap=Collections.unmodifiableMap(map);
 	}
 	
@@ -34,10 +35,9 @@ public class Group extends Association{
 		HashMap<Variable, Integer> rVarsCountMap=new HashMap<Variable, Integer>();
 		HashMap<Object, Integer> remainedVals=new HashMap<Object, Integer>();
 		HashMap<Object, Integer> rArgsCountMap=new HashMap<Object, Integer>();
-		
 		for (Object element : rArgs) {
-			if (var(element)) increment(rVarsCountMap,(Variable) element);
-			else increment(rArgsCountMap, val(element));
+			if (var(element)) increment(rVarsCountMap,(Variable) element,1);
+			else increment(rArgsCountMap, val(element),1);
 		}
 		
 		Integer count=0;
@@ -54,31 +54,39 @@ public class Group extends Association{
 			}
 			else if (count<0) remainedVals.put(keyVal, -count); 
 		}	
-		
 		if (!rArgsCountMap.isEmpty()) return false;
 		if (rVarsCountMap.isEmpty()) return true;
-		
 		TreeMap<Variable, Integer> vars = new TreeMap<Variable, Integer>(new MapComparatorByValue<Variable>(rVarsCountMap));
 		vars.putAll(rVarsCountMap);
-		TreeMap<Object, Integer> vals = new TreeMap<Object, Integer>(new MapComparatorByValue<Object>(remainedVals));
-		vals.putAll(remainedVals);	
-		HashMap<Variable,Object> varResults=new HashMap<Variable, Object>();			
-		for (Map.Entry<Variable, Integer> entry : vars.entrySet()) {							
-			Object firstKey=vals.firstKey();			
-			int remain=vals.remove(firstKey)-entry.getValue();
-			if (remain<0) return false;					
-			varResults.put(entry.getKey(),firstKey);
-			if (remain>0) vals.put(firstKey, remain);			
-		}
-		varValues.updateValuesMap(varResults);		
-		return true;
+		return (setValsToVars(vars,remainedVals,varValues, 0)>0);
 	}
 	
 	
-	private <T> void increment(Map<T, Integer> m, T element) {
+	private int setValsToVars(TreeMap<Variable, Integer> vars, HashMap<Object, Integer> vals, VariableMap varResults, int recordsAdded) {
+		if (vars.isEmpty()) return 1;
+		Variable var=vars.firstKey();
+		Integer varAmount = vars.remove(var);
+		Iterator<Map.Entry<Object, Integer>> valIterator=vals.entrySet().iterator();
+		while (valIterator.hasNext()) {
+			Map.Entry<Object, Integer> valAmount = valIterator.next();
+			if (valAmount.getValue()<varAmount) continue;
+			int remain=valAmount.getValue()-varAmount;
+			valAmount.setValue(remain);
+			int recordsReturned=setValsToVars(vars, vals, varResults, 0); 
+			if (recordsReturned<1) break;
+			recordsAdded=recordsAdded+recordsReturned; 
+			valAmount.setValue(remain+varAmount);
+			for (int i=0; i<recordsReturned; i ++) varResults.updateValsMap(var, valAmount.getKey());
+		}
+		vars.put(var, varAmount);
+		return recordsAdded;
+	}
+	
+	
+	private <T> void increment(Map<T, Integer> m, T element, int delta) {
 		Integer count=m.get(element);
 		if (count==null) count=0;
-		m.put(element,count+1);	
+		m.put(element,count+delta);	
 	}
 
 		
@@ -98,10 +106,4 @@ public class Group extends Association{
 			return 0;
 		}
 	}
-	
-	
-/* to fix:
- * Group should produce permutations of herself in case of backtracking.	
- */
-	
 }

@@ -247,28 +247,35 @@ public class Tester {
 		group(12,12,12,12,12,13);
 		group(12,12,12,12,12,13,13,13,13,13);
 		group(12,12,14,13,13);
-		assertEquals(exists(12,2,3,4,5,t,t,t),false);
-		assertEquals(exists(12,2,3,4,5,x,x,y),true);
+		assertFalse(exists(12,2,3,4,5,t,t,t));
+		assertTrue(exists(12,2,3,4,5,x,x,y));
 		assertTrue(var(x));
 		exists(12,3,y,5,6,2,7,8,9,4);
 		exists(12,5,4,z,6,2,7,8,9,y);
 		assertEquals(y,0);
 		assertEquals(z,3);
-		assertEquals(exists(12,12,0,3,13,13,x),true);
+		assertTrue(exists(12,12,0,3,13,13,x));
 		x.set(1);
-		assertEquals(exists(12,2,3,4,5,x,x,y),true);
-		assertEquals(exists(0,2,1,4,5,3,1,12),true);
+		assertTrue(exists(12,2,3,4,5,x,x,y));
+		assertTrue(exists(0,2,1,4,5,3,1,12));
 		x=var();
-		exists(x,x,t,x,x,x);
+		assertTrue(exists(x,x,t,x,x,x));
 		assertEquals(x,12);
 		assertEquals(t,13);	
 		x=var();   t=var();
-		assertEquals(exists(x,x,t,x,t),false);
+		assertFalse(exists(x,x,t,x,t));
 		assertTrue(var(x));
 		assertTrue(var(t));
 		exists(x,t,x,t,x,t,x,x,t,t);
 		assertTrue(((Integer) x.get()==12) || ((Integer) x.get()==13));
 		assertTrue(((Integer) t.get()==12) || ((Integer) t.get()==13));
+		x=var();     y=var();     z=var();
+		assertTrue(exists(x,y,x,y,z));
+		assertTrue(x.contains(12));		assertTrue(x.contains(13));
+		assertTrue(y.contains(13));		assertTrue(y.contains(12));
+		assertFalse(z.contains(13));		assertTrue(z.contains(14));
+		assertTrue((x.toString().equals("[12,13]") && y.toString().equals("[13,12]")) || (x.toString().equals("[13,12]") && y.toString().equals("[12,13]")));
+		assertEquals(z.toString(), "[14,14]");
 	}
 	
 	

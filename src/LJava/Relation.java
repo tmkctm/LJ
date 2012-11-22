@@ -20,7 +20,7 @@ public class Relation extends Association implements QueryParameter{
 				else vars.put((Variable) rArgs[i], args[i]);   }								
 			else if (!same(rArgs[i],args[i])) return false;
 		}
-		varValues.updateValuesMap(vars);
+		varValues.updateValsMap(vars);
 		return true;
 	}			
 
