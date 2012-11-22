@@ -47,7 +47,7 @@ public abstract class Formula<P,R> extends Relation {
 		boolean varInArgs=false;
 		for (int i=1; i<rArgs.length; i++) {			
 			Object val = val(rArgs[i]);
-			if (var(val)) varInArgs=true;
+			if (var(val) && !parametersType.equals(Variable.class)) varInArgs=true;
 			else {
 				if (!parametersType.isAssignableFrom(val.getClass())) return false;
 				temp[i-1]=(P) val;
