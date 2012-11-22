@@ -75,8 +75,12 @@ public final class Utils {
 				return 0;
 			}
 			else {
-				if (p[0].getClass().equals(p[1].getClass()) && (p[0] instanceof Comparable))
-					return ((Comparable) p[0]).compareTo(p[1]);
+				if (p[0].getClass().equals(p[1].getClass()) && (p[0] instanceof Comparable)) {
+					int result = ((Comparable) p[0]).compareTo(p[1]);
+					if (result<0) return -1;
+					if (result>0) return 1;
+					return 0;
+				}
 				return Integer.MIN_VALUE;
 			}
 		}};

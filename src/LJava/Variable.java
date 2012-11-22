@@ -230,4 +230,8 @@ public class Variable {
 		}		
 		return true;			
 	}
+	
+/* to fix:
+ * consistWith and instantiate are long and locking. Need to figure out if there's another way to do them. 	
+ */
 }
