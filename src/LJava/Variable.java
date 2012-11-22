@@ -209,29 +209,14 @@ public class Variable {
 //A consistency check for this Variable against another Variable.				
 	private final boolean consistWith(Variable b) {
 		if (b.isVar()){ 
-			if (!b.inSet.get()) { 
-				looksAt.add(b);  
-				return true; 
-			}
-			else return false;
+			if (b.inSet.get()) return false;
+			lockKey.lock();
+			looksAt.add(b);
+			lockKey.unlock();
+			return true;
 		}		
-		for (Variable element : b.looksAt) {			
-			if (element.isVar()) {
-				if (this==element) return false;
-				lockKey.lock();
-				if (!element.inSet.get()) looksAt.add(element);
-				else {
-					lockKey.unlock();
-					return false;			
-				}
-				lockKey.unlock();
-			}
-			else if (!this.consistWith(element)) return false;		
-		}		
-		return true;			
+		for (Variable element : b.looksAt)
+			if (!this.consistWith(element)) return false;
+		return true;
 	}
-	
-/* to fix:
- * consistWith and instantiate are long and locking. Need to figure out if there's another way to do them. 	
- */
 }

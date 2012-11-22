@@ -72,7 +72,7 @@ public class Group extends Association{
 			if (valAmount.getValue()<varAmount) continue;
 			int remain=valAmount.getValue()-varAmount;
 			valAmount.setValue(remain);
-			int recordsReturned=setValsToVars(vars, vals, varResults, 0); 
+			int recordsReturned=setValsToVars(vars, vals, varResults, 0);
 			if (recordsReturned<1) break;
 			recordsAdded=recordsAdded+recordsReturned; 
 			valAmount.setValue(remain+varAmount);
@@ -106,4 +106,10 @@ public class Group extends Association{
 			return 0;
 		}
 	}
+	
+	
+/* to fix:
+ * currently Group is running permutations of itself even if it already found an answer to exists(). It is slower then it can be: should CUT inside Group as needed.
+ * Still running on all values (including those with amount=0). It might be slightly more efficient...	
+ */
 }

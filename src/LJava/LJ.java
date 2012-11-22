@@ -199,8 +199,12 @@ public final class LJ {
 }
 
 
-/* Problems to solve:
- * exists(relation(1,2,x),LogicalOperator,relation(1,3,x))
+/* to fix:
+ * All the TBD in the class.
+ * instantiate is synchronized because a variable might get instantiated while it's follower will return false from instantiation and that's incoherent. Need to figure out how to do it in a different way.
+ * 
+ * Test cases for LogicOperator:
+ * exists/all(relation(1,2,x),LogicalOperator,relation(1,3,x))
  * exists/all(relation(1,2,x),LogicalOperator,formula(cmp,1,y,x))
  * exists/all(relation(1,2,x),LogicalOperator,formula(cmp,1,y,3))
  * exists/all(relation(1,2,x),LogicalOperator,relation(1,y,x))
@@ -208,10 +212,6 @@ public final class LJ {
  * exists/all(group(1,2,x),LogicalOperator,formula(cmp,1,x,3))
  * exists/all(group(1,2,x),LogicalOperator,formula(cmp,1,x,y))
  * exists/all(group(1,2,x),LogicalOperator,formula(cmp,1,y,3))
- * 
- * to fix:
- * All the TBD in the class.
- * instantiate is synchronized because a variable might get instantiated while it's follower will return false from instantiation and that's incoherent. Need to figure out how to do it in a different way.
  */
 
 
