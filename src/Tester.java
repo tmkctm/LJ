@@ -247,6 +247,7 @@ public class Tester {
 		group(12,12,12,12,12,13);
 		group(12,12,12,12,12,13,13,13,13,13);
 		group(12,12,14,13,13);
+		group(12,12,12,12,300,12,100,200,100,12);
 		assertFalse(exists(12,2,3,4,5,t,t,t));
 		assertTrue(exists(12,2,3,4,5,x,x,y));
 		assertTrue(var(x));
@@ -276,6 +277,11 @@ public class Tester {
 		assertFalse(z.contains(13));		assertTrue(z.contains(14));
 		assertTrue((x.toString().equals("[12,13]") && y.toString().equals("[13,12]")) || (x.toString().equals("[13,12]") && y.toString().equals("[12,13]")));
 		assertEquals(z.toString(), "[14,14]");
+		x=var();     y=var();     z=var();	t=var();
+		assertTrue(exists(t,x,y,x,x,x,y,x,z,x));
+		assertEquals(x.toString(), "[12,12]");
+		assertEquals(y.toString(), "[100,100]");
+		assertTrue((z.toString().equals("[300,200]") && t.toString().equals("[200,300]")) || (z.toString().equals("[200,300]") && t.toString().equals("[300,200]")));
 	}
 	
 	

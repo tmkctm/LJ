@@ -190,7 +190,7 @@ public final class LJ {
 	}	
 	
 
-	private static synchronized boolean instantiate(VariableMap varValues) {
+	private static boolean instantiate(VariableMap varValues) {
         boolean answer=true;
 		for (Variable v : varValues.getVars())													
 			answer=(v.instantiate(varValues.map.get(v), null, varValues.constraints.get(v)) && answer);	
@@ -201,7 +201,7 @@ public final class LJ {
 
 /* to fix:
  * All the TBD in the class.
- * instantiate is synchronized because a variable might get instantiated while it's follower will return false from instantiation and that's incoherent. Need to figure out how to do it in a different way.
+ * instantiate needs synchronized against Variable.instantiate.
  * 
  * Test cases for LogicOperator:
  * exists/all(relation(1,2,x),LogicalOperator,relation(1,3,x))
