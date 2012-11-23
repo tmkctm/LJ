@@ -24,7 +24,7 @@ public class VariableMap implements QueryParameter{
 	}
 
 	
-	public final void updateValsMap(HashMap<Variable,Object> vars) {		
+	public final void updateValsMap(HashMap<Variable, Object> vars) {
 		for (Map.Entry<Variable, Object> entry : vars.entrySet()) 
 			updateValsMap(entry.getKey(), entry.getValue());			
 	}
@@ -32,6 +32,13 @@ public class VariableMap implements QueryParameter{
 	
 	public final void updateValsMap(Variable key, Object val) {
 		addTo(map, key, val, ArrayList.class);
+	}
+	
+	
+	public final void add(VariableMap m) {
+		for (Map.Entry<Variable, ArrayList<Object>> entry : m.map.entrySet())
+			for (Object o : entry.getValue()) updateValsMap(entry.getKey(), o);
+		updateConstraintsMap(m.constraints);
 	}
 	
 	

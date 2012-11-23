@@ -170,11 +170,24 @@ public class Tester {
 		relate(8,1,"a");
 		relate(8,2,"b");
 		relate(8,3,"c");
-		all( or( relation(8,x,_) , relation(8,_,x) ));
+		all(relation(8,x,_),OR,relation(8,_,x));
 		assertEquals(x,1);
 		Variable c=new Variable();
 		c.set(1,2,3,"a","b","c");
 		assertTrue(x.equalValues(c));
+		x=var();
+		assertTrue(all(relation(8,2,x),OR,relation(8,y,x)));
+		assertTrue(x.toString().equals("[b,a,b,c]"));
+		assertTrue(y.toString().equals("[1,2,3]"));
+		group(8,80,800);
+		all(relation(800,t,z),OR,relation(8,t,"a"));
+		assertTrue(z.contains(8));
+		assertTrue(z.contains(80));
+		assertTrue(t.contains(8));
+		assertTrue(t.contains(80));
+		assertTrue(t.contains(1));
+		assertTrue((z.toString().equals("[8,80]") && t.toString().equals("[80,8,1]"))
+				   || (z.toString().equals("[80,8]") && t.toString().equals("[8,80,1]")));
 	}
 	
 	

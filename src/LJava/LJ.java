@@ -132,8 +132,9 @@ public final class LJ {
 	
 
 	public static VariableMap or(QueryParameter a, QueryParameter b){
-		//TBD
-		return new VariableMap();
+		VariableMap map=a.map();
+		map.add(b.map());
+		return map;
 	}	
 	
 
