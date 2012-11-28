@@ -8,7 +8,7 @@ public final class LJ {
 	
 	public final static Association _=new Association("_");
 	public final static Association undefined=new Association("$undefined$");
-	public static final Association none=new Association("$no_variable_value$");		
+	public final static Association none=new Association("$no_variable_value$");
 	private static final HashMap<Integer, LinkedHashSet<Association>> LJavaRelationTable=new HashMap<Integer, LinkedHashSet<Association>>();
 
 	
@@ -76,12 +76,6 @@ public final class LJ {
 	}
 	
 	
-	public static VariableMap where(Variable x, Constraint c) {
-		//TBD
-		return null;
-	}
-	
-	
 	private static boolean searchOnIndexByName(int index, Relation r) {
 		LinkedHashSet<Association> associationsSet = LJavaRelationTable.get(index);		
 		if (associationsSet!=null) {
@@ -143,6 +137,12 @@ public final class LJ {
 		return new VariableMap();
 	}
 	
+
+	public static VariableMap where(Variable x, Constraint c) {
+		//TBD
+		return null;
+	}
+	
 	
 	public static boolean var(Object x) {
 		if (variable(x)) return var(((Variable) x));
@@ -201,6 +201,7 @@ public final class LJ {
 
 
 /* to fix:
+ * Mapping of variables in VariableMap cause uncertain n-series of variables.
  * All the TBD in the class.
  * instantiate needs synchronized against Variable.instantiate.
  * 
