@@ -43,25 +43,6 @@ public final class Utils {
 	
 
 //Predefined Functors
-	public static Formula<Number,Double> max=new Formula<Number,Double>("Max", Number.class) {
-		@Override
-		protected Double f(Number... p) {
-			Double result=Double.MIN_VALUE;
-			for (Number n : p) 
-				if (n.doubleValue()>result) result=n.doubleValue();
-			return result;
-		}};
-	
-	public static Formula<Number,Double> min=new Formula<Number,Double>("Min", Number.class){
-		@Override
-		protected Double f(Number... p) {
-			if (p.length==0) return Double.MIN_VALUE;
-			Double result=p[0].doubleValue();
-			for (Number n : p)
-				if (n.doubleValue()<result) result=n.doubleValue();
-			return result;
-		}};
-
 	public static Formula<Object,Integer> cmp=new Formula<Object,Integer>("Compare", Object.class) {
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		@Override

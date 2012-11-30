@@ -188,19 +188,7 @@ public final class LJ {
 
 
 /* to fix:
- * Mapping of variables in VariableMap cause uncertain n-series of variables.
- * All the TBD in the class.
  * instantiate needs synchronized against Variable.instantiate.
- * 
- * Test cases for LogicOperator:
- * exists/all(relation(1,2,x),LogicalOperator,relation(1,3,x))
- * exists/all(relation(1,2,x),LogicalOperator,formula(cmp,1,y,x))
- * exists/all(relation(1,2,x),LogicalOperator,formula(cmp,1,y,3))
- * exists/all(relation(1,2,x),LogicalOperator,relation(1,y,x))
- * exists/all(relation(1,2,x),LogicalOperator,relation(1,y,3))
- * exists/all(group(1,2,x),LogicalOperator,formula(cmp,1,x,3))
- * exists/all(group(1,2,x),LogicalOperator,formula(cmp,1,x,y))
- * exists/all(group(1,2,x),LogicalOperator,formula(cmp,1,y,3))
  */
 
 
