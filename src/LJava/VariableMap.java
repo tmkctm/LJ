@@ -6,9 +6,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
-public class VariableMap implements QueryParameter{
+public class VariableMap implements QueryParameter {
 	
 	protected HashMap<Variable, ArrayList<Object>> map=new HashMap<Variable, ArrayList<Object>>();;
 	protected HashMap<Variable, Constraint> constraints= new HashMap<Variable, Constraint>();
@@ -55,8 +54,14 @@ public class VariableMap implements QueryParameter{
 	}
 	
 	
-	public final Set<Variable> getVars() {
-		Set<Variable> set = new HashSet<Variable>();
+	public final void updateConstraintsMap(Constraint c) {
+		for (Variable x : c.getVars()) updateConstraintsMap(x,c);
+	}
+	
+	
+	@Override
+	public final HashSet<Variable> getVars() {
+		HashSet<Variable> set = new HashSet<Variable>();
 		for (Variable v : map.keySet()) set.add(v);
 		for (Variable v : constraints.keySet()) set.add(v);
 		return set;

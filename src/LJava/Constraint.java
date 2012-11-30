@@ -1,13 +1,16 @@
 package LJava;
 import static LJava.Utils.*;
+import static LJava.LJ.*;
 import java.util.HashMap;
+import java.util.HashSet;
 
 @SuppressWarnings("rawtypes")
-public class Constraint {
+public class Constraint implements QueryParameter {
 	
 	private interface ItemInConstraint {
 		public boolean satisfy(HashMap<Variable, Object> map);
 		public Constraint replaceVariable(Variable v1, Variable v2);
+		public HashSet<Variable> getVars();
 	}
 	
 	private final class Atom implements ItemInConstraint {
@@ -55,6 +58,13 @@ public class Constraint {
 			Atom a = new Atom(this, v1, v2);
 			return new Constraint(a.f, a.args);
 		}
+		
+		@Override
+		public HashSet<Variable> getVars() {
+			HashSet<Variable> set = new HashSet<Variable>();
+			for (Object o : args) if (variable(o)) set.add((Variable) o);
+			return set;
+		}
 	}
 	
 	private final class Junction implements ItemInConstraint {
@@ -84,6 +94,14 @@ public class Constraint {
 		public Constraint replaceVariable(Variable v1, Variable v2) {
 			return new Constraint(left.replaceVariable(v1, v2),op,right.replaceVariable(v1, v2));
 		}
+		
+		@Override 
+		public HashSet<Variable> getVars() {
+			HashSet<Variable> set=new HashSet<Variable>();
+			set.addAll(left.getVars());
+			set.addAll(right.getVars());
+			return set;
+		}
 	}
 	
 	private final ItemInConstraint atom;
@@ -101,7 +119,7 @@ public class Constraint {
 	
 	public boolean satisfy(Variable v, Object o) {
 		HashMap<Variable, Object> map = new HashMap<Variable, Object>();
-		map.put(v,o);		
+		map.put(v,o);	
 		return atom.satisfy(map);
 	}
 
@@ -124,9 +142,16 @@ public class Constraint {
 	}
 	
 	
+	public VariableMap map() {
+		VariableMap m = new VariableMap();
+		m.updateConstraintsMap(this);
+		return m;
+	}
+	
+	
 	public Formula asFormula() {
 		if (isFormula()) return ((Atom) atom).f;
-		return LJTrue;
+		return LJFalse;
 	}
 	
 	
@@ -139,4 +164,14 @@ public class Constraint {
 		return atom.replaceVariable(v1, v2);
 	}
 	
+	
+	@Override
+	public HashSet<Variable> getVars() {
+		return atom.getVars();
+	}	
 }
+
+
+/* to fix:
+ * atom needs to get any QueryParameter.
+ */

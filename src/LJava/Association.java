@@ -2,9 +2,9 @@ package LJava;
 
 import static LJava.LJ.*;
 import static LJava.Utils.*;
-
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class Association {
 
@@ -54,7 +54,7 @@ public class Association {
 	}
 	
 
-	public Object[] replaceVariables(){
+	public Association replaceVariables() {
 		HashMap<Variable,Variable> varsMap=new HashMap<Variable,Variable>();
 		Object[] arguments=new Object[args.length];		
 		for (int i=0; i<args.length; i++)
@@ -66,7 +66,7 @@ public class Association {
 				}					
 			}
 			else arguments[i]=args[i];
-		return arguments;
+		return new Association(name,arguments);
 	}
 
 
@@ -87,19 +87,24 @@ public class Association {
 		
 	
 	protected boolean satisfy(Object[] rArgs, VariableMap varValues) {
-		if (this==LJTrue) return true;
 		return false;
 	}
 	
 	
 //Compares between 2 relations.
 	private boolean equalsAssociation(Association r){
-		if (!associationNameCompare(r)) return false;
 		if (this.isGroup() ^ r.isGroup()) return false;
 		if (this.isFormula() ^ r.isFormula()) return false;
+		if (!associationNameCompare(r)) return false;
 		for (int i=0; i<args.length; i++)
 			if (!same(this.args[i],r.args[i])) return false;
 		return true;
 	}
-		
+	
+	
+	public HashSet<Variable> getVars() {
+		HashSet<Variable> set = new HashSet<Variable>();
+		for (Object o : args) if (variable(o)) set.add((Variable) o);
+		return set;
+	}
 }
