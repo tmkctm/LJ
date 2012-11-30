@@ -1,6 +1,5 @@
 package LJava;
 import static LJava.Utils.*;
-import static LJava.LJ.*;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -107,13 +106,16 @@ public class Constraint implements QueryParameter {
 	private final ItemInConstraint atom;
 
 	
-	public Constraint(Formula formula, Object... params) {
-		atom = new Atom(formula, params);
+	public Constraint(QueryParameter q, Object... params) {
+		//TBD: handle all query parameters
+		if (q instanceof Formula) atom = new Atom((Formula) q, params);
+		else atom=new Atom(LJFalse);
 	}
 	
 	
-	public Constraint(Constraint l, LogicOperator lp, Constraint r) {
-		atom = new Junction(l,lp,r);
+	public Constraint(QueryParameter l, LogicOperator lp, QueryParameter r) {
+		if ((l instanceof Constraint) && (r instanceof Constraint))	atom = new Junction( (Constraint) l , lp , (Constraint) r);
+		else atom=new Atom(LJFalse);
 	}
 	
 	
@@ -142,10 +144,10 @@ public class Constraint implements QueryParameter {
 	}
 	
 	
-	public VariableMap map() {
-		VariableMap m = new VariableMap();
+	@Override
+	public boolean map(VariableMap m, boolean cut) {
 		m.updateConstraintsMap(this);
-		return m;
+		return true;
 	}
 	
 	

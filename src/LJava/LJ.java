@@ -29,16 +29,13 @@ public final class LJ {
 	}
 	
 			
-	public static boolean exists(Relation r) {		
-		VariableMap varValues=new VariableMap();		
-		if (!conduct(r, varValues, true)) return false;
-		return instantiate(varValues);
+	public static boolean exists(QueryParameter a) {
+		return query(a,true);
 	}
 	
 	
-	public static boolean exists(QueryParameter a, LogicOperator op, QueryParameter b){
-		//TBD
-		return false;
+	public static boolean exists(QueryParameter a, LogicOperator op, QueryParameter b) {
+		return exists(new Constraint(a,op,b));
 	}
 	
 	
@@ -48,31 +45,26 @@ public final class LJ {
 	}
 		
 
-	public static boolean all(Relation r){		
-		VariableMap varValues=new VariableMap(); 
-		if (!conduct(r, varValues, false)) return false;
-		return instantiate(varValues);
+	public static boolean all(QueryParameter a) {
+		return query(a,false);
 	}
 	
 	
-	public static boolean all(QueryParameter a, LogicOperator op, QueryParameter b){
-		if (op==OR) return instantiate(or(a,b));
-		if (op==AND) return instantiate(and(a,b));
-		if (op==DIFFER) return instantiate(differ(a,b));
-		//TBD
-		if (op==WHERE) return false; 
-		return false;
+	public static boolean all(QueryParameter a, LogicOperator op, QueryParameter b) {
+		return all(new Constraint(a,op,b));
 	}
 	
 	
-	public static boolean all(VariableMap m){
-		return instantiate(m);
-	}	
-	
-	
-	public static boolean all(Object... args){
+	public static boolean all(Object... args) {
 		Relation r=new Relation("#query",args);
-		return all(r);		
+		return all(r);
+	}
+	
+	
+	private static boolean query(QueryParameter a, boolean cut) {
+		VariableMap varValues=new VariableMap();
+		if (!a.map(varValues,cut)) return false;
+		return instantiate(varValues);		
 	}
 	
 	
@@ -80,7 +72,7 @@ public final class LJ {
 		LinkedHashSet<Association> associationsSet = LJavaRelationTable.get(index);		
 		if (associationsSet!=null) {
 			for (Association element : associationsSet)
-				if (element.associationNameCompare(r))	return true;			
+				if (element.associationNameCompare(r))	return true;
 		}
 		return false;
 	}
@@ -94,16 +86,16 @@ public final class LJ {
 	
 	
 	private static boolean searchOnIndex(int index, Relation r, Object[] rArgs, VariableMap varValues, boolean cut) {
-		LinkedHashSet<Association> associationsSet = LJavaRelationTable.get(index);		
+		LinkedHashSet<Association> associationsSet = LJavaRelationTable.get(index);
 		if (associationsSet!=null)
-			for (Association element : associationsSet) 
+			for (Association element : associationsSet)
 				if (element.associationNameCompare(r) && element.satisfy(rArgs, varValues))
 						if (cut) return true;
 		return !varValues.isEmpty();
 	}
 	
 	
-	protected static boolean conduct(Relation r, VariableMap varValues, boolean cutFlag) {	
+	protected static boolean conduct(Relation r, VariableMap varValues, boolean cutFlag) {
 		Object[] rArgs=r.args();
 		if (!cutFlag) {
 			for (Object o : rArgs) if (var(o)) { cutFlag=true;   break; }
@@ -119,28 +111,23 @@ public final class LJ {
 	}
 	
 	
-	public static VariableMap and(QueryParameter a, QueryParameter b){
-		//TBD
-		return new VariableMap();
+	public static Constraint and(QueryParameter a, QueryParameter b) {
+		return new Constraint(a,AND,b);
 	}
 	
 
-	public static VariableMap or(QueryParameter a, QueryParameter b){
-		VariableMap map=a.map();
-		map.add(b.map());
-		return map;
-	}	
-	
-
-	public static VariableMap differ(QueryParameter a, QueryParameter b){
-		//TBD
-		return new VariableMap();
+	public static Constraint or(QueryParameter a, QueryParameter b) {
+		return new Constraint(a,OR,b);
 	}
 	
 
-	public static VariableMap where(Variable x, Constraint c) {
-		//TBD
-		return null;
+	public static Constraint differ(QueryParameter a, QueryParameter b) {
+		return new Constraint(a,DIFFER,b);
+	}
+	
+
+	public static Constraint where(QueryParameter a, QueryParameter b) {
+		return new Constraint(a,WHERE,b);
 	}
 	
 	
@@ -177,23 +164,23 @@ public final class LJ {
 	
 	
 	public static Object val(Object o) {
-		if (variable(o)) return ((Variable) o).get(); 
+		if (variable(o)) return ((Variable) o).get();
 		return o;
 	}
 	
 	
-	public static boolean same(Object a, Object b) {		
-		if ((variable(a)) || (a instanceof Association) )
+	public static boolean same(Object a, Object b) {
+		if ((variable(a)) || (a instanceof Association))
 				return a.equals(b);
 		if ((a instanceof Number) && (b instanceof Number))
 				return ((Number) a).doubleValue()==((Number) b).doubleValue();
 		return b.equals(a);
-	}	
+	}
 	
 
 	private static boolean instantiate(VariableMap varValues) {
         boolean answer=true;
-		for (Variable v : varValues.getVars())													
+		for (Variable v : varValues.getVars())
 			answer=(v.instantiate(varValues.map.get(v), null, varValues.constraints.get(v)) && answer);	
 		return answer;
 	}

@@ -18,8 +18,14 @@ public class VariableMap implements QueryParameter {
 	
 	
 	@Override
-	public final VariableMap map(){
-		return this;
+	public final boolean map(VariableMap m, boolean cut) {
+		if (cut) {
+			for (Map.Entry<Variable, ArrayList<Object>> entry : map.entrySet())
+				m.updateValsMap(entry.getKey(), entry.getValue().get(0));
+			m.updateConstraintsMap(this.constraints);
+		}
+		else m.add(this);
+		return true;
 	}
 
 	
