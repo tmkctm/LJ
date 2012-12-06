@@ -60,11 +60,6 @@ public class VariableMap implements QueryParameter {
 	}
 	
 	
-	public final void updateConstraintsMap(Constraint c) {
-		for (Variable x : c.getVars()) updateConstraintsMap(x,c);
-	}
-	
-	
 	@Override
 	public final HashSet<Variable> getVars() {
 		HashSet<Variable> set = new HashSet<Variable>();

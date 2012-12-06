@@ -146,8 +146,8 @@ public class Constraint implements QueryParameter {
 	
 	@Override
 	public boolean map(VariableMap m, boolean cut) {
-		m.updateConstraintsMap(this);
-		return true;
+		//TBD
+		return false;
 	}
 	
 	
@@ -175,5 +175,5 @@ public class Constraint implements QueryParameter {
 
 
 /* to fix:
- * atom needs to get any QueryParameter.
+ * atom needs to get any QueryParameter and then the TBD map() method.
  */
