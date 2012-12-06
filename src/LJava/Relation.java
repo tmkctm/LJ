@@ -2,6 +2,7 @@ package LJava;
 
 import static LJava.LJ.*;
 import java.util.HashMap;
+import java.util.Iterator;
 
 public class Relation extends Association implements QueryParameter{
 	
@@ -26,6 +27,13 @@ public class Relation extends Association implements QueryParameter{
 
 	@Override
 	public boolean map(VariableMap m, boolean cut) {
-		return conduct(this, m, cut);
+		Iterator<Association> i = getLJIterator(this.args.length);
+		if (i==null) return false;
+		boolean out=false;
+		while (i.hasNext()) {
+			out=(conduct(this, m, i) || out);
+			if (cut && out) return true;
+		}
+		return out;	
 	}
 }

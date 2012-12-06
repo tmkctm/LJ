@@ -46,7 +46,15 @@ public class Tester {
 	
 	
 	@Test
-	public void testeOnVars(){
+	public void testNoVars(){
+		TesterLittleHelper aClass=new TesterLittleHelper();
+		relate(0,2,3,"a","b","c",aClass,50);
+		exists(0,2,3,"a",_,"c",_,50);
+	}	
+	
+	
+	@Test
+	public void testOnVars(){
 		TesterLittleHelper aClass=new TesterLittleHelper();
 		relate(1,2,3,"a","b","c", aClass, z);
 		exists(1,2,3,_,_,_,x,y);
@@ -56,7 +64,7 @@ public class Tester {
 	
 	
 	@Test
-	public void testeOneVarMultiple(){
+	public void testOneVarMultiple(){
 		relate(2,10,20,30, y, y);
 		exists(2,x,x,_,_,_);
 		assertTrue(var(x));		

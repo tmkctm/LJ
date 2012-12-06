@@ -2,6 +2,7 @@ package LJava;
 import static LJava.Utils.*;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 
 public final class LJ {
@@ -68,46 +69,9 @@ public final class LJ {
 	}
 	
 	
-	private static boolean searchOnIndexByName(int index, Relation r) {
-		LinkedHashSet<Association> associationsSet = LJavaRelationTable.get(index);		
-		if (associationsSet!=null) {
-			for (Association element : associationsSet)
-				if (element.associationNameCompare(r))	return true;
-		}
-		return false;
-	}
-	
-	
-	private static boolean nameQuerying(Relation r) {
-		if (searchOnIndexByName(0, r)) return true;
-		if (searchOnIndexByName(-1, r)) return true;
-		return false;
-	}
-	
-	
-	private static boolean searchOnIndex(int index, Relation r, Object[] rArgs, VariableMap varValues, boolean cut) {
-		LinkedHashSet<Association> associationsSet = LJavaRelationTable.get(index);
-		if (associationsSet!=null)
-			for (Association element : associationsSet)
-				if (element.associationNameCompare(r) && element.satisfy(rArgs, varValues))
-						if (cut) return true;
-		return !varValues.isEmpty();
-	}
-	
-	
-	protected static boolean conduct(Relation r, VariableMap varValues, boolean cutFlag) {
-		Object[] rArgs=r.args();
-		if (!cutFlag) {
-			for (Object o : rArgs) if (var(o)) { cutFlag=true;   break; }
-			cutFlag=!cutFlag;
-		}
-		if (rArgs.length==0) return nameQuerying(r);
-		if (searchOnIndex(rArgs.length, r, rArgs, varValues, cutFlag))
-			if (cutFlag) return true;
-		if (searchOnIndex(-1, r, rArgs, varValues, cutFlag))
-			if (cutFlag) return true;
-		if (varValues.isEmpty()) return false;
-		return true;
+	protected static boolean conduct(Relation r, VariableMap varValues, Iterator<Association> i) {		
+		Association element = i.next();
+		return (element.associationNameCompare(r) && element.satisfy(r.args, varValues));
 	}
 	
 	
@@ -183,6 +147,13 @@ public final class LJ {
 		for (Variable v : varValues.getVars())
 			answer=(v.instantiate(varValues.map.get(v), null, varValues.constraints.get(v)) && answer);	
 		return answer;
+	}
+	
+	
+	protected static Iterator<Association> getLJIterator(int index) {
+		LinkedHashSet<Association> set=LJavaRelationTable.get(index);
+		if (set==null) return null;
+		return set.iterator();
 	}
 }
 

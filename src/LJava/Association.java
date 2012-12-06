@@ -8,8 +8,8 @@ import java.util.HashSet;
 
 public class Association {
 
-	private final String name;
-	private final Object[] args;	
+	protected final String name;
+	protected final Object[] args;	
 	
 	public Association(String n, Object... params) {
 		name = (n==null || n=="") ? "#Relation" : n;
