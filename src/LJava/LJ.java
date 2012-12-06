@@ -69,7 +69,7 @@ public final class LJ {
 	}
 	
 	
-	protected static boolean conduct(Relation r, VariableMap varValues, Iterator<Association> i) {		
+	protected static boolean evaluate(Relation r, VariableMap varValues, Iterator<Association> i) {		
 		Association element = i.next();
 		return (element.associationNameCompare(r) && element.satisfy(r.args, varValues));
 	}

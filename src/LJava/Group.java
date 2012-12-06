@@ -109,6 +109,6 @@ public class Group extends Association{
 	
 	
 /* to fix:
- * CUT within the group permutations at setValsToVars().
+ * Lazy within the group permutations at setValsToVars().
  */
 }

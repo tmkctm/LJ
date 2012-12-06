@@ -27,13 +27,22 @@ public class Relation extends Association implements QueryParameter{
 
 	@Override
 	public boolean map(VariableMap m, boolean cut) {
-		Iterator<Association> i = getLJIterator(this.args.length);
-		if (i==null) return false;
 		boolean out=false;
+		out=mapAgainstIndex(m, cut, this.args.length);
+		if (out && cut) return true;
+		out=(mapAgainstIndex(m, cut, -1) || out);		
+		return out;	
+	}
+	
+	
+	private boolean mapAgainstIndex(VariableMap m, boolean cut, int index) {
+		boolean out=false;
+		Iterator<Association> i = getLJIterator(index);
+		if (i==null) return false;
 		while (i.hasNext()) {
-			out=(conduct(this, m, i) || out);
+			out=(evaluate(this, m, i) || out);
 			if (cut && out) return true;
 		}
-		return out;	
+		return out;
 	}
 }
