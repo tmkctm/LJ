@@ -69,7 +69,7 @@ public final class LJ {
 	}
 	
 	
-	protected static boolean evaluate(Relation r, VariableMap varValues, Iterator<Association> i) {		
+	protected static boolean evaluate(Relation r, VariableMap varValues, LJIterator i) {		
 		Association element = i.next();
 		return (element.associationNameCompare(r) && element.satisfy(r.args, varValues));
 	}
@@ -149,11 +149,37 @@ public final class LJ {
 		return answer;
 	}
 	
+
+	protected static LJIterator getLJIterator(int index) {
+		return new LJ().new LJIterator(index);
+	}
 	
-	protected static Iterator<Association> getLJIterator(int index) {
-		LinkedHashSet<Association> set=LJavaRelationTable.get(index);
-		if (set==null) return null;
-		return set.iterator();
+//Class for lazy iterator for evaluation over the associations DB.
+	protected class LJIterator {
+		Iterator<Association> i;
+		boolean onFormulas;
+		
+		public LJIterator(int index) {
+			onFormulas=false;
+			LinkedHashSet<Association> table=LJavaRelationTable.get(index);
+			if (table==null) {
+				table=LJavaRelationTable.get(-1);
+				onFormulas=true;
+			}
+			i=(table==null) ? null : table.iterator();
+		}
+		
+		public boolean hasNext() {
+			if (i==null) return false;
+			return (i.hasNext() || (!onFormulas && LJavaRelationTable.get(-1)!=null));
+		}
+		
+		public Association next() {
+			if (i.hasNext()) return i.next();
+			i=LJavaRelationTable.get(-1).iterator();
+			onFormulas=true;
+			return i.next();
+		}
 	}
 }
 

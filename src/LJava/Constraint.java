@@ -151,6 +151,12 @@ public class Constraint implements QueryParameter {
 	}
 	
 	
+	private boolean map(VariableMap answer) {
+		//TBD
+		return false;
+	}
+	
+	
 	public Formula asFormula() {
 		if (isFormula()) return ((Atom) atom).f;
 		return LJFalse;
