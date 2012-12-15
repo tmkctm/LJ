@@ -41,8 +41,8 @@ public abstract class Formula<P,R> extends Relation {
 	@SuppressWarnings("unchecked")
 	@Override
 	protected boolean satisfy(Object[] rArgs, VariableMap varValues){
-		if (this==LJTrue || rArgs.length==0) return true;
 		if (this==LJFalse) return false;
+		if (this==LJTrue || rArgs.length==0) return true;
 		P[] temp=(P[]) Array.newInstance(parametersType, rArgs.length-1);
 		boolean varInArgs=false;
 		for (int i=1; i<rArgs.length; i++) {			

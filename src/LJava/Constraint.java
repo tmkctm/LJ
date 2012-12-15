@@ -1,35 +1,39 @@
 package LJava;
 import static LJava.Utils.*;
+import static LJava.LJ.*;
 import java.util.HashMap;
 import java.util.HashSet;
+import LJava.LJ.LJIterator;
 
-@SuppressWarnings("rawtypes")
 public class Constraint implements QueryParameter {
 	
 	private interface ItemInConstraint {
 		public boolean satisfy(HashMap<Variable, Object> map);
 		public Constraint replaceVariable(Variable v1, Variable v2);
 		public HashSet<Variable> getVars();
+		public boolean conduct(VariableMap map); 
 	}
 	
 	private final class Atom implements ItemInConstraint {
-		private final Formula f;
+		private final Relation relation;
 		private final Object[] args;
+		private LJIterator iterator;
 		
-		public Atom(Formula formula, Object... params) {
-			f = (formula==null) ? LJTrue : formula;
+		public Atom(Relation r, Object... params) {
+			relation=(r==null) ? LJTrue : r;
 			args = (params==null) ? new Object[0] : params;
+			iterator=emptyIterator;
 		}
 		
 		public Atom(Atom a, Variable v1, Variable v2) {
-			f=a.f;
+			relation=a.relation;
 			args = new Object[a.args.length];
 			for (int i=0; i<args.length; i++)
 				args[i] = (a.args[i]==v1) ? v2 : a.args[i];
 		}
 		
 		public String toString() {	
-			StringBuilder s = new StringBuilder(f.name()+"(");
+			StringBuilder s = new StringBuilder(relation.name()+"(");
 			if (args.length>0) {
 				for (int i=0; i<args.length-1; i++)	
 					if (variable(args[i])) s.append("[],");
@@ -42,20 +46,19 @@ public class Constraint implements QueryParameter {
 		
 		@Override
 		public boolean satisfy(HashMap<Variable, Object> map) {
-			if (f==LJFalse) return false;
-			if (f==LJTrue) return true;
 			Object[] arr = new Object[args.length];
 			for (int i=0; i<arr.length; i++) {
 				arr[i]=map.get(args[i]);
 				if (arr[i]==null) arr[i]=args[i];
 			}
-			return f.satisfy(arr, new VariableMap());
+			if (relation instanceof Formula) return relation.satisfy(arr, new VariableMap());
+			return relation(relation.name(),args).map(new VariableMap(), true);
 		}
 		
 		@Override
 		public Constraint replaceVariable(Variable v1, Variable v2) {
 			Atom a = new Atom(this, v1, v2);
-			return new Constraint(a.f, a.args);
+			return new Constraint(a.relation, a.args);
 		}
 		
 		@Override
@@ -64,6 +67,17 @@ public class Constraint implements QueryParameter {
 			for (Object o : args) if (variable(o)) set.add((Variable) o);
 			return set;
 		}
+		
+		@Override
+		public boolean conduct(VariableMap map) {
+			if (iterator==emptyIterator) iterator=getLJIterator(this.args.length);
+			while (iterator.hasNext() && !evaluate(relation, map, iterator)) {} 
+			if (!iterator.hasNext()) {
+				iterator=emptyIterator;
+				return false;
+			}
+			return true;
+		}		
 	}
 	
 	private final class Junction implements ItemInConstraint {
@@ -101,30 +115,28 @@ public class Constraint implements QueryParameter {
 			set.addAll(right.getVars());
 			return set;
 		}
+		
+		@Override
+		public boolean conduct(VariableMap map) {
+			//TBD
+			return false;
+		}
 	}
 	
 	private final ItemInConstraint atom;
 
 	
-	public Constraint(QueryParameter q, Object... params) {
-		//TBD: handle all query parameters
-		if (q instanceof Formula) atom = new Atom((Formula) q, params);
-		else atom=new Atom(LJFalse);
+	public Constraint(Relation r, Object... params) {
+		atom = new Atom(r, params);
 	}
 	
 	
 	public Constraint(QueryParameter l, LogicOperator lp, QueryParameter r) {
-		if ((l instanceof Constraint) && (r instanceof Constraint))	atom = new Junction( (Constraint) l , lp , (Constraint) r);
-		else atom=new Atom(LJFalse);
+		Constraint left = (l instanceof Constraint) ? (Constraint) l : new Constraint((Relation)l, ((Relation)l).args);
+		Constraint right = (r instanceof Constraint) ? (Constraint) r : new Constraint((Relation)r, ((Relation)r).args);
+		atom = new Junction(left,lp,right);
 	}
 	
-	
-	public boolean satisfy(Variable v, Object o) {
-		HashMap<Variable, Object> map = new HashMap<Variable, Object>();
-		map.put(v,o);	
-		return atom.satisfy(map);
-	}
-
 	
 	public boolean satisfy(Variable[] vs, Object[] os) {
 		if (vs.length>os.length) return false;
@@ -137,6 +149,19 @@ public class Constraint implements QueryParameter {
 	public boolean satisfy(HashMap<Variable,Object> map) {
 		return atom.satisfy(map);
 	}
+
+	
+	public boolean satisfy(Object... pairs) {
+		if (pairs.length%2==1) return false;
+		HashMap<Variable, Object> map = new HashMap<Variable, Object>();
+		int i=0;
+		while (i<pairs.length) {
+			if (!variable(pairs[i])) return false;
+			map.put((Variable) pairs[i], pairs[i+1]);
+			i=i+2;
+		}
+		return atom.satisfy(map);
+	}
 	
 
 	public String toString() {
@@ -146,24 +171,30 @@ public class Constraint implements QueryParameter {
 	
 	@Override
 	public boolean map(VariableMap m, boolean cut) {
-		//TBD
+		if (cut) return conduct(m);
+		if (!conduct(m)) return false;
+		while (conduct(m)) {}
+		return true;
+	}
+	
+	
+	private boolean conduct(VariableMap map) {
+		VariableMap answer= new VariableMap();
+		if (atom.conduct(answer)) {
+			map.add(answer);
+			return true;
+		}
 		return false;
 	}
 	
 	
-	private boolean map(VariableMap answer) {
-		//TBD
-		return false;
-	}
-	
-	
-	public Formula asFormula() {
-		if (isFormula()) return ((Atom) atom).f;
+	public Relation asRelation() {
+		if (isRelation()) return ((Atom) atom).relation;
 		return LJFalse;
 	}
 	
 	
-	public boolean isFormula() {
+	public boolean isRelation() {
 		return (atom instanceof Atom);
 	}
 	
@@ -173,7 +204,6 @@ public class Constraint implements QueryParameter {
 	}
 	
 	
-	@Override
 	public HashSet<Variable> getVars() {
 		return atom.getVars();
 	}	
@@ -181,5 +211,7 @@ public class Constraint implements QueryParameter {
 
 
 /* to fix:
- * atom needs to get any QueryParameter and then the TBD map() method.
+ * implement the TBD.
+ * after map() is over in the constraint all the iterators should be initialized to empty in the atoms.
+ * toString of atom isn't working good for variables currently. testCase: z has constraint c which has atom that contains z... 
  */

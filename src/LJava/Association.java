@@ -1,10 +1,8 @@
 package LJava;
 
 import static LJava.LJ.*;
-import static LJava.Utils.*;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 
 public class Association {
 
@@ -99,12 +97,5 @@ public class Association {
 		for (int i=0; i<args.length; i++)
 			if (!same(this.args[i],r.args[i])) return false;
 		return true;
-	}
-	
-	
-	public HashSet<Variable> getVars() {
-		HashSet<Variable> set = new HashSet<Variable>();
-		for (Object o : args) if (variable(o)) set.add((Variable) o);
-		return set;
 	}
 }

@@ -11,7 +11,7 @@ import static LJava.LJ.var;
 import static LJava.LJ.val;
 
 
-public class Group extends Association{
+public class Group extends Association {
 	
 	private final Map<Object, Integer> argsMap;
 	

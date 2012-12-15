@@ -1,13 +1,13 @@
 package LJava;
 
 import static LJava.Utils.*;
-
+import static LJava.LJ.undefined;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-public class VariableMap implements QueryParameter {
+public class VariableMap {
 	
 	protected HashMap<Variable, ArrayList<Object>> map=new HashMap<Variable, ArrayList<Object>>();;
 	protected HashMap<Variable, Constraint> constraints= new HashMap<Variable, Constraint>();
@@ -16,18 +16,6 @@ public class VariableMap implements QueryParameter {
 		return (map.isEmpty() && constraints.isEmpty());
 	}
 	
-	
-	@Override
-	public final boolean map(VariableMap m, boolean cut) {
-		if (cut) {
-			for (Map.Entry<Variable, ArrayList<Object>> entry : map.entrySet())
-				m.updateValsMap(entry.getKey(), entry.getValue().get(0));
-			m.updateConstraintsMap(this.constraints);
-		}
-		else m.add(this);
-		return true;
-	}
-
 	
 	public final void updateValsMap(HashMap<Variable, Object> vars) {
 		for (Map.Entry<Variable, Object> entry : vars.entrySet()) 
@@ -60,11 +48,24 @@ public class VariableMap implements QueryParameter {
 	}
 	
 	
-	@Override
-	public final HashSet<Variable> getVars() {
+	public final Object getVals(Variable v) {
+		ArrayList<Object> vals=map.get(v);
+		if (vals==null) return undefined;
+		return vals;
+	}
+
+
+	public final Object getConstraint(Variable v) {
+		Constraint vals=constraints.get(v);
+		if (vals==null) return undefined;
+		return vals;		
+	}
+	
+	
+	public HashSet<Variable> getVars() {
 		HashSet<Variable> set = new HashSet<Variable>();
-		for (Variable v : map.keySet()) set.add(v);
-		for (Variable v : constraints.keySet()) set.add(v);
+		set.addAll(map.keySet());
+		set.addAll(constraints.keySet());
 		return set;
 	}
 }

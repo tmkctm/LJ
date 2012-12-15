@@ -11,7 +11,8 @@ public final class LJ {
 	public final static Association undefined=new Association("$undefined$");
 	public final static Association none=new Association("$no_variable_value$");
 	private static final HashMap<Integer, LinkedHashSet<Association>> LJavaRelationTable=new HashMap<Integer, LinkedHashSet<Association>>();
-
+	
+	protected static final LJIterator emptyIterator=getLJIterator(-2);
 	
 	public static void associate(Association r) {
 		addTo(LJavaRelationTable, r.argsLength(), r, LinkedHashSet.class);

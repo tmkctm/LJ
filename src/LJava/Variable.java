@@ -37,7 +37,7 @@ public class Variable {
 			s.append(value[value.length-1].toString());
 		}
 		s.append("]");
-		if (constraint.asFormula()!=LJFalse) s.append(" OR "+constraint.toString());
+		if (constraint.asRelation()!=LJFalse) s.append(" OR "+constraint.toString());
 		return s.toString();
 	}
 
@@ -141,7 +141,7 @@ public class Variable {
 
 	public final boolean noValue(){
 		if (isVar()) return false;
-		return (value.length==0 && constraint.asFormula()==LJFalse);
+		return (value.length==0 && constraint.asRelation()==LJFalse);
 	}
 
 
@@ -152,7 +152,7 @@ public class Variable {
 
 	public final boolean isConstraint(){
 		if ((!this.isVar()) && (!noValue()))
-			return (value.length>1 || constraint.asFormula()!=LJFalse);
+			return (value.length>1 || constraint.asRelation()!=LJFalse);
 		return false;
 	}
 

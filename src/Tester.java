@@ -356,6 +356,7 @@ public class Tester {
 		assertTrue(var(x));
 		assertTrue(var(y));
 		assertTrue(c1.satisfy(vs,os));
+		assertTrue(c1.satisfy(x,1400,y,400));
 		y.set(1);
 		assertTrue(c1.satisfy(x,400));
 		assertTrue(x.instantiate(arr, c, new Constraint(LJFalse)));
