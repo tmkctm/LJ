@@ -179,6 +179,7 @@ public class Tester {
 		relate(8,2,"b");
 		relate(8,3,"c");
 		all(relation(8,x,_),OR,relation(8,_,x));
+		System.out.println(x);
 		assertEquals(x,1);
 		Variable c=new Variable();
 		c.set(1,2,3,"a","b","c");

@@ -2,7 +2,6 @@ package LJava;
 
 import static LJava.LJ.*;
 import java.util.Arrays;
-import java.util.HashMap;
 
 public class Association {
 
@@ -52,19 +51,11 @@ public class Association {
 	}
 	
 
-	public Association replaceVariables() {
-		HashMap<Variable,Variable> varsMap=new HashMap<Variable,Variable>();
-		Object[] arguments=new Object[args.length];		
-		for (int i=0; i<args.length; i++)
-			if (var(args[i]))	{
-				arguments[i]=varsMap.get(args[i]);
-				if (arguments[i]==null) {
-					arguments[i]=var();
-					varsMap.put((Variable) args[i], (Variable) arguments[i]);
-				}					
-			}
-			else arguments[i]=args[i];
-		return new Association(name,arguments);
+	public Association replaceVariable(Variable v1, Object v2) {
+		Object arguments[]=new Object[args.length];
+		for (int i=0; i<args.length; i++) 
+			arguments[i]= (args[i]==v1)? v2 : args[i];
+		return relation(name, arguments);
 	}
 
 

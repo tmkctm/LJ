@@ -9,7 +9,7 @@ public class Constraint implements QueryParameter {
 	
 	private interface ItemInConstraint {
 		public boolean satisfy(HashMap<Variable, Object> map);
-		public Constraint replaceVariable(Variable v1, Variable v2);
+		public Constraint replaceVariable(Variable v, Object o);
 		public HashSet<Variable> getVars();
 		public boolean conduct(VariableMap map); 
 	}
@@ -25,7 +25,7 @@ public class Constraint implements QueryParameter {
 			iterator=emptyIterator;
 		}
 		
-		public Atom(Atom a, Variable v1, Variable v2) {
+		public Atom(Atom a, Variable v1, Object v2) {
 			relation=a.relation;
 			args = new Object[a.args.length];
 			for (int i=0; i<args.length; i++)
@@ -52,12 +52,12 @@ public class Constraint implements QueryParameter {
 				if (arr[i]==null) arr[i]=args[i];
 			}
 			if (relation instanceof Formula) return relation.satisfy(arr, new VariableMap());
-			return relation(relation.name(),args).map(new VariableMap(), true);
+			return relation(relation.name(),arr).map(new VariableMap(), true);
 		}
 		
 		@Override
-		public Constraint replaceVariable(Variable v1, Variable v2) {
-			Atom a = new Atom(this, v1, v2);
+		public Constraint replaceVariable(Variable v, Object o) {
+			Atom a = new Atom(this, v, o);
 			return new Constraint(a.relation, a.args);
 		}
 		
@@ -71,12 +71,9 @@ public class Constraint implements QueryParameter {
 		@Override
 		public boolean conduct(VariableMap map) {
 			if (iterator==emptyIterator) iterator=getLJIterator(this.args.length);
-			while (iterator.hasNext() && !evaluate(relation, map, iterator)) {} 
-			if (!iterator.hasNext()) {
-				iterator=emptyIterator;
-				return false;
-			}
-			return true;
+			while (iterator.hasNext()) 
+				if (evaluate(relation, map, iterator)) return true; 
+			return false;
 		}		
 	}
 	
@@ -96,7 +93,7 @@ public class Constraint implements QueryParameter {
 			if (op==AND || op==WHERE) return (left.satisfy(map) && right.satisfy(map));
 			if (op==OR) return (left.satisfy(map) || right.satisfy(map));
 			if (op==DIFFER) return (left.satisfy(map) && !right.satisfy(map));
-			return false;
+			return true;
 		}
 		
 		public String toString() {
@@ -104,8 +101,8 @@ public class Constraint implements QueryParameter {
 		}
 		
 		@Override
-		public Constraint replaceVariable(Variable v1, Variable v2) {
-			return new Constraint(left.replaceVariable(v1, v2),op,right.replaceVariable(v1, v2));
+		public Constraint replaceVariable(Variable v, Object o) {
+			return new Constraint(left.replaceVariable(v, o),op,right.replaceVariable(v, o));
 		}
 		
 		@Override 
@@ -118,8 +115,19 @@ public class Constraint implements QueryParameter {
 		
 		@Override
 		public boolean conduct(VariableMap map) {
-			//TBD
-			return false;
+			VariableMap answer=new VariableMap();
+			if (op==WHERE) {
+				do {
+					answer=new VariableMap();
+					if (!left.conduct(answer)) return false;
+				} while (!right.satisfy(answer));
+			}
+			else if (op==AND) return false;  //TBD
+			else if (op==DIFFER) return false;  //TBD
+			else if (op==OR)
+				if (!left.conduct(answer) && !right.conduct(answer)) return false;
+			map.add(answer);
+			return true;
 		}
 	}
 	
@@ -199,8 +207,8 @@ public class Constraint implements QueryParameter {
 	}
 	
 	
-	public Constraint replaceVariable(Variable v1, Variable v2) {
-		return atom.replaceVariable(v1, v2);
+	public Constraint replaceVariable(Variable v, Object o) {
+		return atom.replaceVariable(v, o);
 	}
 	
 	
@@ -212,6 +220,6 @@ public class Constraint implements QueryParameter {
 
 /* to fix:
  * implement the TBD.
- * after map() is over in the constraint all the iterators should be initialized to empty in the atoms.
+ * map() should reset iterators in atoms if the constraint isn't LJ internal.
  * toString of atom isn't working good for variables currently. testCase: z has constraint c which has atom that contains z... 
  */
