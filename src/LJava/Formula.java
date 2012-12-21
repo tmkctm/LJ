@@ -54,7 +54,7 @@ public abstract class Formula<P,R> extends Relation {
 			else temp[i-1]=(P) val;
 		}
 		if (varInArgs) {
-			if (!var(rArgs[0])) return false;
+			if (!var(rArgs[0])) return false;     //TBD - this should handle vars in args.
 			varValues.updateConstraintsMap((Variable) rArgs[0], new Constraint(this, rArgs));
 		}
 		else {
@@ -66,7 +66,7 @@ public abstract class Formula<P,R> extends Relation {
 	}
 	
 /* to fix:
- * satisfy for a var in args - requires reversing the formula.
+ * do the TBD
  */
 	
 	

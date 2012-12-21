@@ -42,15 +42,13 @@ public class Group extends Association {
 		
 		Integer count=0;
 		for (Map.Entry<Object, Integer> entry : argsMap.entrySet()) { //Differing amounts between group's map and r's map
-			Object key=entry.getKey();
-			Object keyVal=val(key);
-			if (var(keyVal)) count=rVarsCountMap.remove(keyVal);
-			else count=rArgsCountMap.remove(keyVal);
+			Object keyVal=val(entry.getKey());
+			count=(var(keyVal))? rVarsCountMap.remove(keyVal) : rArgsCountMap.remove(keyVal);
 			if (count==null) count=0; 					
 			count=count-entry.getValue();
 			if (count>0) {
-				if (var(keyVal)) rVarsCountMap.put((Variable) keyVal, count);
-				else return false;
+				if (!var(keyVal)) return false;
+				rVarsCountMap.put((Variable) keyVal, count);
 			}
 			else if (count<0) remainedVals.put(keyVal, -count); 
 		}	
@@ -66,11 +64,9 @@ public class Group extends Association {
 		if (vars.isEmpty()) return 1;
 		Variable var=vars.firstKey();
 		Integer varAmount = vars.remove(var);
-		Iterator<Map.Entry<Object, Integer>> valIterator=vals.entrySet().iterator();
-		while (valIterator.hasNext()) {
-			Map.Entry<Object, Integer> valAmount = valIterator.next();
-			if (valAmount.getValue()<varAmount) continue;
+		for (Map.Entry<Object, Integer> valAmount : vals.entrySet()) {
 			int amount=valAmount.getValue();
+			if (amount<varAmount) continue;
 			valAmount.setValue(valAmount.getValue()-varAmount);
 			int recordsReturned=setValsToVars(vars, vals, varResults, 0);
 			if (recordsReturned<1) break;

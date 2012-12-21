@@ -32,16 +32,6 @@ public final class Utils {
 	}	
 	
 	
-	@SuppressWarnings("unchecked")
-	protected static <K,V> V getFrom(Map<K,V> map, K key, Class<?> type) {
-		V val = map.get(key);
-		try {
-			if (val==null) return (V) type.newInstance();
-		}catch (Exception e) {}
-		return val;
-	}		
-	
-
 //Predefined Functors
 	public static Formula<Object,Integer> cmp=new Formula<Object,Integer>("Compare", Object.class) {
 		@SuppressWarnings({ "rawtypes", "unchecked" })

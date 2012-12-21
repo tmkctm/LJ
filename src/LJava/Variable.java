@@ -114,12 +114,7 @@ public class Variable {
 				ArrayList<Object> correct= new ArrayList<Object>();
 				if (where==null) where=new Constraint(LJTrue);
 				for (int i=0; i<vals.length; i++) {
-					if (variable(vals[i])) { 
-						if (!this.consistWith((Variable) vals[i])) {							
-							correct.add(undefined);
-							continue;
-						}					
-					}
+					if (variable(vals[i]) && !this.consistWith((Variable) vals[i])) {	correct.add(undefined);		continue;		}
 					if (where.satisfy(this, vals[i])) correct.add(vals[i]);
 				}			
 				if (!correct.isEmpty()) this.value=correct.toArray();				
@@ -218,4 +213,10 @@ public class Variable {
 			if (!this.consistWith(element)) return false;
 		return true;
 	}
+	
+
+/* to fix:
+ * 	lock at instantiate versus consistWith. Consider an alternative.	
+ */
+	
 }
