@@ -1,6 +1,8 @@
 package LJava;
 import static LJava.Utils.*;
 import static LJava.LJ.*;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import LJava.LJ.LJIterator;
@@ -11,7 +13,8 @@ public class Constraint implements QueryParameter {
 		public boolean satisfy(HashMap<Variable, Object> map);
 		public Constraint replaceVariable(Variable v, Object o);
 		public HashSet<Variable> getVars();
-		public boolean conduct(VariableMap map); 
+		public boolean conduct(VariableMap valsToFill, VariableMap answer);
+		public void startLazy();
 	}
 	
 	private final class Atom implements ItemInConstraint {
@@ -50,9 +53,9 @@ public class Constraint implements QueryParameter {
 			for (int i=0; i<arr.length; i++) {
 				arr[i]=map.get(args[i]);
 				if (arr[i]==null) arr[i]=args[i];
-			}
+			}			
 			if (relation instanceof Formula) return relation.satisfy(arr, new VariableMap());
-			return relation(relation.name(),arr).map(new VariableMap(), true);
+			return relation(relation.name(), arr).map(new VariableMap(), true);
 		}
 		
 		@Override
@@ -69,12 +72,23 @@ public class Constraint implements QueryParameter {
 		}
 		
 		@Override
-		public boolean conduct(VariableMap map) {
+		public boolean conduct(VariableMap valsToFill, VariableMap answer) {
+			Object[] arr = new Object[args.length];
+			for (int i=0; i<arr.length; i++) {
+				ArrayList<Object> l=valsToFill.map.get(args[i]);   // this is bad - get only values and no constraints atm - TBD.
+				arr[i]= (l==null) ? args[i] : l.get(0);
+			}			
+			Relation r = relation(relation.name, arr); 
 			if (iterator==emptyIterator) iterator=getLJIterator(this.args.length);
 			while (iterator.hasNext()) 
-				if (evaluate(relation, map, iterator)) return true; 
+				if (evaluate(r, answer, iterator)) return true;
 			return false;
-		}		
+		}
+		
+		@Override
+		public void startLazy(){
+			iterator=emptyIterator;
+		}
 	}
 	
 	private final class Junction implements ItemInConstraint {
@@ -114,20 +128,37 @@ public class Constraint implements QueryParameter {
 		}
 		
 		@Override
-		public boolean conduct(VariableMap map) {
-			VariableMap answer=new VariableMap();
+		public boolean conduct(VariableMap valsToFill, VariableMap answer) {
+			VariableMap tempAnswer=new VariableMap();
 			if (op==WHERE) {
 				do {
-					answer=new VariableMap();
-					if (!left.conduct(answer)) return false;
-				} while (!right.satisfy(answer));
+					tempAnswer=new VariableMap();
+					if (!left.conduct(tempAnswer)) return false;
+				} while (!right.satisfy(tempAnswer));
 			}
-			else if (op==AND) return false;  //TBD
-			else if (op==DIFFER) return false;  //TBD
+			else if (op==AND) {
+				do {
+					tempAnswer=new VariableMap();
+					right.startLazy();
+					if (!left.conduct(tempAnswer)) return false;
+				} while (!right.conduct(tempAnswer, answer));				
+			}
+			else if (op==DIFFER) {
+				do {
+					tempAnswer=new VariableMap();
+					if (!left.conduct(tempAnswer)) return false;
+				} while (right.satisfy(tempAnswer));
+			}
 			else if (op==OR)
 				if (!left.conduct(answer) && !right.conduct(answer)) return false;
-			map.add(answer);
+			answer.add(tempAnswer);
 			return true;
+		}
+		
+		@Override
+		public void startLazy() {
+			left.startLazy();
+			right.startLazy();
 		}
 	}
 	
@@ -187,8 +218,12 @@ public class Constraint implements QueryParameter {
 	
 	
 	private boolean conduct(VariableMap map) {
-		VariableMap answer= new VariableMap();
-		if (atom.conduct(answer)) {
+		return conduct(map, new VariableMap());
+	}
+	
+	
+	private boolean conduct(VariableMap map, VariableMap answer) {
+		if (atom.conduct(map, answer)) {
 			map.add(answer);
 			return true;
 		}
@@ -214,12 +249,16 @@ public class Constraint implements QueryParameter {
 	
 	public HashSet<Variable> getVars() {
 		return atom.getVars();
-	}	
+	}
+	
+	
+	private void startLazy() {
+		atom.startLazy();
+	}
 }
 
 
 /* to fix:
  * implement the TBD.
- * map() should reset iterators in atoms if the constraint isn't LJ internal.
  * toString of atom isn't working good for variables currently. testCase: z has constraint c which has atom that contains z... 
  */

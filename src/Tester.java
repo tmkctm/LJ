@@ -179,7 +179,6 @@ public class Tester {
 		relate(8,2,"b");
 		relate(8,3,"c");
 		all(relation(8,x,_),OR,relation(8,_,x));
-		System.out.println(x);
 		assertEquals(x,1);
 		Variable c=new Variable();
 		c.set(1,2,3,"a","b","c");
@@ -206,6 +205,7 @@ public class Tester {
 		relate(9,2,3);
 		relate(9,3,"c");
 		all( and( relation(9,x,_) , relation(9,_,x) ));
+		System.out.println(x);
 		assertEquals(x,3);
 		assertFalse(x.isConstraint());
 		assertTrue(x.isNumber());		
