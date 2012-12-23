@@ -10,10 +10,10 @@ import LJava.LJ.LJIterator;
 public class Constraint implements QueryParameter {
 	
 	private interface ItemInConstraint {
-		public boolean satisfy(HashMap<Variable, Object> map);
+		public boolean satisfy(VariableMap restrictions);
 		public Constraint replaceVariable(Variable v, Object o);
 		public HashSet<Variable> getVars();
-		public boolean conduct(VariableMap valsToFill, VariableMap answer);
+		public boolean conduct(VariableMap restrictions, VariableMap answer);
 		public void startLazy();
 	}
 	
@@ -47,12 +47,14 @@ public class Constraint implements QueryParameter {
 			return s.toString();
 		}
 		
+		@SuppressWarnings("rawtypes")
 		@Override
-		public boolean satisfy(HashMap<Variable, Object> map) {
+		public boolean satisfy(VariableMap restrictions) {
+			if (restrictions.isEmpty()) return true;
 			Object[] arr = new Object[args.length];
 			for (int i=0; i<arr.length; i++) {
-				arr[i]=map.get(args[i]);
-				if (arr[i]==null) arr[i]=args[i];
+				arr[i]=restrictions.map.get(args[i]);
+				arr[i]=(arr[i]==null)? args[i] : ((ArrayList) arr[i]).get(0);
 			}			
 			if (relation instanceof Formula) return relation.satisfy(arr, new VariableMap());
 			return relation(relation.name(), arr).map(new VariableMap(), true);
@@ -66,22 +68,31 @@ public class Constraint implements QueryParameter {
 		
 		@Override
 		public HashSet<Variable> getVars() {
-			HashSet<Variable> set = new HashSet<Variable>();
+			HashSet<Variable> set=new HashSet<Variable>();
 			for (Object o : args) if (variable(o)) set.add((Variable) o);
 			return set;
 		}
 		
+		@SuppressWarnings("rawtypes")
 		@Override
-		public boolean conduct(VariableMap valsToFill, VariableMap answer) {
-			Object[] arr = new Object[args.length];
-			for (int i=0; i<arr.length; i++) {
-				ArrayList<Object> l=valsToFill.map.get(args[i]);   // this is bad - get only values and no constraints atm - TBD.
-				arr[i]= (l==null) ? args[i] : l.get(0);
-			}			
-			Relation r = relation(relation.name, arr); 
+		public boolean conduct(VariableMap restrictions, VariableMap answer) {
+			Relation r;
+			if (!restrictions.isEmpty()) {
+				Object[] arr=new Object[args.length];
+				for (int i=0; i<arr.length; i++) {
+					arr[i]=restrictions.map.get(args[i]);
+					arr[i]= (arr[i]==null) ? args[i] : ((ArrayList) arr[i]).get(0);
+				}
+				r=relation(relation.name, arr);
+			}
+			else if (relation instanceof Formula) r=relation(relation.name, args);
+			else r=relation;
 			if (iterator==emptyIterator) iterator=getLJIterator(this.args.length);
 			while (iterator.hasNext()) 
-				if (evaluate(r, answer, iterator)) return true;
+				if (evaluate(r, answer, iterator)) {
+					answer.add(restrictions);
+					return true; 
+				}
 			return false;
 		}
 		
@@ -103,7 +114,7 @@ public class Constraint implements QueryParameter {
 		}		
 		
 		@Override
-		public boolean satisfy(HashMap<Variable, Object> map) { 
+		public boolean satisfy(VariableMap map) { 
 			if (op==AND || op==WHERE) return (left.satisfy(map) && right.satisfy(map));
 			if (op==OR) return (left.satisfy(map) || right.satisfy(map));
 			if (op==DIFFER) return (left.satisfy(map) && !right.satisfy(map));
@@ -128,30 +139,29 @@ public class Constraint implements QueryParameter {
 		}
 		
 		@Override
-		public boolean conduct(VariableMap valsToFill, VariableMap answer) {
+		public boolean conduct(VariableMap restrictions, VariableMap answer) {
 			VariableMap tempAnswer=new VariableMap();
 			if (op==WHERE) {
 				do {
 					tempAnswer=new VariableMap();
-					if (!left.conduct(tempAnswer)) return false;
+					if (!left.conduct(restrictions, tempAnswer)) return false;
 				} while (!right.satisfy(tempAnswer));
 			}
 			else if (op==AND) {
 				do {
 					tempAnswer=new VariableMap();
 					right.startLazy();
-					if (!left.conduct(tempAnswer)) return false;
-				} while (!right.conduct(tempAnswer, answer));				
+					if (!left.conduct(restrictions, tempAnswer)) return false;
+				} while (!right.conduct(tempAnswer, answer));
 			}
 			else if (op==DIFFER) {
 				do {
 					tempAnswer=new VariableMap();
-					if (!left.conduct(tempAnswer)) return false;
+					if (!left.conduct(restrictions, tempAnswer)) return false;
 				} while (right.satisfy(tempAnswer));
 			}
 			else if (op==OR)
-				if (!left.conduct(answer) && !right.conduct(answer)) return false;
-			answer.add(tempAnswer);
+				if (!left.conduct(restrictions, answer) && !right.conduct(restrictions, answer)) return false;
 			return true;
 		}
 		
@@ -177,26 +187,31 @@ public class Constraint implements QueryParameter {
 	}
 	
 	
+	public boolean satisfy(VariableMap map) {
+		return atom.satisfy(map);
+	}
+	
+	
 	public boolean satisfy(Variable[] vs, Object[] os) {
 		if (vs.length>os.length) return false;
-		HashMap<Variable, Object> map = new HashMap<Variable, Object>();
-		for (int i=0; i<vs.length; i++) map.put(vs[i],os[i]);
+		VariableMap map = new VariableMap();
+		for (int i=0; i<vs.length; i++) map.updateValsMap(vs[i],os[i]);
 		return atom.satisfy(map);
 	}
 	
 	
 	public boolean satisfy(HashMap<Variable,Object> map) {
-		return atom.satisfy(map);
+		return atom.satisfy(new VariableMap(map));
 	}
 
 	
 	public boolean satisfy(Object... pairs) {
 		if (pairs.length%2==1) return false;
-		HashMap<Variable, Object> map = new HashMap<Variable, Object>();
+		VariableMap map=new VariableMap();
 		int i=0;
 		while (i<pairs.length) {
 			if (!variable(pairs[i])) return false;
-			map.put((Variable) pairs[i], pairs[i+1]);
+			map.updateValsMap((Variable) pairs[i], pairs[i+1]);
 			i=i+2;
 		}
 		return atom.satisfy(map);
@@ -210,24 +225,26 @@ public class Constraint implements QueryParameter {
 	
 	@Override
 	public boolean map(VariableMap m, boolean cut) {
-		if (cut) return conduct(m);
-		if (!conduct(m)) return false;
-		while (conduct(m)) {}
+		if (cut) return lazyMap(m);
+		if (!lazyMap(m)) return false;
+		while (lazyMap(m)) {}
 		return true;
 	}
 	
 	
-	private boolean conduct(VariableMap map) {
-		return conduct(map, new VariableMap());
-	}
-	
-	
-	private boolean conduct(VariableMap map, VariableMap answer) {
-		if (atom.conduct(map, answer)) {
-			map.add(answer);
+	public boolean lazyMap(VariableMap m) {
+		VariableMap answer = new VariableMap();
+		VariableMap initialRestrictions = new VariableMap();
+		if (conduct(initialRestrictions, answer)) {
+			m.add(answer);
 			return true;
 		}
 		return false;
+	}
+	
+	
+	private boolean conduct(VariableMap restrictions, VariableMap answer) {
+		return atom.conduct(restrictions, answer); 
 	}
 	
 	
@@ -259,6 +276,6 @@ public class Constraint implements QueryParameter {
 
 
 /* to fix:
- * implement the TBD.
+ * The restrictions on conduct are only using the variable's first finite restriction. This is bad if evaluate happens on Group which returns undeterministic order / Formula which has 2 vars in the args (see code of Formula.satisfy).
  * toString of atom isn't working good for variables currently. testCase: z has constraint c which has atom that contains z... 
  */

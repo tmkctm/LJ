@@ -205,7 +205,6 @@ public class Tester {
 		relate(9,2,3);
 		relate(9,3,"c");
 		all( and( relation(9,x,_) , relation(9,_,x) ));
-		System.out.println(x);
 		assertEquals(x,3);
 		assertFalse(x.isConstraint());
 		assertTrue(x.isNumber());		
@@ -225,12 +224,12 @@ public class Tester {
 		relate(10,0,10,0,10,0);
 		all( or(
 				and(
-						relation(10,1,2,3,4,5,x),
-						relation(10,x)
+					relation(10,1,2,3,4,5,x),
+					relation(10,x)
 				),
 				and(
-						relation(10,x,9,8,7,_,5,4,3,2,y),
-						relation(10,y,10,y,10,y)
+					relation(10,x,9,8,7,_,5,4,3,2,y),
+					relation(10,y,10,y,10,y)
 				)	
 			));
 		assertTrue(x.isConstraint());
@@ -247,16 +246,16 @@ public class Tester {
 		relate(11,6);
 		relate(11,0,11,0,11,0);
 		assertEquals(all( or(
-					and(
-							relation(11,1,2,3,4,5,6),
-							relation(11,6)
-					),
-					and(
-							relation(11,_,9,8,7,_,5,4,3,2,0),
-							relation(11,1,11,1,11,2)
-					)	
-				))
-				,true);
+							and(
+								relation(11,1,2,3,4,5,6),
+								relation(11,6)
+							),
+							and(
+								relation(11,_,9,8,7,_,5,4,3,2,0),
+								relation(11,1,11,1,11,2)
+							)	
+					))
+					,true);
 		
 	}
 	

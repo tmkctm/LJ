@@ -12,6 +12,15 @@ public class VariableMap {
 	protected HashMap<Variable, ArrayList<Object>> map=new HashMap<Variable, ArrayList<Object>>();;
 	protected HashMap<Variable, Constraint> constraints= new HashMap<Variable, Constraint>();
 	
+	
+	public VariableMap() {}
+	
+	
+	public VariableMap(HashMap<Variable, Object> vars) {
+		updateValsMap(vars);
+	}
+	
+	
 	public final boolean isEmpty() {
 		return (map.isEmpty() && constraints.isEmpty());
 	}
