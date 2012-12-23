@@ -1,7 +1,6 @@
 package LJava;
 
-import static LJava.Utils.*;
-import static LJava.LJ.undefined;
+import static LJava.LJ.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;

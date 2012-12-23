@@ -1,9 +1,11 @@
 package LJava;
-import static LJava.Utils.*;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Map;
+
 
 public final class LJ {
 	
@@ -12,7 +14,16 @@ public final class LJ {
 	public final static Association none=new Association("$no_variable_value$");
 	private static final HashMap<Integer, LinkedHashSet<Association>> LJavaRelationTable=new HashMap<Integer, LinkedHashSet<Association>>();
 	
+	static public final boolean CUT=true;
+	static public final LogicOperator OR=LogicOperator.OR;
+	static public final LogicOperator AND=LogicOperator.AND;
+	static public final LogicOperator DIFFER=LogicOperator.DIFFER;
+	static public final LogicOperator WHERE=LogicOperator.WHERE;
+	static public enum  LogicOperator{
+		OR, AND, DIFFER , NONE, WHERE  }	
+	
 	protected static final LJIterator emptyIterator=getLJIterator(-2);
+	
 	
 	public static void associate(Association r) {
 		addTo(LJavaRelationTable, r.argsLength(), r, LinkedHashSet.class);
@@ -95,6 +106,11 @@ public final class LJ {
 		return new Constraint(a,WHERE,b);
 	}
 	
+
+	public static final boolean variable(Object x) {
+		return (x instanceof Variable);
+	}
+	
 	
 	public static boolean var(Object x) {
 		if (variable(x)) return var(((Variable) x));
@@ -151,6 +167,19 @@ public final class LJ {
 	}
 	
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	protected static <K,V> void addTo(Map map, K key, V val, Class<?> type) {
+		Collection collection=(Collection) map.get(key);
+		if (collection==null) {
+			try{
+				collection=(Collection) type.newInstance();
+				map.put(key, collection);
+			}catch (Exception e){}
+		}
+		collection.add(val);
+	}	
+	
+	
 	protected static LJIterator getLJIterator(int index) {
 		return new LJ().new LJIterator(index);
 	}

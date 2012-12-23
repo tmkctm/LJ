@@ -1,35 +1,6 @@
 package LJava;
 
-import java.util.Collection;
-import java.util.Map;
-
 public final class Utils {
-	
-	static public final boolean CUT=true;
-	static public final LogicOperator OR=LogicOperator.OR;
-	static public final LogicOperator AND=LogicOperator.AND;
-	static public final LogicOperator DIFFER=LogicOperator.DIFFER;
-	static public final LogicOperator WHERE=LogicOperator.WHERE;
-	static public enum  LogicOperator{
-		OR, AND, DIFFER , NONE, WHERE  }
-	
-
-	public static final boolean variable(Object x) {
-		return (x instanceof Variable);
-	}
-	
-	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected static <K,V> void addTo(Map map, K key, V val, Class<?> type) {
-		Collection collection=(Collection) map.get(key);
-		if (collection==null) {
-			try{
-				collection=(Collection) type.newInstance();
-				map.put(key, collection);
-			}catch (Exception e){}
-		}
-		collection.add(val);
-	}	
 	
 	
 //Predefined Functors

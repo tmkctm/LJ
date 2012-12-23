@@ -1,5 +1,6 @@
 package LJava;
-import static LJava.Utils.*;
+import static LJava.Utils.LJFalse;
+import static LJava.Utils.LJTrue;
 import static LJava.LJ.*;
 
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ public class Constraint implements QueryParameter {
 		public void startLazy();
 	}
 	
+	@SuppressWarnings("rawtypes")
 	private final class Atom implements ItemInConstraint {
 		private final Relation relation;
 		private final Object[] args;
@@ -47,7 +49,6 @@ public class Constraint implements QueryParameter {
 			return s.toString();
 		}
 		
-		@SuppressWarnings("rawtypes")
 		@Override
 		public boolean satisfy(VariableMap restrictions) {
 			if (restrictions.isEmpty()) return true;
@@ -73,7 +74,6 @@ public class Constraint implements QueryParameter {
 			return set;
 		}
 		
-		@SuppressWarnings("rawtypes")
 		@Override
 		public boolean conduct(VariableMap restrictions, VariableMap answer) {
 			Relation r;
@@ -110,7 +110,7 @@ public class Constraint implements QueryParameter {
 		public Junction(Constraint l, LogicOperator lp, Constraint r) {
 			right = (r==null) ? new Constraint(LJTrue) : r;
 			left = (l==null) ? new Constraint(LJTrue) : l;
-			op = (lp==null) ? LogicOperator.NONE : lp;
+			op = lp;
 		}		
 		
 		@Override
@@ -140,7 +140,7 @@ public class Constraint implements QueryParameter {
 		
 		@Override
 		public boolean conduct(VariableMap restrictions, VariableMap answer) {
-			VariableMap tempAnswer=new VariableMap();
+			VariableMap tempAnswer;
 			if (op==WHERE) {
 				do {
 					tempAnswer=new VariableMap();
@@ -181,9 +181,12 @@ public class Constraint implements QueryParameter {
 	
 	
 	public Constraint(QueryParameter l, LogicOperator lp, QueryParameter r) {
-		Constraint left = (l instanceof Constraint) ? (Constraint) l : new Constraint((Relation)l, ((Relation)l).args);
-		Constraint right = (r instanceof Constraint) ? (Constraint) r : new Constraint((Relation)r, ((Relation)r).args);
-		atom = new Junction(left,lp,right);
+		if (lp!=null) {
+			Constraint left = (l instanceof Constraint) ? (Constraint) l : new Constraint((Relation)l, ((Relation)l).args);
+			Constraint right = (r instanceof Constraint) ? (Constraint) r : new Constraint((Relation)r, ((Relation)r).args);
+			atom=new Junction(left,lp,right);
+		}
+		else atom=new Atom(LJTrue);
 	}
 	
 	
@@ -194,7 +197,7 @@ public class Constraint implements QueryParameter {
 	
 	public boolean satisfy(Variable[] vs, Object[] os) {
 		if (vs.length>os.length) return false;
-		VariableMap map = new VariableMap();
+		VariableMap map=new VariableMap();
 		for (int i=0; i<vs.length; i++) map.updateValsMap(vs[i],os[i]);
 		return atom.satisfy(map);
 	}
@@ -208,11 +211,10 @@ public class Constraint implements QueryParameter {
 	public boolean satisfy(Object... pairs) {
 		if (pairs.length%2==1) return false;
 		VariableMap map=new VariableMap();
-		int i=0;
-		while (i<pairs.length) {
+		int i=-2;
+		while ((i=i+2)<pairs.length) {
 			if (!variable(pairs[i])) return false;
 			map.updateValsMap((Variable) pairs[i], pairs[i+1]);
-			i=i+2;
 		}
 		return atom.satisfy(map);
 	}
@@ -234,8 +236,7 @@ public class Constraint implements QueryParameter {
 	
 	public boolean lazyMap(VariableMap m) {
 		VariableMap answer = new VariableMap();
-		VariableMap initialRestrictions = new VariableMap();
-		if (conduct(initialRestrictions, answer)) {
+		if (conduct(new VariableMap(), answer)) {
 			m.add(answer);
 			return true;
 		}
@@ -276,6 +277,7 @@ public class Constraint implements QueryParameter {
 
 
 /* to fix:
- * The restrictions on conduct are only using the variable's first finite restriction. This is bad if evaluate happens on Group which returns undeterministic order / Formula which has 2 vars in the args (see code of Formula.satisfy).
- * toString of atom isn't working good for variables currently. testCase: z has constraint c which has atom that contains z... 
+ * Restrictions for conduct not perfect for Group and Formula in Atom.
+ * toString of atom isn't working good for variables currently. testCase: z has constraint c which has atom that contains z...
+ * the implementation of the restrictions on arr needs to be above Atom.conduct and not inside it 
  */

@@ -1,6 +1,7 @@
 package LJava;
 import static LJava.LJ.*;
-import static LJava.Utils.*;
+import static LJava.Utils.LJFalse;
+import static LJava.Utils.LJTrue;
 
 import java.util.ArrayList;
 import java.util.HashSet;

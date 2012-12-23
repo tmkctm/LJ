@@ -1,6 +1,7 @@
 package LJava;
 import static LJava.LJ.*;
-import static LJava.Utils.*;
+import static LJava.Utils.LJFalse;
+import static LJava.Utils.LJTrue;
 import java.lang.reflect.Array;
 
 public abstract class Formula<P,R> extends Relation {
