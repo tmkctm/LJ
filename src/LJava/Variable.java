@@ -18,9 +18,21 @@ public class Variable {
 	private AtomicBoolean inSet=new AtomicBoolean(false);
 	private HashSet<Variable> looksAt= new HashSet<Variable>();
 	private Constraint constraint=new Constraint(LJFalse);
+	private final String innerID;
+	
 	private static ReentrantLock lockKey = new ReentrantLock();
+	
 
-
+	public Variable() {
+		innerID="LJ_Variable";
+	}
+	
+	
+	public Variable(String id) {	
+		innerID=id;
+	}
+	
+	
 	public final boolean equals(Object x) {		
 		x=val(x);
 		Object o=this.get();		
@@ -31,6 +43,7 @@ public class Variable {
 
 //Properties		
 	public final String toString(){
+		if (isVar()) return "$"+innerID+"$";
 		if (this.noValue()) return none.toString();
 		StringBuilder s= new StringBuilder("[");
 		if (value.length>0) {
@@ -40,6 +53,11 @@ public class Variable {
 		s.append("]");
 		if (constraint.asRelation()!=LJFalse) s.append(" OR "+constraint.toString());
 		return s.toString();
+	}
+	
+	
+	public final String getID() {
+		return innerID;
 	}
 
 

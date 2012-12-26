@@ -40,11 +40,11 @@ public class Constraint implements QueryParameter {
 		public String toString() {	
 			StringBuilder s = new StringBuilder(relation.name()+"(");
 			if (args.length>0) {
-				for (int i=0; i<args.length-1; i++)	
-					if (variable(args[i])) s.append("[],");
+				for (int i=0; i<args.length; i++)	
+					if (variable(args[i])) s.append("[$"+((Variable) args[i]).getID()+"$],");
 					else s.append(args[i]+",");
-				s.append(args[args.length-1].toString());
 			}
+			s.deleteCharAt(s.length()-1);
 			s.append(")");
 			return s.toString();
 		}
@@ -146,6 +146,7 @@ public class Constraint implements QueryParameter {
 					tempAnswer=new VariableMap();
 					if (!left.conduct(restrictions, tempAnswer)) return false;
 				} while (!right.satisfy(tempAnswer));
+				answer.add(tempAnswer);
 			}
 			else if (op==AND) {
 				do {
@@ -159,6 +160,7 @@ public class Constraint implements QueryParameter {
 					tempAnswer=new VariableMap();
 					if (!left.conduct(restrictions, tempAnswer)) return false;
 				} while (right.satisfy(tempAnswer));
+				answer.add(tempAnswer);
 			}
 			else if (op==OR)
 				if (!left.conduct(restrictions, answer) && !right.conduct(restrictions, answer)) return false;
@@ -245,7 +247,7 @@ public class Constraint implements QueryParameter {
 	
 	
 	private boolean conduct(VariableMap restrictions, VariableMap answer) {
-		return atom.conduct(restrictions, answer); 
+		return atom.conduct(restrictions, answer);
 	}
 	
 	
@@ -277,7 +279,6 @@ public class Constraint implements QueryParameter {
 
 
 /* to fix:
- * Restrictions for conduct not perfect for Group and Formula in Atom.
- * toString of atom isn't working good for variables currently. testCase: z has constraint c which has atom that contains z...
- * the implementation of the restrictions on arr needs to be above Atom.conduct and not inside it 
+ * Restrictions for conduct not perfect for Group and Formula (that has multi vars in args) in Atom.
+ * the implementation of the restrictions on arr needs to be above Atom.conduct and not inside it. 
  */

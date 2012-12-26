@@ -74,10 +74,16 @@ public final class LJ {
 	}
 	
 	
+	@SuppressWarnings("rawtypes")
+	public static Constraint condition(Formula f, Object... args) {
+		return new Constraint(f,args);
+	}
+	
+	
 	private static boolean query(QueryParameter a, boolean cut) {
 		VariableMap varValues=new VariableMap();
 		if (!a.map(varValues,cut)) return false;
-		return instantiate(varValues);		
+		return instantiate(varValues);
 	}
 	
 	
@@ -106,7 +112,7 @@ public final class LJ {
 		return new Constraint(a,WHERE,b);
 	}
 	
-
+	
 	public static final boolean variable(Object x) {
 		return (x instanceof Variable);
 	}
@@ -135,12 +141,6 @@ public final class LJ {
 	
 	public static Relation relation(Object... args) {
 		return new Relation("",args);
-	}
-	
-	
-	@SuppressWarnings("rawtypes")
-	public static Constraint constraint(Formula f, Object... args) {
-		return new Constraint(f, args);
 	}
 	
 	
@@ -211,6 +211,7 @@ public final class LJ {
 			return i.next();
 		}
 	}
+	
 }
 
 

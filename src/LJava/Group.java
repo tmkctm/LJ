@@ -101,5 +101,10 @@ public class Group extends Association {
 			return 0;
 		}
 	}
+
+	
+/* to fix:
+ * Group needs to work through exists and lazy.	
+ */
 	
 }
