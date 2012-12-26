@@ -71,7 +71,7 @@ public class Group extends Association {
 			if (recordsReturned<1) break;
 			recordsAdded=recordsAdded+recordsReturned; 
 			valAmount.setValue(amount);
-			for (int i=0; i<recordsReturned; i ++) varResults.updateValsMap(var, valAmount.getKey());
+			for (; recordsReturned>0;  recordsReturned--) varResults.updateValsMap(var, valAmount.getKey());
 		}
 		vars.put(var, varAmount);
 		return recordsAdded;

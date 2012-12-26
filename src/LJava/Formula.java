@@ -22,8 +22,21 @@ public abstract class Formula<P,R> extends Relation {
 	}
 	
 	
-	public R invoke(P... params) {
+	public R value(P... params) {
 		return this.f(params);
+	}
+	
+	
+	@SuppressWarnings("unchecked")
+	public Object invoke(Object... params) {
+		try {
+			P[] temp=(P[]) Array.newInstance(parametersType, params.length-1);
+			for (int i=0; i<params.length; i++) temp[i]= (P) params[i];
+			return val(temp);
+		}
+		catch (Exception e) {
+			return undefined;
+		}
 	}
 	
 	
@@ -59,7 +72,7 @@ public abstract class Formula<P,R> extends Relation {
 			varValues.updateConstraintsMap((Variable) rArgs[0], new Constraint(this, rArgs));
 		}
 		else {
-			R value=invoke(temp);
+			R value=value(temp);
 			if (!var(rArgs[0])) return same(value,rArgs[0]);
 			varValues.updateValsMap((Variable) rArgs[0], value);
 		}
