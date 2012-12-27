@@ -25,6 +25,12 @@ public class VariableMap {
 	}
 	
 	
+	public final void clear() {
+		map=new HashMap<Variable, ArrayList<Object>>();
+		constraints= new HashMap<Variable, Constraint>();
+	}
+	
+	
 	public final void updateValsMap(HashMap<Variable, Object> vars) {
 		for (Map.Entry<Variable, Object> entry : vars.entrySet()) 
 			updateValsMap(entry.getKey(), entry.getValue());			

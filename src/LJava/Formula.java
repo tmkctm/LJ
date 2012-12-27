@@ -31,8 +31,8 @@ public abstract class Formula<P,R> extends Relation {
 	public Object invoke(Object... params) {
 		try {
 			P[] temp=(P[]) Array.newInstance(parametersType, params.length-1);
-			for (int i=0; i<params.length; i++) temp[i]= (P) params[i];
-			return val(temp);
+			for (int i=0; i<params.length; i++) temp[i]=(P) val(params[i]);
+			return value(temp);
 		}
 		catch (Exception e) {
 			return undefined;

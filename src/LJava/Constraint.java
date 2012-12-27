@@ -6,7 +6,6 @@ import static LJava.LJ.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import LJava.LJ.LJIterator;
 
 public class Constraint implements QueryParameter {
 	
@@ -87,7 +86,7 @@ public class Constraint implements QueryParameter {
 			}
 			else if (relation instanceof Formula) r=relation(relation.name, args);
 			else r=relation;
-			if (iterator==emptyIterator) iterator=getLJIterator(this.args.length);
+			if (iterator==emptyIterator) iterator=iterate(this.args.length);
 			while (iterator.hasNext()) 
 				if (evaluate(r, answer, iterator)) {
 					answer.add(restrictions);

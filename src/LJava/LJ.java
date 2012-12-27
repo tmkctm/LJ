@@ -2,7 +2,6 @@ package LJava;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
@@ -12,7 +11,7 @@ public final class LJ {
 	public final static Association _=new Association("_");
 	public final static Association undefined=new Association("$undefined$");
 	public final static Association none=new Association("$no_variable_value$");
-	private static final HashMap<Integer, LinkedHashSet<Association>> LJavaRelationTable=new HashMap<Integer, LinkedHashSet<Association>>();
+	protected static final HashMap<Integer, LinkedHashSet<Association>> LJavaRelationTable=new HashMap<Integer, LinkedHashSet<Association>>();
 	
 	static public final boolean CUT=true;
 	static public final LogicOperator OR=LogicOperator.OR;
@@ -22,7 +21,7 @@ public final class LJ {
 	static public enum  LogicOperator{
 		OR, AND, DIFFER , NONE, WHERE  }	
 	
-	protected static final LJIterator emptyIterator=getLJIterator(-2);
+	protected static final LJIterator emptyIterator=iterate(-2);
 	
 	
 	public static void associate(Association r) {
@@ -180,36 +179,15 @@ public final class LJ {
 	}	
 	
 	
-	protected static LJIterator getLJIterator(int index) {
-		return new LJ().new LJIterator(index);
-	}
+	protected static <T> void increment(Map<T, Integer> m, T element, int delta) {
+		Integer count=m.get(element);
+		if (count==null) count=0;
+		m.put(element,count+delta);	
+	}		
 	
-//Class for lazy iterator for evaluation over the associations DB.
-	protected class LJIterator {
-		Iterator<Association> i;
-		boolean onFormulas;
-		
-		public LJIterator(int index) {
-			onFormulas=false;
-			LinkedHashSet<Association> table=LJavaRelationTable.get(index);
-			if (table==null) {
-				table=LJavaRelationTable.get(-1);
-				onFormulas=true;
-			}
-			i=(table==null) ? null : table.iterator();
-		}
-		
-		public boolean hasNext() {
-			if (i==null) return false;
-			return (i.hasNext() || (!onFormulas && LJavaRelationTable.get(-1)!=null));
-		}
-		
-		public Association next() {
-			if (i.hasNext()) return i.next();
-			i=LJavaRelationTable.get(-1).iterator();
-			onFormulas=true;
-			return i.next();
-		}
+	
+	public static LJIterator iterate(int index) {
+		return new LJIterator(index);
 	}
 	
 }
