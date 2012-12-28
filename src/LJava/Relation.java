@@ -3,6 +3,8 @@ package LJava;
 import static LJava.LJ.*;
 import java.util.HashMap;
 
+import LJava.LJ.LJIterator;
+
 public class Relation extends Association implements QueryParameter{
 	
 	public Relation(String n, Object... params){

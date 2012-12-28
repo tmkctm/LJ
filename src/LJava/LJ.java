@@ -2,6 +2,7 @@ package LJava;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
@@ -187,8 +188,43 @@ public final class LJ {
 	
 	
 	public static LJIterator iterate(int index) {
-		return new LJIterator(index);
+		return new LJ().new LJIterator(index);
 	}
+	
+	
+//An inner LJ iterator.	
+	protected final class LJIterator {
+		Iterator<Association> i;
+		boolean onFormulas;
+		LazyGroup lazyGroup;
+		
+		
+		public LJIterator(int index) {
+			onFormulas=false;
+			LinkedHashSet<Association> table=LJavaRelationTable.get(index);
+			if (table==null) {
+				table=LJavaRelationTable.get(-1);
+				onFormulas=true;
+			}
+			i=(table==null) ? null : table.iterator();
+			lazyGroup=null;
+		}
+		
+		
+		public boolean hasNext() {
+			if (i==null) return false;
+			return (i.hasNext() || lazyGroup!=null || (!onFormulas && LJavaRelationTable.get(-1)!=null));
+		}
+		
+		
+		public Association next() {
+			if (lazyGroup!=null) return lazyGroup;
+			if (i.hasNext()) return i.next();
+			i=LJavaRelationTable.get(-1).iterator();
+			onFormulas=true;
+			return i.next();
+		}
+	}	
 	
 }
 
