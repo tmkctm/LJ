@@ -89,7 +89,19 @@ public final class LJ {
 	
 	protected static boolean evaluate(Relation r, VariableMap varValues, LJIterator i) {		
 		Association element = i.next();
-		return (element.associationNameCompare(r) && element.satisfy(r.args, varValues));
+		if (element instanceof Group) {
+			i.setLazyGroup(new LazyGroup((Group) element, r.args));
+			if (i.lazyGroup.varsCount.isEmpty()) {
+				i.setLazyGroup(null);
+				return true;
+			}
+			element = i.lazyGroup;
+		}
+		if (!(element.associationNameCompare(r) && element.satisfy(r.args, varValues))) {
+			i.setLazyGroup(null);
+			return false;
+		}
+		return true;
 	}
 	
 	
@@ -223,6 +235,10 @@ public final class LJ {
 			i=LJavaRelationTable.get(-1).iterator();
 			onFormulas=true;
 			return i.next();
+		}
+		
+		public void setLazyGroup(LazyGroup group) {
+			lazyGroup=group;
 		}
 	}	
 	

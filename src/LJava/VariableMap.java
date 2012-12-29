@@ -82,4 +82,14 @@ public class VariableMap {
 		set.addAll(constraints.keySet());
 		return set;
 	}
+	
+	
+	public final String toString() {
+		StringBuilder sb=new StringBuilder("Values: ");
+		sb.append(map);
+		sb.append("  ;  Constraints: ");
+		sb.append(constraints);
+		return sb.toString();
+		
+	}
 }

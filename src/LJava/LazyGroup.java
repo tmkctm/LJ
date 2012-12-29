@@ -15,7 +15,7 @@ import LJava.Variable;
 import LJava.VariableMap;
 
 
-public class LazyGroup extends Group {
+public class LazyGroup extends Association {
 		
 	private class VarIterator {
 		Iterator<Map.Entry<Object, Integer>> iterator;
@@ -26,19 +26,18 @@ public class LazyGroup extends Group {
 		}
 	}			
 
-	
 	private VariableMap answer=new VariableMap();
 	private LinkedList<VarIterator> iStack=new LinkedList<VarIterator>();
-	private TreeMap<Variable, Integer> varsCount;
+	protected TreeMap<Variable, Integer> varsCount=new TreeMap<Variable, Integer>();
 	private HashMap<Object, Integer> valsCount=new HashMap<Object, Integer>();
 	
 	
-	public LazyGroup(String n, Object[] params, Object[] rArgs) {
-		super(n,params);
+	public LazyGroup(Group group, Object[] rArgs) {
+		super(group.name, group.args);
 		HashMap<Variable, Integer> rVarsCountMap=new HashMap<Variable, Integer>();
 		HashMap<Object, Integer> rArgsCountMap=new HashMap<Object, Integer>();
 		buildValsAndVarsCount(rArgs, rVarsCountMap, rArgsCountMap);
-		elimination(rVarsCountMap, rArgsCountMap);
+		elimination(rVarsCountMap, rArgsCountMap, group);
 	}
 	
 	
@@ -50,9 +49,9 @@ public class LazyGroup extends Group {
 	}
 	
 	
-	private final void elimination(HashMap<Variable, Integer> rVarsCountMap, HashMap<Object, Integer> rArgsCountMap) {
+	private final void elimination(HashMap<Variable, Integer> rVarsCountMap, HashMap<Object, Integer> rArgsCountMap, Group g) {
 		Integer count=0;
-		for (Map.Entry<Object, Integer> entry : argsMap.entrySet()) { //Differing amounts between group's map and r's map
+		for (Map.Entry<Object, Integer> entry : g.argsMap.entrySet()) { //Differing amounts between group's map and r's map
 			Object keyVal=val(entry.getKey());
 			count=(var(keyVal))? rVarsCountMap.remove(keyVal) : rArgsCountMap.remove(keyVal);
 			if (count==null) count=0; 					
@@ -74,15 +73,23 @@ public class LazyGroup extends Group {
 	}
 	
 	
-	@Override
-	protected final boolean satisfy(Object[] rArgs, VariableMap varValues) {
+	protected boolean satisfy(Object[] rArgs, VariableMap varValues) {
+		return evaluate(varValues);
+	}
+	
+	
+	public final boolean evaluate(VariableMap varValues) {
 		while (!iStack.isEmpty()) {
 			VarIterator i=iStack.pop();
-			if (varsCount.remove(i.var)==null) backtrack(i);
+			if (varsCount.get(i.var)==null) backtrack(i);
 			while (i.iterator.hasNext()) {
+				varsCount.remove(i.var);
 				Map.Entry<Object, Integer> entry=i.iterator.next();
 				int difference=entry.getValue()-i.count;
-				if (difference<0) continue;
+				if (difference<0) {
+					varsCount.put(i.var, i.count);
+					continue;
+				}
 				entry.setValue(difference);
 				answer.updateValsMap(i.var, entry.getKey());
 				iStack.push(i);
@@ -90,10 +97,17 @@ public class LazyGroup extends Group {
 					varValues.add(answer);
 					return true;
 				}
-				i=new VarIterator(valsCount.entrySet().iterator(), varsCount.firstKey(), varsCount.get(varsCount.firstKey()));
+				i=new VarIterator(valsCount.entrySet().iterator(), varsCount.firstKey(), varsCount.remove(varsCount.firstKey()));
 			}
 		}
 		return false;
+	}
+	
+	
+	public final VariableMap current() {
+		VariableMap map=new VariableMap();
+		map.add(answer);
+		return map;
 	}
 	
 	
@@ -102,8 +116,17 @@ public class LazyGroup extends Group {
 		valsCount.put(key, valsCount.get(key)+i.count);
 		varsCount.put(i.var, i.count);			
 	}
+
+	
+	@Override
+	public final String toString(){
+		StringBuilder sb = new StringBuilder("lazy( VARS: ");
+		sb.append(varsCount.toString());
+		sb.append("  ;  VALUES: ");
+		sb.append(valsCount.toString());
+		sb.append(" )");
+		return sb.toString();
+	}	
+	
 }	
 
-/* to fix:
- * This class isn't concurrent.
- */

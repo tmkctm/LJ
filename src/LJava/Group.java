@@ -18,7 +18,7 @@ public class Group extends Association {
 		argsMap=Collections.unmodifiableMap(map);
 	}
 	
-
+	
 	@Override
 	public boolean isGroup() {
 		return true;
