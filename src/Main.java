@@ -40,21 +40,23 @@ public class Main {
 			System.out.println("\n"); 
 			printResult(vars,i);
 			System.out.println("\n");
-			JOptionPane.showConfirmDialog(null, "NEXT?");
+			int answer = JOptionPane.showConfirmDialog(null, "NEXT?"); 
+			if (answer==JOptionPane.CANCEL_OPTION || answer==JOptionPane.NO_OPTION)
+				break;
 		}
 	}
 	
 	
 	public static void printResult(Object[] vars, int i) {
-		System.out.println("\t      -------");
-		System.out.println("\t      | "+((Variable) vars[0]).getValues()[i]+" |");
-		System.out.println("\t-------------------");
+		System.out.println("\t    -----");
+		System.out.println("\t    | "+((Variable) vars[0]).getValues()[i]+" |");
+		System.out.println("\t-------------");
 		System.out.println("\t| "+((Variable) vars[1]).getValues()[i]+" | "+((Variable) vars[2]).getValues()[i]+" | "+((Variable) vars[3]).getValues()[i]+" |");
-		System.out.println("\t-------------------");
+		System.out.println("\t-------------");
 		System.out.println("\t| "+((Variable) vars[4]).getValues()[i]+" | "+((Variable) vars[5]).getValues()[i]+" | "+((Variable) vars[6]).getValues()[i]+" |");
-		System.out.println("\t-------------------");
-		System.out.println("\t      | "+((Variable) vars[7]).getValues()[i]+" |");
-		System.out.println("\t      -------");
+		System.out.println("\t-------------");
+		System.out.println("\t    | "+((Variable) vars[7]).getValues()[i]+" |");
+		System.out.println("\t    -----");
 	}
 	
 }
