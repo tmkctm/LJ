@@ -10,17 +10,19 @@ import java.util.HashSet;
 import LJava.LJ.LJIterator;
 
 public class Constraint implements QueryParameter {
+
+	private VariableMap answer=new VariableMap();
 	
-	private interface ItemInConstraint {
+	private interface Node {
 		public boolean satisfy(VariableMap restrictions);
-		public Constraint replaceVariable(Variable v, Object o);
+		public Node replaceVariable(Variable v, Object o);
 		public HashSet<Variable> getVars();
 		public boolean conduct(VariableMap restrictions, VariableMap answer);
 		public void startLazy();
 	}
 	
-	@SuppressWarnings("rawtypes")
-	private final class Atom implements ItemInConstraint {
+
+	private final class Atom implements Node {
 		private final Relation relation;
 		private final Object[] args;
 		private LJIterator iterator;
@@ -53,19 +55,13 @@ public class Constraint implements QueryParameter {
 		@Override
 		public boolean satisfy(VariableMap restrictions) {
 			if (restrictions.isEmpty()) return true;
-			Object[] arr = new Object[args.length];
-			for (int i=0; i<arr.length; i++) {
-				arr[i]=restrictions.map.get(args[i]);
-				arr[i]=(arr[i]==null)? args[i] : ((ArrayList) arr[i]).get(0);
-			}			
-			if (relation instanceof Formula) return relation.satisfy(arr, new VariableMap());
-			return relation(relation.name(), arr).map(new VariableMap(), true);
+			Object[] arr=restrict(restrictions,args);
+			return relation.satisfied(arr, new VariableMap(), true);
 		}
 		
 		@Override
-		public Constraint replaceVariable(Variable v, Object o) {
-			Atom a = new Atom(this, v, o);
-			return new Constraint(a.relation, a.args);
+		public Node replaceVariable(Variable v, Object o) {
+			return new Atom(this, v, o);
 		}
 		
 		@Override
@@ -79,11 +75,7 @@ public class Constraint implements QueryParameter {
 		public boolean conduct(VariableMap restrictions, VariableMap answer) {
 			Relation r;
 			if (!restrictions.isEmpty()) {
-				Object[] arr=new Object[args.length];
-				for (int i=0; i<arr.length; i++) {
-					arr[i]=restrictions.map.get(args[i]);
-					arr[i]= (arr[i]==null) ? args[i] : ((ArrayList) arr[i]).get(0);
-				}
+				Object[] arr=restrict(restrictions,args);
 				r=relation(relation.name, arr);
 			}
 			else if (relation instanceof Formula) r=relation(relation.name, args);
@@ -103,14 +95,15 @@ public class Constraint implements QueryParameter {
 		}
 	}
 	
-	private final class Junction implements ItemInConstraint {
-		private final Constraint left;
-		private final Constraint right;
+	
+	private final class Junction implements Node {
+		private final Node left;
+		private final Node right;
 		private final LogicOperator op;
 		
-		public Junction(Constraint l, LogicOperator lp, Constraint r) {
-			right = (r==null) ? new Constraint(LJTrue) : r;
-			left = (l==null) ? new Constraint(LJTrue) : l;
+		public Junction(Node l, LogicOperator lp, Node r) {
+			right = (r==null) ? new Atom(LJTrue) : r;
+			left = (l==null) ? new Atom(LJTrue) : l;
 			op = lp;
 		}		
 		
@@ -127,8 +120,8 @@ public class Constraint implements QueryParameter {
 		}
 		
 		@Override
-		public Constraint replaceVariable(Variable v, Object o) {
-			return new Constraint(left.replaceVariable(v, o),op,right.replaceVariable(v, o));
+		public Node replaceVariable(Variable v, Object o) {
+			return new Junction(left.replaceVariable(v, o), op, right.replaceVariable(v, o));
 		}
 		
 		@Override 
@@ -175,18 +168,23 @@ public class Constraint implements QueryParameter {
 		}
 	}
 	
-	private final ItemInConstraint atom;
+	private final Node atom;
 
 	
 	public Constraint(Relation r, Object... params) {
-		atom = new Atom(r, params);
+		atom=new Atom(r, params);
+	}
+	
+	
+	private Constraint(Node n) {
+		atom=n;
 	}
 	
 	
 	public Constraint(QueryParameter l, LogicOperator lp, QueryParameter r) {
 		if (lp!=null) {
-			Constraint left = (l instanceof Constraint) ? (Constraint) l : new Constraint((Relation)l, ((Relation)l).args);
-			Constraint right = (r instanceof Constraint) ? (Constraint) r : new Constraint((Relation)r, ((Relation)r).args);
+			Node left=(l instanceof Constraint) ? ((Constraint) l).atom : new Atom((Relation)l, ((Relation)l).args);
+			Node right=(r instanceof Constraint) ? ((Constraint) r).atom : new Atom((Relation)r, ((Relation)r).args);
 			atom=new Junction(left,lp,right);
 		}
 		else atom=new Atom(LJTrue);
@@ -230,16 +228,15 @@ public class Constraint implements QueryParameter {
 	
 	@Override
 	public boolean map(VariableMap m, boolean cut) {
-		if (cut) return lazyMap(m);
-		if (!lazyMap(m)) return false;
-		while (lazyMap(m)) {}
+		if (cut) return lazy(m);
+		if (!lazy(m)) return false;
+		while (lazy(m)) {}
 		return true;
 	}
 	
 	
-	public boolean lazyMap(VariableMap m) {
-		VariableMap answer = new VariableMap();
-		if (conduct(new VariableMap(), answer)) {
+	public boolean lazy(VariableMap m) {
+		if (atom.conduct(new VariableMap(), answer)) {
 			m.add(answer);
 			return true;
 		}
@@ -247,8 +244,10 @@ public class Constraint implements QueryParameter {
 	}
 	
 	
-	private boolean conduct(VariableMap restrictions, VariableMap answer) {
-		return atom.conduct(restrictions, answer);
+	public final VariableMap current() {
+		VariableMap map=new VariableMap();
+		map.add(answer);
+		return map;
 	}
 	
 	
@@ -264,7 +263,7 @@ public class Constraint implements QueryParameter {
 	
 	
 	public Constraint replaceVariable(Variable v, Object o) {
-		return atom.replaceVariable(v, o);
+		return new Constraint(atom.replaceVariable(v, o));
 	}
 	
 	
@@ -273,8 +272,19 @@ public class Constraint implements QueryParameter {
 	}
 	
 	
-	private void startLazy() {
+	public void startLazy() {
 		atom.startLazy();
+	}
+	
+	
+	@SuppressWarnings("rawtypes")
+	private Object[] restrict(VariableMap restrictions, Object[] args) {
+		Object[] arr = new Object[args.length];
+		for (int i=0; i<arr.length; i++) {
+			arr[i]=restrictions.map.get(args[i]);
+			arr[i]=(arr[i]==null)? args[i] : ((ArrayList) arr[i]).get(0);
+		}
+		return arr;
 	}
 }
 

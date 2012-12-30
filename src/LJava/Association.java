@@ -40,6 +40,11 @@ public class Association {
 	}
 	
 	
+	public boolean undef() {
+		return (this==undefined);
+	}
+	
+	
 	public String toString(){
 		if (this==_) return "_";
 		StringBuilder s = new StringBuilder(name+"(");

@@ -54,13 +54,9 @@ public class LazyGroup extends Association {
 		for (Map.Entry<Object, Integer> entry : g.argsMap.entrySet()) { //Differing amounts between group's map and r's map
 			Object keyVal=val(entry.getKey());
 			count=(var(keyVal))? rVarsCountMap.remove(keyVal) : rArgsCountMap.remove(keyVal);
-			if (count==null) count=0; 					
-			count=count-entry.getValue();
+			count=(count==null)? -entry.getValue() : count-entry.getValue();
 			if (count>0) {
-				if (!var(keyVal)) {
-					rVarsCountMap=new HashMap<Variable, Integer>();
-					break;
-				}
+				if (!var(keyVal)) return;
 				rVarsCountMap.put((Variable) keyVal, count);
 			}
 			else if (count<0) valsCount.put(keyVal, -count); 
@@ -74,23 +70,20 @@ public class LazyGroup extends Association {
 	
 	
 	protected boolean satisfy(Object[] rArgs, VariableMap varValues) {
-		return evaluate(varValues);
+		return lazy(varValues);
 	}
 	
 	
-	public final boolean evaluate(VariableMap varValues) {
+	public final boolean lazy(VariableMap varValues) {
 		while (!iStack.isEmpty()) {
 			VarIterator i=iStack.pop();
 			if (varsCount.get(i.var)==null) backtrack(i);
 			while (i.iterator.hasNext()) {
-				varsCount.remove(i.var);
 				Map.Entry<Object, Integer> entry=i.iterator.next();
 				int difference=entry.getValue()-i.count;
-				if (difference<0) {
-					varsCount.put(i.var, i.count);
-					continue;
-				}
+				if (difference<0) continue;
 				entry.setValue(difference);
+				varsCount.remove(i.var);
 				answer.updateValsMap(i.var, entry.getKey());
 				iStack.push(i);
 				if (varsCount.isEmpty()) {
@@ -120,7 +113,7 @@ public class LazyGroup extends Association {
 	
 	@Override
 	public final String toString(){
-		StringBuilder sb = new StringBuilder("lazy( VARS: ");
+		StringBuilder sb = new StringBuilder("lazy "+name+"( VARS: ");
 		sb.append(varsCount.toString());
 		sb.append("  ;  VALUES: ");
 		sb.append(valsCount.toString());

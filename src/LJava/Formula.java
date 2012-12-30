@@ -3,6 +3,7 @@ import static LJava.LJ.*;
 import static LJava.Utils.LJFalse;
 import static LJava.Utils.LJTrue;
 import java.lang.reflect.Array;
+import java.util.Arrays;
 
 public abstract class Formula<P,R> extends Relation {
 
@@ -29,14 +30,8 @@ public abstract class Formula<P,R> extends Relation {
 	
 	@SuppressWarnings("unchecked")
 	public Object invoke(Object... params) {
-		try {
-			P[] temp=(P[]) Array.newInstance(parametersType, params.length-1);
-			for (int i=0; i<params.length; i++) temp[i]=(P) val(params[i]);
-			return value(temp);
-		}
-		catch (Exception e) {
-			return undefined;
-		}
+		try { return value((P[]) Arrays.copyOf(params, params.length, ((P[]) Array.newInstance(parametersType, 0)).getClass())); }
+		catch (Exception e) { return undefined; 	}
 	}
 	
 	
@@ -68,7 +63,7 @@ public abstract class Formula<P,R> extends Relation {
 			else temp[i-1]=(P) val;
 		}
 		if (varInArgs) {
-			if (!var(rArgs[0])) return false;     //TBD - this should handle vars in args.
+			if (!var(rArgs[0])) return false;
 			varValues.updateConstraintsMap((Variable) rArgs[0], new Constraint(this, rArgs));
 		}
 		else {
@@ -79,9 +74,9 @@ public abstract class Formula<P,R> extends Relation {
 		return true;
 	}
 	
-/* to fix:
- * do the TBD
- */
 	
-	
+	@Override
+	protected boolean satisfied(Object[] arr, VariableMap m, boolean cut) {
+		return satisfy(arr, m);
+	}
 }

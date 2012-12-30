@@ -1,6 +1,7 @@
 package LJava;
 
 import static LJava.LJ.*;
+
 import java.util.HashMap;
 
 import LJava.LJ.LJIterator;
@@ -35,5 +36,10 @@ public class Relation extends Association implements QueryParameter{
 			if (out && cut) return true;
 		}
 		return out;	
+	}
+	
+
+	protected boolean satisfied(Object[] arr, VariableMap m, boolean cut) {
+		return relation(name, arr).map(m, true);
 	}
 }

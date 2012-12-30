@@ -84,15 +84,14 @@ public class Variable {
 		if (isVar()) return new Object[]{undefined};
 		else if (noValue()) return new Object[]{none};
 		Object[] result = new Object[value.length];
-		for (int i=0; i<value.length; i++) result[i]=val(value[i]);
+		for (int i=0; i<value.length; i++)  result[i]=val(value[i]);
 		return result;
 	}
 
 
 	public final HashSet<Object> getValuesSet(){
 		HashSet<Object> valueSet = new HashSet<Object>();
-		for (int i=0; i<value.length; i++)
-			valueSet.add(val(value[i]));
+		for (int i=0; i<value.length; i++)	valueSet.add(val(value[i]));
 		return valueSet;
 	}
 

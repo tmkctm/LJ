@@ -90,15 +90,12 @@ public final class LJ {
 	protected static boolean evaluate(Relation r, VariableMap varValues, LJIterator i) {		
 		Association element = i.next();
 		if (element instanceof Group) {
-			i.setLazyGroup(new LazyGroup((Group) element, r.args));
-			if (i.lazyGroup.varsCount.isEmpty()) {
-				i.setLazyGroup(null);
-				return true;
-			}
-			element = i.lazyGroup;
+			element=new LazyGroup((Group) element, r.args);
+			if (((LazyGroup)element).varsCount.isEmpty()) return true;
+			i.lazyGroup=element;
 		}
-		if (!(element.associationNameCompare(r) && element.satisfy(r.args, varValues))) {
-			i.setLazyGroup(null);
+		if (!(element.associationNameCompare(r)	&& element.satisfy(r.args, varValues))) {
+			i.lazyGroup=none;
 			return false;
 		}
 		return true;
@@ -170,6 +167,14 @@ public final class LJ {
 		return b.equals(a);
 	}
 	
+	
+	@SuppressWarnings("rawtypes")
+	public static Object[] deepInvoke(Object[] arr, Formula f) {
+		Object[] a=new Object[arr.length];
+		for (int i=0; i<arr.length; i++) a[i]=f.invoke(arr[i]);
+		return a;
+	}
+	
 
 	private static boolean instantiate(VariableMap varValues) {
         boolean answer=true;
@@ -199,7 +204,7 @@ public final class LJ {
 	}		
 	
 	
-	public static LJIterator iterate(int index) {
+	protected static LJIterator iterate(int index) {
 		return new LJ().new LJIterator(index);
 	}
 	
@@ -208,29 +213,30 @@ public final class LJ {
 	protected final class LJIterator {
 		Iterator<Association> i;
 		boolean onFormulas;
-		LazyGroup lazyGroup;
+		Association lazyGroup;
 		
 		
 		public LJIterator(int index) {
 			onFormulas=false;
+			lazyGroup=none;
 			LinkedHashSet<Association> table=LJavaRelationTable.get(index);
 			if (table==null) {
 				table=LJavaRelationTable.get(-1);
 				onFormulas=true;
+				i=(table==null) ? null : table.iterator();
 			}
-			i=(table==null) ? null : table.iterator();
-			lazyGroup=null;
+			else i=table.iterator();
 		}
 		
 		
 		public boolean hasNext() {
 			if (i==null) return false;
-			return (i.hasNext() || lazyGroup!=null || (!onFormulas && LJavaRelationTable.get(-1)!=null));
+			return (i.hasNext() || lazyGroup!=none || (!onFormulas && LJavaRelationTable.get(-1)!=null));
 		}
 		
 		
 		public Association next() {
-			if (lazyGroup!=null) return lazyGroup;
+			if (lazyGroup!=none) return lazyGroup;
 			if (i.hasNext()) return i.next();
 			i=LJavaRelationTable.get(-1).iterator();
 			onFormulas=true;
