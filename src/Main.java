@@ -1,6 +1,9 @@
 import static LJava.LJ.*;
 import static LJava.Utils.*;
 import static LJava.MathFormulas.*;
+
+import javax.swing.JOptionPane;
+
 import LJava.Constraint;
 import LJava.Group;
 import LJava.LazyGroup;
@@ -30,22 +33,27 @@ public class Main {
 		c[8]=new Constraint (c[7],OR,new Constraint(abs,1,vars[5],vars[7]));
 		
 		//Ask for a result and that's it!
-		System.out.println(exists(relation(vars),DIFFER,c[8])+"\n");
+		System.out.println(all(relation(vars),DIFFER,c[8])+"\n");
 		
 		//Do whatever you want with the result.
-		printResult(vars);
+		for (int i = 0; i < ((Variable) vars[0]).getValues().length; i++) {
+			System.out.println("\n"); 
+			printResult(vars,i);
+			System.out.println("\n");
+			JOptionPane.showConfirmDialog(null, "NEXT?");
+		}
 	}
 	
 	
-	public static void printResult(Object[] vars) {
+	public static void printResult(Object[] vars, int i) {
 		System.out.println("\t      -------");
-		System.out.println("\t      | "+vars[0]+" |");
+		System.out.println("\t      | "+((Variable) vars[0]).getValues()[i]+" |");
 		System.out.println("\t-------------------");
-		System.out.println("\t| "+vars[1]+" | "+vars[2]+" | "+vars[3]+" |");
+		System.out.println("\t| "+((Variable) vars[1]).getValues()[i]+" | "+((Variable) vars[2]).getValues()[i]+" | "+((Variable) vars[3]).getValues()[i]+" |");
 		System.out.println("\t-------------------");
-		System.out.println("\t| "+vars[4]+" | "+vars[5]+" | "+vars[6]+" |");
+		System.out.println("\t| "+((Variable) vars[4]).getValues()[i]+" | "+((Variable) vars[5]).getValues()[i]+" | "+((Variable) vars[6]).getValues()[i]+" |");
 		System.out.println("\t-------------------");
-		System.out.println("\t      | "+vars[7]+" |");
+		System.out.println("\t      | "+((Variable) vars[7]).getValues()[i]+" |");
 		System.out.println("\t      -------");
 	}
 	
