@@ -10,10 +10,14 @@ import LJava.VariableMap;
 public class Main {
 
 	public static void main(String[] args) {
+		//describe the space of the problem
 		group(1,2,3,4,5,6,7,8);
+		
+		//Describe the variables of the problem
 		Object[] vars = new Variable[8];
 		for (int i=0; i<8; i++) vars[i]=new Variable("x"+(i+1));
 		
+		//Describe the conditions of the problem
 		Constraint[] c=new Constraint[9];
 		c[0]=new Constraint(abs,1,vars[0],vars[2]);
 		c[1]=new Constraint (c[0],OR,new Constraint(abs,1,vars[1],vars[2]));
@@ -25,7 +29,10 @@ public class Main {
 		c[7]=new Constraint (c[6],OR,new Constraint(abs,1,vars[5],vars[6]));
 		c[8]=new Constraint (c[7],OR,new Constraint(abs,1,vars[5],vars[7]));
 		
+		//Ask for a result and that's it!
 		System.out.println(exists(relation(vars),DIFFER,c[8])+"\n");
+		
+		//Do whatever you want with the result.
 		printResult(vars);
 	}
 	
