@@ -159,7 +159,7 @@ public class Variable {
 	}
 
 
-	public final boolean isPrimitive(){
+	public final boolean isPrimitiveType(){
 		return (get().getClass().isPrimitive());
 	}
 

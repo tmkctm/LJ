@@ -10,7 +10,7 @@ public class Association {
 	protected final Object[] args;	
 	
 	public Association(String n, Object... params) {
-		name = (n==null || n=="") ? "#Relation" : n;
+		name = (n==null || n=="") ? "#LJRelation" : n;
 		args = (params==null) ? new Object[0] : params;
 	}
 		
@@ -55,18 +55,17 @@ public class Association {
 	public Association replaceVariables(HashMap<Variable, Variable> replacements) {
 		Object arguments[]=new Object[args.length];
 		for (int i=0; i<args.length; i++) {
-			Variable v = replacements.get(args[i]);
-			arguments[i]=(v==null)? args[i] : v;
+			arguments[i]=replacements.get(args[i]);
+			arguments[i]= (arguments[i]==null)? args[i]: arguments[i];
 		}
 		return relation(name, arguments);
 	}
 
 	
 	public Association replaceVariables(Variable v1, Variable v2) {
-		Object arguments[]=new Object[args.length];
-		for (int i=0; i<args.length; i++) 
-			arguments[i]=(args[i]==v1)? v2 : args[i];
-		return relation(name, arguments);
+		HashMap<Variable, Variable> m=new HashMap<Variable, Variable>();
+		m.put(v1, v2);
+		return replaceVariables(m);
 	}
 	
 
@@ -80,8 +79,7 @@ public class Association {
 	public boolean equals(Object o) {
 		if (this==_) return true;
 		if (this==none) return false;
-		if (o instanceof Association) 			
-			return this.equalsAssociation((Association) o);		
+		if (o instanceof Association) return this.equalsAssociation((Association) o);		
 		return o.equals(this);	
 	}
 		
@@ -93,11 +91,10 @@ public class Association {
 	
 //Compares between 2 relations.
 	private boolean equalsAssociation(Association r){
-		if (this.isGroup() ^ r.isGroup()) return false;
-		if (this.isFormula() ^ r.isFormula()) return false;
+		if (!this.getClass().equals(r.getClass())) return false;
 		if (!associationNameCompare(r)) return false;
 		for (int i=0; i<args.length; i++)
-			if (!same(this.args[i],r.args[i])) return false;
+			if (this.args[i]!=r.args[i]) return false;
 		return true;
 	}
 }
