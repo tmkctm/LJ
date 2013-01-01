@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import LJava.Group;
-import LJava.MapComparatorByValue;
 import LJava.Variable;
 import LJava.VariableMap;
 

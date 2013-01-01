@@ -192,4 +192,80 @@ public class AutoTests {
 		assertFalse(t.contains("s1"));
 		assertFalse(u.contains("s3"));
 	}
+	
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Test
+	public void testFormula() {
+		final Formula f=new Formula("myF", Boolean.class) {
+			@Override
+			protected Boolean f(Object... p) {
+				Boolean b=false;
+				for (Object o : p) b=(b || (Boolean) o);
+				return b;
+			}};
+		assertTrue(f.satisfy(true, false, false, true, false));
+		assertTrue((Boolean) f.invoke(false,true,false));
+		assertFalse((Boolean) f.invoke(false,false));
+		Formula<Boolean, Container> f2= new Formula<Boolean, Container>("myF2", Boolean.class) {
+			@Override
+			protected Container f(Boolean... p) {
+				Container c = new Container();
+				if (p.length==0) return c;
+				c.b=(Boolean) f.invoke(p);
+				c.d=(p[0])? 100.0 : -100.0;
+				c.i=(f.satisfy(false, p))? 1 : -1;
+				c.r=relation("fromF2",p);
+				c.v=var();
+				c.v.set(c.b, c.d, c.i, c.r);
+				return c;
+			}};
+		assertTrue(f2.value(false).v.contains(1));
+		assertTrue(f2.value(false).v.contains(-100));
+		assertTrue(f2.value(false,true).v.contains(-100));
+		assertTrue(f2.value(false,true).v.contains(-1));
+		assertTrue(f2.value(true,false).v.contains(relation("fromF2",true,false)));
+	}
+	
+	
+	@Test
+	public void testLazyGroup() {
+		Container c=new Container();
+		c.lg=new LazyGroup(new Group("testLazyGroup",1,2,3,4,5,6), new Object[] { x,2,z,4,y,t } );
+		assertTrue(c.lg.current().isEmpty());
+		VariableMap m=new VariableMap();
+		int counter=0;
+		while (c.lg.lazy(m)) {
+			counter++;
+			assertTrue(m.getVars().size()==4);
+			assertTrue( ((ArrayList) m.getVals(x)).size()==counter);
+			assertTrue( ((ArrayList) m.getVals(y)).size()==counter);
+			assertTrue( ((ArrayList) m.getVals(z)).size()==counter);
+			assertTrue( ((ArrayList) m.getVals(t)).size()==counter);
+		}
+		assertTrue(counter==24);
+		instantiate(m);
+		assertTrue(x.equalValuesSet(y));
+		assertTrue(y.equalValuesSet(t));
+		assertTrue(z.equalValuesSet(t));
+		assertTrue(t.equalValuesSet(x));
+		assertTrue(x.contains(1));
+		assertTrue(x.contains(3));
+		assertTrue(x.contains(5));
+		assertTrue(x.contains(6));
+		assertFalse(x.contains(2));
+		assertFalse(x.contains(4));
+		assertTrue(isSet(x,6,y,3,z,1,t,5));
+		assertTrue(isSet(x,6,y,5,z,3,t,1));
+		assertTrue(isSet(x,1,y,3,z,5,t,6));
+		assertFalse(isSet(x,6,y,3,z,6,t,5));
+		assertFalse(isSet(x,1,y,3,z,6,t,1));
+	}
+	
+	
+	@Test
+	public void testRelation() {
+		
+	}
+	
 }

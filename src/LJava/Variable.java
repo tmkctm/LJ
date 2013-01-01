@@ -60,11 +60,16 @@ public class Variable {
 		return innerID;
 	}
 
+	
+	public final Object get() {
+		return get(0);
+	}
+	
 
-	public final Object get(){
+	public final Object get(int i){
 		if (isVar()) return this;
 		if (noValue()) return none;
-		return flat();
+		return flat(i);
 	}
 
 
@@ -206,9 +211,9 @@ public class Variable {
 
 
 //Returns the variable value.
-	private final Object flat(){
+	private final Object flat(int i){
 		if (value.length==0) return undefined;
-		return val(value[0]);
+		return val(value[i]);
 	}
 
 

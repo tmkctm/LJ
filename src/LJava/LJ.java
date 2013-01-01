@@ -122,6 +122,37 @@ public final class LJ {
 	}
 	
 	
+	public static boolean isSet(Variable[] vs, Object[] os) {
+		if (vs==null || os==null) return false;
+		if (vs.length!=os.length) return false;
+		if (vs.length==0) return true;
+		for (int i=0; i<vs[0].getValues().length; i++) {
+			boolean is=true;
+			for (int j=0; j<os.length; j++) 
+				if (!same(vs[j].get(i), os[j])) {
+					is=false;
+					break;
+				}
+			if (is) return true;
+		}
+		return false;
+	}
+	
+	
+	public static boolean isSet(Object... args) {
+		if (args.length%2==1) return false;
+		Variable[] vs=new Variable[args.length/2];
+		Object[] os=new Object[args.length/2];
+		int i=-2;
+		while ((i=i+2)<args.length) {
+			if (!variable(args[i])) return false;
+			vs[i/2]=(Variable) args[i];
+			os[i/2]=args[i+1];
+		}
+		return isSet(vs,os);		
+	}
+	
+	
 	public static final boolean variable(Object x) {
 		return (x instanceof Variable);
 	}
