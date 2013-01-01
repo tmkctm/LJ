@@ -1,14 +1,8 @@
 import static LJava.LJ.*;
-import static LJava.Utils.*;
 import static LJava.MathFormulas.*;
-
 import javax.swing.JOptionPane;
-
 import LJava.Constraint;
-import LJava.Group;
-import LJava.LazyGroup;
 import LJava.Variable;
-import LJava.VariableMap;
 
 public class Main {
 
@@ -17,8 +11,7 @@ public class Main {
 		group(1,2,3,4,5,6,7,8);
 		
 		//Describe the variables of the problem
-		Object[] vars = new Variable[8];
-		for (int i=0; i<8; i++) vars[i]=new Variable("x"+(i+1));
+		Object[] vars = varArray(8);
 		
 		//Describe the conditions of the problem
 		Constraint[] c=new Constraint[9];

@@ -302,4 +302,30 @@ public class AutoTests {
 		
 	}
 	
+	
+	@Test
+	public void testStrings() {
+		
+	}
+	
+	
+	@Test
+	public void testMathFormulas() {
+		
+	}
+	
+	
+	@Test
+	public void testUtils() {
+		
+	}
+	
+	
+	@Test
+	public void testReflection() {
+		
+	}
+	
+
+	//And then test LJ itself
 }

@@ -174,6 +174,18 @@ public final class LJ {
 	}
 	
 	
+	public static Variable[] varArray(String name, int size) {
+		Variable[] arr=new Variable[size];
+		for (int i=0; i<size; i++) arr[i]=new Variable(name+i);
+		return arr;
+	}
+	
+	
+	public static Variable[] varArray(int size) {
+		return varArray("LJ_Variable", size);
+	}
+	
+	
 	public static Relation relation(String n,Object... args) {
 		return new Relation(n,args);
 	}
