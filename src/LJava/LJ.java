@@ -176,7 +176,7 @@ public final class LJ {
 	}
 	
 
-	private static boolean instantiate(VariableMap varValues) {
+	public static boolean instantiate(VariableMap varValues) {
         boolean answer=true;
 		for (Variable v : varValues.getVars())
 			answer=(v.instantiate(varValues.map.get(v), null, varValues.constraints.get(v)) && answer);	

@@ -34,8 +34,7 @@ public class Constraint implements QueryParameter {
 		}
 		
 		public Atom(Atom a, Variable v1, Object v2) {
-			relation=a.relation;
-			args = new Object[a.args.length];
+			this(a.relation, a.args);
 			for (int i=0; i<args.length; i++)
 				args[i] = (a.args[i]==v1) ? v2 : a.args[i];
 		}
@@ -54,9 +53,8 @@ public class Constraint implements QueryParameter {
 		
 		@Override
 		public boolean satisfy(VariableMap restrictions) {
-			if (restrictions.isEmpty()) return true;
-			Object[] arr=restrict(restrictions,args);
-			return relation.satisfied(arr, new VariableMap(), true);
+			if (restrictions.isEmpty()) return relation.satisfied(args, new VariableMap(), true);
+			return relation.satisfied(restrict(restrictions,args), new VariableMap(), true);
 		}
 		
 		@Override
