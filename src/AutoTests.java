@@ -265,6 +265,40 @@ public class AutoTests {
 	
 	@Test
 	public void testRelation() {
+		associate(relation("testRelation",1,2,3,4,"TM"));
+		associate(relation("testRelation",1,'a',3,4,"TM"));
+		associate(relation("testRelation",1,2,'b',4,"TM"));
+		associate(relation("testRelation",1,2,3,'c',"TM"));
+		associate(relation("testRelation","TzaliMaimon",2,3,4,"TM"));
+		associate(relation("testRelation",10,20,30,t,"TM"));
+		Relation r=relation("testRelation",x,y,_,4,_);
+		VariableMap m=new VariableMap();
+		assertTrue(r.map(m, CUT));
+		instantiate(m);
+		assertTrue(x.getValues().length==1);
+		assertTrue(y.getValues().length==1);
+		assertTrue(same(x,1));
+		assertTrue(same(y,2));
+		assertTrue(var(t));
+		m=new VariableMap();
+		Relation r2=relation("testRelation",v,_,u,4,_);
+		assertTrue(r2.map(m, !CUT));
+		instantiate(m);
+		System.out.println(v);
+		System.out.println(u);
+		assertTrue(v.getValues().length==4);
+		assertTrue(u.getValues().length==4);
+		assertTrue(v.contains("TzaliMaimon"));
+		assertTrue(u.contains('b'));
+		assertFalse(isSet(v,10,u,30));
+		assertTrue(isSet(v,1,u,3));
+		assertTrue(isSet(v,"TzaliMaimon",u,3));
+		assertFalse(isSet(v,1,u,30));
+	}
+	
+	
+	@Test
+	public void testVariable() {
 		
 	}
 	
