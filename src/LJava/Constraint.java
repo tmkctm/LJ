@@ -6,12 +6,14 @@ import static LJava.LJ.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import LJava.LJ.LJIterator;
 
 public class Constraint implements QueryParameter {
 
-	private VariableMap answer=new VariableMap();
+	private VariableMap current=new VariableMap();
+	private AtomicBoolean inSet=new AtomicBoolean(false);
 	
 	private interface Node {
 		public boolean satisfy(VariableMap restrictions);
@@ -78,7 +80,7 @@ public class Constraint implements QueryParameter {
 			}
 			else if (relation instanceof Formula) r=relation(relation.name, args);
 			else r=relation;
-			if (iterator==emptyIterator) iterator=iterate(this.args.length);
+			if (iterator==emptyIterator) iterator=iterate(r.args.length);
 			while (iterator.hasNext()) 
 				if (evaluate(r, answer, iterator)) {
 					answer.add(restrictions);
@@ -234,8 +236,14 @@ public class Constraint implements QueryParameter {
 	
 	
 	public boolean lazy(VariableMap m) {
+		VariableMap answer=new VariableMap();
 		if (atom.conduct(new VariableMap(), answer)) {
 			m.add(answer);
+			if (inSet.compareAndSet(false, true)) {
+				current=new VariableMap();
+				current.add(answer);
+				inSet.set(false);
+			}
 			return true;
 		}
 		return false;
@@ -244,7 +252,10 @@ public class Constraint implements QueryParameter {
 	
 	public final VariableMap current() {
 		VariableMap map=new VariableMap();
-		map.add(answer);
+		if (inSet.compareAndSet(false,true)) {
+			map.add(current);
+			inSet.set(false);
+		}
 		return map;
 	}
 	

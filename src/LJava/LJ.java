@@ -75,7 +75,7 @@ public final class LJ {
 	
 	
 	@SuppressWarnings("rawtypes")
-	public static Constraint condition(Formula f, Object... args) {
+	public static Constraint satisfy(Formula f, Object... args) {
 		return new Constraint(f,args);
 	}
 	
