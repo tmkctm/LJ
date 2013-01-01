@@ -14,19 +14,19 @@ public class Main {
 		Object[] vars = varArray(8);
 		
 		//Describe the conditions of the problem
-		Constraint[] c=new Constraint[9];
-		c[0]=new Constraint(abs,1,vars[0],vars[2]);
-		c[1]=new Constraint (c[0],OR,new Constraint(abs,1,vars[1],vars[2]));
-		c[2]=new Constraint (c[1],OR,new Constraint(abs,1,vars[1],vars[4]));
-		c[3]=new Constraint (c[2],OR,new Constraint(abs,1,vars[2],vars[3]));
-		c[4]=new Constraint (c[3],OR,new Constraint(abs,1,vars[2],vars[5]));
-		c[5]=new Constraint (c[4],OR,new Constraint(abs,1,vars[3],vars[6]));
-		c[6]=new Constraint (c[5],OR,new Constraint(abs,1,vars[4],vars[5]));
-		c[7]=new Constraint (c[6],OR,new Constraint(abs,1,vars[5],vars[6]));
-		c[8]=new Constraint (c[7],OR,new Constraint(abs,1,vars[5],vars[7]));
+		Constraint[] cons=new Constraint[9];
+		cons[0]=c(abs,1,vars[0],vars[2]);
+		cons[1]=c(cons[0],OR,c(abs,1,vars[1],vars[2]));
+		cons[2]=c(cons[1],OR,c(abs,1,vars[1],vars[4]));
+		cons[3]=c(cons[2],OR,c(abs,1,vars[2],vars[3]));
+		cons[4]=c(cons[3],OR,c(abs,1,vars[2],vars[5]));
+		cons[5]=c(cons[4],OR,c(abs,1,vars[3],vars[6]));
+		cons[6]=c(cons[5],OR,c(abs,1,vars[4],vars[5]));
+		cons[7]=c(cons[6],OR,c(abs,1,vars[5],vars[6]));
+		cons[8]=c(cons[7],OR,c(abs,1,vars[5],vars[7]));
 		
 		//Ask for a result and that's it!
-		System.out.println(all(relation(vars),DIFFER,c[8])+"\n");
+		System.out.println(all(relation(vars),DIFFER,cons[8])+"\n");
 		
 		//Do whatever you want with the result.
 		for (int i = 0; i < ((Variable) vars[0]).getValues().length; i++) {

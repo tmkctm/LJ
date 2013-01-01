@@ -43,42 +43,88 @@ public final class LJ {
 	
 			
 	public static boolean exists(QueryParameter a) {
-		return query(a,true);
+		return e(a);
+	}
+	
+	
+	public static boolean e(QueryParameter a) {
+		return query(a,true); 
 	}
 	
 	
 	public static boolean exists(QueryParameter a, LogicOperator op, QueryParameter b) {
-		return exists(new Constraint(a,op,b));
+		return e(a,op,b);
+	}
+	
+	
+	public static boolean e(QueryParameter a, LogicOperator op, QueryParameter b) {
+		return e(new Constraint(a,op,b));
 	}
 	
 	
 	public static boolean exists(Object... args) {
+		return e(args);
+	}
+	
+	
+	public static boolean e(Object... args) {
 		Relation r=new Relation("#query",args);
-		return exists(r);
+		return e(r);
 	}
 		
 
 	public static boolean all(QueryParameter a) {
+		return a(a);
+	}
+	
+	
+	public static boolean a(QueryParameter a) {
 		return query(a,false);
 	}
 	
 	
 	public static boolean all(QueryParameter a, LogicOperator op, QueryParameter b) {
-		return all(new Constraint(a,op,b));
+		return a(a,op,b);
+	}
+	
+	
+	public static boolean a(QueryParameter a, LogicOperator op, QueryParameter b) {
+		return a(new Constraint(a,op,b));
 	}
 	
 	
 	public static boolean all(Object... args) {
+		return a(args);
+	}
+	
+	
+	public static boolean a(Object... args) {
 		Relation r=new Relation("#query",args);
-		return all(r);
+		return a(r);
 	}
 	
 	
 	@SuppressWarnings("rawtypes")
-	public static Constraint satisfy(Formula f, Object... args) {
+	public static Constraint c(Formula f, Object... args) {
 		return new Constraint(f,args);
 	}
 	
+	
+	public static Constraint c(QueryParameter l, LogicOperator lp, QueryParameter r) {
+		return new Constraint(l,lp,r);
+	}
+	
+		
+	@SuppressWarnings("rawtypes")
+	public static Constraint condition(Formula f, Object... args) {
+		return c(f,args);
+	}
+
+	
+	public static Constraint condition(QueryParameter l, LogicOperator lp, QueryParameter r) {
+		return c(l,lp,r);
+	}
+
 	
 	private static boolean query(QueryParameter a, boolean cut) {
 		VariableMap varValues=new VariableMap();
@@ -90,8 +136,8 @@ public final class LJ {
 	protected static boolean evaluate(Relation r, VariableMap varValues, LJIterator i) {		
 		Association element = i.next();
 		if (element instanceof Group) {
-			element=new LazyGroup((Group) element, r.args);
-			if (((LazyGroup)element).varsCount.isEmpty()) return true;
+			element=new Lazy((Group) element, r.args);
+			if (((Lazy)element).isEmpty()) return true;
 			i.lazyGroup=element;
 		}
 		if (!(element.associationNameCompare(r)	&& element.satisfy(r.args, varValues))) {
@@ -186,13 +232,23 @@ public final class LJ {
 	}
 	
 	
-	public static Relation relation(String n,Object... args) {
+	public static Relation r(String n,Object... args) {
 		return new Relation(n,args);
 	}
 	
 	
-	public static Relation relation(Object... args) {
+	public static Relation relation(String n,Object... args) {
+		return r(n,args);
+	}
+	
+	
+	public static Relation r(Object... args) {
 		return new Relation("",args);
+	}
+	
+	
+	public static Relation relation(Object... args) {
+		return r(args);
 	}
 	
 	
@@ -286,7 +342,7 @@ public final class LJ {
 			return i.next();
 		}
 		
-		public void setLazyGroup(LazyGroup group) {
+		public void setLazyGroup(Lazy group) {
 			lazyGroup=group;
 		}
 	}	

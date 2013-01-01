@@ -21,7 +21,7 @@ public class AutoTests {
 		public String s;		public List<Object> l;
 		public boolean b;		public Variable v;
 		public Constraint c;	public Relation r;
-		public Group g;			public LazyGroup lg;
+		public Group g;			public Lazy lg;
 		public Object[] arr;
 		
 		public String toString() {
@@ -98,7 +98,7 @@ public class AutoTests {
 		associate(relation("testConstraint", 1, 1, "Any", 0));
 		assertTrue(var(x));
 		assertTrue(var(y));
-		q1=new Constraint(relation("testConstraint", x, y, "Any", 0),WHERE, satisfy(cmp,0,y,true));
+		q1=new Constraint(relation("testConstraint", x, y, "Any", 0),WHERE, c(cmp,0,y,true));
 		q2=new Constraint(relation("testConstraint", _, _, t, _),OR,relation("testConstraint", _, _, _, t));
 		q=new Constraint(q1,AND,q2);
 		VariableMap m=new VariableMap();
@@ -146,7 +146,7 @@ public class AutoTests {
 		assertTrue(x.contains(1));
 		assertTrue(x.contains('a'));
 		assertTrue(x.contains("s1"));
-		q=new Constraint(relation("testConstraint",y,_,z,_,_,_,_,_,_,_),WHERE, or(relation("testConstraint",_,z), satisfy(cmp,0,1,y)));
+		q=new Constraint(relation("testConstraint",y,_,z,_,_,_,_,_,_,_),WHERE, or(relation("testConstraint",_,z), c(cmp,0,1,y)));
 		m=new VariableMap();
 		assertTrue(q.lazy(m));
 		assertEquals(m.getVars().size(),2);
@@ -229,9 +229,9 @@ public class AutoTests {
 	
 	
 	@Test
-	public void testLazyGroup() {
+	public void testLazy() {
 		Container c=new Container();
-		c.lg=new LazyGroup(new Group("testLazyGroup",1,2,3,4,5,6), new Object[] { x,2,z,4,y,t } );
+		c.lg=new Lazy(new Group("testLazyGroup",1,2,3,4,5,6), new Object[] { x,2,z,4,y,t } );
 		assertTrue(c.lg.current().isEmpty());
 		VariableMap m=new VariableMap();
 		int counter=0;
