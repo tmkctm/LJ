@@ -284,8 +284,6 @@ public class AutoTests {
 		Relation r2=relation("testRelation",v,_,u,4,_);
 		assertTrue(r2.map(m, !CUT));
 		instantiate(m);
-		System.out.println(v);
-		System.out.println(u);
 		assertTrue(v.getValues().length==4);
 		assertTrue(u.getValues().length==4);
 		assertTrue(v.contains("TzaliMaimon"));
