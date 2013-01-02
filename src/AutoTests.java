@@ -228,6 +228,7 @@ public class AutoTests {
 	}
 	
 	
+	@SuppressWarnings("rawtypes")
 	@Test
 	public void testLazyGroup() {
 		Container c=new Container();
