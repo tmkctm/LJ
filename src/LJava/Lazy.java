@@ -216,9 +216,6 @@ public class Lazy extends Association implements Iterator<VariableMap>, Iterable
 	
 //Start of class Lazy	
 	private final LazyItem lazy;
-	private final HashSet<Integer> ignore=new HashSet<Integer>();
-	private int currentI=0;
-	private boolean end=false;
 
 	
 	public Lazy(Group group, Object[] rArgs) {
@@ -265,30 +262,22 @@ public class Lazy extends Association implements Iterator<VariableMap>, Iterable
 
 	@Override
 	public boolean hasNext() {
-		if (isEmpty()) end=true;
-		return !end;
+		return lazy(new VariableMap());
 	}
 
 
 	@Override
 	public VariableMap next() {
-		currentI++;
-		while (ignore.contains(currentI) && !lazy().isEmpty()) currentI++;
-		VariableMap m=lazy();
-		end=m.isEmpty();
-		return m; 
+		return current();
 	}
 
 
 	@Override
-	public void remove() {
-		ignore.add(currentI);
-	}
+	public void remove() {}
 
 	
 	public void startLazy() {
 		lazy.startLazy();
-		end=false;
 	}
 
 
