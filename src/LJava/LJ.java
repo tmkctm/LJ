@@ -23,7 +23,7 @@ public final class LJ {
 		OR, AND, DIFFER , NONE, WHERE  }	
 	
 	protected static final LJIterator emptyIterator=iterate(-2);
-	
+	protected static final double DoubleTolerance=0.00000000000001;
 	
 	public static void associate(Association r) {
 		addTo(LJavaRelationTable, r.argsLength(), r, LinkedHashSet.class);
@@ -290,7 +290,7 @@ public final class LJ {
 		if ((variable(a)) || (a instanceof Association))
 				return a.equals(b);
 		if ((a instanceof Number) && (b instanceof Number))
-				return ((Number) a).doubleValue()==((Number) b).doubleValue();
+				return (Math.abs(((Number) a).doubleValue()-((Number) b).doubleValue())<DoubleTolerance);
 		return b.equals(a);
 	}
 	

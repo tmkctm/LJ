@@ -394,20 +394,60 @@ public class AutoTests {
 		Constraint q=new Constraint(q1,AND,q2);
 		y.set(q);
 		assertEquals(q.toString(), "(Max([$x$],10,20,30,[$y$])) AND (Min(100,[$x$],300))");
-		System.out.println(y);
 		assertEquals(y.toString(), "[(Max([$x$],10,20,30,[$y$])) AND (Min(100,[$x$],300))]");
 	}
 	
 	
 	@Test
 	public void testMathFormulas() {
-		
-	}
-	
-	
-	@Test
-	public void testUtils() {
-		
+		//Max
+		x.set(max.invoke(1,2,3,4,"s"), max.satisfy(2,1,2,3,4), max.satisfy(4,1,3,4,2), max.satisfy((Double) max.invoke(1,2), 1,2));
+		assertTrue(same(x.get(0),undefined));
+		assertTrue(same(x.get(1),false));
+		assertTrue(same(x.get(2),true));
+		assertTrue(same(x.get(3),true));
+		//Min
+		resetVars();
+		x.set(min.invoke(1,2,3,4,"s"), min.satisfy(2,1,2,3,4), min.satisfy(1,1,3,4,2), min.satisfy((Double) min.invoke(1,2), 1,2));
+		assertTrue(same(x.get(0),undefined));
+		assertTrue(same(x.get(1),false));
+		assertTrue(same(x.get(2),true));
+		assertTrue(same(x.get(3),true));
+		//Abs
+		resetVars();
+		x.set(abs.invoke(1,2,3,4), abs.satisfy(2,1,5), abs.satisfy(3,1,4), abs.satisfy((Double) abs.invoke(1,2), 1,2));
+		assertTrue(same(x.get(0),-1));
+		assertTrue(same(x.get(1),false));
+		assertTrue(same(x.get(2),true));
+		assertTrue(same(x.get(3),true));	
+		//Pow
+		resetVars();
+		x.set(pow.invoke(2,1,3,2), pow.satisfy(2,1,5), pow.satisfy(1,1,4), pow.satisfy((Double) pow.invoke(1,2), 1,2));
+		assertTrue(same(x.get(0),64));
+		assertTrue(same(x.get(1),false));
+		assertTrue(same(x.get(2),true));
+		assertTrue(same(x.get(3),true));
+		//Sqrt
+		resetVars();
+		x.set(sqrt.invoke(2,1,3,2), sqrt.satisfy(2,5), sqrt.satisfy(3,9), sqrt.satisfy((Double) sqrt.invoke(1,2), 1,2));
+		assertTrue(same(x.get(0),-1));
+		assertTrue(same(x.get(1),false));
+		assertTrue(same(x.get(2),true));
+		assertTrue(same(x.get(3),true));
+		//Sum
+		resetVars();
+		x.set(sum.invoke(2,1,3,2,new Container()), sum.satisfy(13.4,5,5,1,2.4), sum.satisfy(9,9), sum.satisfy((Double) sum.invoke(1,2), 1,2));
+		assertTrue(same(x.get(0),undefined));
+		assertTrue(same(x.get(1),true));
+		assertTrue(same(x.get(2),true));
+		assertTrue(same(x.get(3),true));
+		//Product
+		resetVars();
+		x.set(product.invoke(2,1,3,2,0.1,10), product.satisfy(1,1,3,0.3), product.satisfy(1,20,0.05,2,0.5), product.satisfy((Double) product.invoke(1,2), 1,2));
+		assertTrue(same(x.get(0),12));
+		assertTrue(same(x.get(1),false));
+		assertTrue(same(x.get(2),true));
+		assertTrue(same(x.get(3),true));
 	}
 	
 	
