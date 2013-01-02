@@ -1,6 +1,7 @@
 package LJava;
 
 import static LJava.LJ.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -91,5 +92,18 @@ public class VariableMap {
 		sb.append(constraints);
 		return sb.toString();
 		
+	}
+
+	
+	@SuppressWarnings("rawtypes")
+	public final Variable[] toArray(Variable... vs) {
+		Variable[] result=new Variable[vs.length];
+		for (int i=0; i<vs.length; i++)  {
+			Object o=map.get(vs[i]);
+			o=(o==null)? undefined : ((ArrayList) o).get(0);
+			result[i]=var();
+			result[i].set(o);
+		}
+		return result;
 	}
 }

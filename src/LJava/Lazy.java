@@ -20,9 +20,11 @@ public class Lazy extends Association {
 	private interface LazyItem {
 		public boolean satisfy(Object[] rArgs, VariableMap varValues);
 		public boolean lazy(VariableMap varValues);
+		public VariableMap lazy();
 		public VariableMap current();
 		public String toString();
 		public boolean isEmpty();
+		public void startLazy();
 	}
 	
 	private class LazyGroup extends Association implements LazyItem {
@@ -103,6 +105,13 @@ public class Lazy extends Association {
 		}
 		
 		@Override
+		public final VariableMap lazy() {
+			VariableMap m=new VariableMap();
+			if (!lazy(m)) return new VariableMap();
+			return m;
+		}
+		
+		@Override
 		public final VariableMap current() {
 			VariableMap map=new VariableMap();
 			map.add(answer);
@@ -146,13 +155,26 @@ public class Lazy extends Association {
 		public boolean isEmpty() {
 			return varsCount.isEmpty();
 		}
+		
+		@Override
+		public void startLazy() {
+			while (!iStack.isEmpty()) {
+				VarIterator i=iStack.pop();
+				if (varsCount.get(i.var)==null) backtrack(i);				
+			}
+			if (!varsCount.isEmpty()) iStack.push(new VarIterator(valsCount.entrySet().iterator(), varsCount.firstKey(), varsCount.get(varsCount.firstKey())));
+		}
 	}
 	
 	
 //LazyAll	
 	private class LazyAll implements LazyItem {
 		
-		public LazyAll() {}
+		private final Constraint c;
+		
+		public LazyAll(Constraint constraint) {
+			c=constraint;
+		}
 		
 		@Override
 		public boolean satisfy(Object[] rArgs, VariableMap varValues){
@@ -161,33 +183,49 @@ public class Lazy extends Association {
 		
 		@Override
 		public boolean lazy(VariableMap varValues) {
-			return false;
+			return c.lazy(varValues);
+		}
+		
+		@Override
+		public VariableMap lazy() {
+			return c.lazy();
 		}
 		
 		@Override
 		public VariableMap current() {
-			return new VariableMap();
+			return c.current();
 		}
 		
 		@Override
 		public String toString() {
-			return "";
+			return c.toString();
 		}
 		
 		@Override
 		public boolean isEmpty() {
-			return true;
+			return c.getVars().isEmpty();
 		}
+		
+		@Override
+		public void startLazy() {
+			c.startLazy();
+		}		
 	}
 	
 	
 //Start of class Lazy	
-	private LazyItem lazy;
+	private final LazyItem lazy;
 
 	
 	public Lazy(Group group, Object[] rArgs) {
 		super(group.name, group.args);
 		lazy=new LazyGroup(group, rArgs);
+	}
+	
+	
+	public Lazy(Constraint c) {
+		super("LazyAll");
+		lazy=new LazyAll(c);
 	}
 	
 	
@@ -198,6 +236,11 @@ public class Lazy extends Association {
 	
 	public boolean lazy(VariableMap varValues) {
 		return lazy.lazy(varValues);
+	}
+	
+	
+	public VariableMap lazy() {
+		return lazy.lazy();
 	}
 	
 	

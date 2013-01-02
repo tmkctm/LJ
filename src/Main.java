@@ -2,7 +2,9 @@ import static LJava.LJ.*;
 import static LJava.MathFormulas.*;
 import javax.swing.JOptionPane;
 import LJava.Constraint;
+import LJava.Lazy;
 import LJava.Variable;
+import LJava.VariableMap;
 
 public class Main {
 
@@ -11,7 +13,7 @@ public class Main {
 		group(1,2,3,4,5,6,7,8);
 		
 		//Describe the variables of the problem
-		Object[] vars = varArray(8);
+		Variable[] vars = varArray(8);
 		
 		//Describe the conditions of the problem
 		Constraint[] cons=new Constraint[9];
@@ -26,7 +28,7 @@ public class Main {
 		cons[8]=c(cons[7],OR,c(abs,1,vars[5],vars[7]));
 		
 		//Ask for a result and that's it!
-		System.out.println(all(relation(vars),DIFFER,cons[8])+"\n");
+/*		System.out.println(all(relation(vars),DIFFER,cons[8])+"\n");
 		
 		//Do whatever you want with the result.
 		for (int i = 0; i < ((Variable) vars[0]).getValues().length; i++) {
@@ -37,18 +39,31 @@ public class Main {
 			if (answer==JOptionPane.CANCEL_OPTION || answer==JOptionPane.NO_OPTION)
 				break;
 		}
+*/
+		
+		//Another Way of doing it is the lazy way:
+		Lazy lazy=lazy(relation(vars),DIFFER,cons[8]);
+		VariableMap m;
+		while (!(m=lazy.lazy()).isEmpty()) {
+			System.out.println("\n"); 
+			printResult(m.toArray(vars),0);
+			System.out.println("\n");
+			int answer = JOptionPane.showConfirmDialog(null, "NEXT?"); 
+			if (answer==JOptionPane.CANCEL_OPTION || answer==JOptionPane.NO_OPTION)
+				break;			
+		}
 	}
 	
 	
-	public static void printResult(Object[] vars, int i) {
+	public static void printResult(Variable[] vars, int i) {
 		System.out.println("\t    -----");
-		System.out.println("\t    | "+((Variable) vars[0]).getValues()[i]+" |");
+		System.out.println("\t    | "+(vars[0]).getValues()[i]+" |");
 		System.out.println("\t-------------");
-		System.out.println("\t| "+((Variable) vars[1]).getValues()[i]+" | "+((Variable) vars[2]).getValues()[i]+" | "+((Variable) vars[3]).getValues()[i]+" |");
+		System.out.println("\t| "+(vars[1]).getValues()[i]+" | "+((Variable) vars[2]).getValues()[i]+" | "+((Variable) vars[3]).getValues()[i]+" |");
 		System.out.println("\t-------------");
-		System.out.println("\t| "+((Variable) vars[4]).getValues()[i]+" | "+((Variable) vars[5]).getValues()[i]+" | "+((Variable) vars[6]).getValues()[i]+" |");
+		System.out.println("\t| "+(vars[4]).getValues()[i]+" | "+((Variable) vars[5]).getValues()[i]+" | "+((Variable) vars[6]).getValues()[i]+" |");
 		System.out.println("\t-------------");
-		System.out.println("\t    | "+((Variable) vars[7]).getValues()[i]+" |");
+		System.out.println("\t    | "+(vars[7]).getValues()[i]+" |");
 		System.out.println("\t    -----");
 	}
 	

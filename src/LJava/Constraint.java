@@ -250,6 +250,13 @@ public class Constraint implements QueryParameter {
 	}
 	
 	
+	public final VariableMap lazy() {
+		VariableMap m=new VariableMap();
+		if (!lazy(m)) return new VariableMap();
+		return m;
+	}
+	
+	
 	public final VariableMap current() {
 		VariableMap map=new VariableMap();
 		if (inSet.compareAndSet(false,true)) {
@@ -295,6 +302,8 @@ public class Constraint implements QueryParameter {
 		}
 		return arr;
 	}
+	
+
 }
 
 

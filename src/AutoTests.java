@@ -229,7 +229,7 @@ public class AutoTests {
 	
 	
 	@Test
-	public void testLazy() {
+	public void testLazyGroup() {
 		Container c=new Container();
 		c.lg=new Lazy(new Group("testLazyGroup",1,2,3,4,5,6), new Object[] { x,2,z,4,y,t } );
 		assertTrue(c.lg.current().isEmpty());
@@ -260,6 +260,12 @@ public class AutoTests {
 		assertTrue(isSet(x,1,y,3,z,5,t,6));
 		assertFalse(isSet(x,6,y,3,z,6,t,5));
 		assertFalse(isSet(x,1,y,3,z,6,t,1));
+	}
+	
+	
+	@Test
+	public void testLazyAll() {
+		
 	}
 	
 	

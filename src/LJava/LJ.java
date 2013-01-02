@@ -41,6 +41,11 @@ public final class LJ {
 		associate(r);
 	}
 	
+	
+	public static Lazy lazy(Group g, Object... args) {
+		return new Lazy(g,args);
+	}
+	
 			
 	public static boolean exists(QueryParameter a) {
 		return e(a);
@@ -78,6 +83,11 @@ public final class LJ {
 	}
 	
 	
+	public static Lazy lazy(Constraint a) {
+		return new Lazy(a);
+	}
+	
+	
 	public static boolean a(QueryParameter a) {
 		return query(a,false);
 	}
@@ -85,6 +95,11 @@ public final class LJ {
 	
 	public static boolean all(QueryParameter a, LogicOperator op, QueryParameter b) {
 		return a(a,op,b);
+	}
+	
+	
+	public static Lazy lazy(QueryParameter a, LogicOperator op, QueryParameter b) {
+		return lazy(new Constraint(a,op,b));
 	}
 	
 	
