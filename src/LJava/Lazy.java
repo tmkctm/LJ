@@ -5,7 +5,6 @@ import static LJava.LJ.var;
 
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
@@ -268,6 +267,7 @@ public class Lazy extends Association implements Iterator<VariableMap>, Iterable
 
 	@Override
 	public VariableMap next() {
+		if (current().isEmpty()) return lazy();
 		return current();
 	}
 
