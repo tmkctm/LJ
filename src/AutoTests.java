@@ -7,6 +7,7 @@ import LJava.*;
 import static LJava.LJ.*;
 import static LJava.Utils.*;
 import static LJava.MathFormulas.*;
+import static LJava.Reflection.*;
 
 import org.junit.*;
 import static org.junit.Assert.*;
@@ -453,8 +454,31 @@ public class AutoTests {
 	
 	@Test
 	public void testReflection() {
+		assertEquals(val.invoke(1,2,3),undefined);
+		assertTrue(val.satisfy(1,1));
+		x.set(y);
+		assertTrue(val.satisfy(y,x));
+		assertTrue(val.satisfy(x,y));
+		y.set("Tzali");
+		assertTrue(val.satisfy("Tzali",x));
 		
-	}
+		assertFalse(same(var.invoke(),undefined));
+		assertEquals(var.invoke().toString(),"$LJ_Variable$");
+		assertFalse((Boolean)var.invoke(x));
+		assertTrue((Boolean)var.invoke(t));
+		assertFalse((Boolean)var.invoke(new Container()));
+		
+		assertTrue(same(deepInvoke.invoke(1,sum),undefined));
+		Object[][] arr = new Object[2][3];
+		for (int i=0; i<2; i++)
+			for (int j=0; j<3; j++)
+				arr[i][j]=i*j;
+		assertFalse(same(deepInvoke.invoke(arr,sum),undefined));
+		Object[] sums=(Object[]) deepInvoke.invoke(arr,sum);
+		System.out.println(sums[0]+" "+sums[1]);
+		assertEquals(sums[0],0.0);
+		assertEquals(sums[1],3.0);
+	}		
 	
 
 	//And then test LJ itself

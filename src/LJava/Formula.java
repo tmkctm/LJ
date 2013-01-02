@@ -30,8 +30,14 @@ public abstract class Formula<P,R> extends Relation {
 	
 	@SuppressWarnings("unchecked")
 	public Object invoke(Object... params) {
-		try { return value((P[]) Arrays.copyOf(params, params.length, ((P[]) Array.newInstance(parametersType, 0)).getClass())); }
-		catch (Exception e) { return undefined; 	}
+		try { return value((P[])Arrays.copyOf(params, params.length, ((P[])Array.newInstance(parametersType, 0)).getClass())); }
+		catch (Exception e) {}
+		if ((params.length==1) && (params[0].getClass().isArray()))
+			try {
+				params=(Object[]) params[0];
+				return invoke(params);	
+			}catch (Exception e) {}
+		return undefined;
 	}
 	
 	
