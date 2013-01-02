@@ -14,6 +14,21 @@ public static Formula<Object, Object> val=new Formula<Object, Object>("val", Obj
 	}};
 
 
+public static Formula<Object, Object> varArray=new Formula<Object, Object>("varArray", Object.class) {
+	@Override
+	protected Object f(Object... p) {
+		if (p.length==2) {
+			try {	return varArray((String) p[0], (Integer) p[1]);	}
+			catch (Exception e) {}
+		}
+		if (p.length==1) {
+			try {	return varArray((Integer) p[0]);	}
+			catch (Exception e) {}
+		}
+		return undefined;
+	}};
+
+
 public static Formula<Object, Object> isSet=new Formula<Object, Object>("isSet", Object.class) {
 	@Override
 	protected Object f(Object... p) {

@@ -105,7 +105,7 @@ public class ReflectionDumper {
 		for (int i=0; i<types.size()-1; i++)
 			r.append("("+types.get(i)+") p["+i+"], ");
 		r.append("("+types.get(types.size()-1)+") p["+(types.size()-1)+"]");
-		return r.toString();
+		return r.toString().replaceAll("\\(int\\)","(Integer)");
 	}
 	
 	
