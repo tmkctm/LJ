@@ -475,11 +475,60 @@ public class AutoTests {
 				arr[i][j]=i*j;
 		assertFalse(same(deepInvoke.invoke(arr,sum),undefined));
 		Object[] sums=(Object[]) deepInvoke.invoke(arr,sum);
-		System.out.println(sums[0]+" "+sums[1]);
 		assertEquals(sums[0],0.0);
 		assertEquals(sums[1],3.0);
 	}		
 	
 
-	//And then test LJ itself
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Test
+	public void testExists() {
+		final Formula f=new Formula("myF", Boolean.class) {
+			@Override
+			protected Boolean f(Object... p) {
+				Boolean b=false;
+				for (Object o : p) b=(b || (Boolean) o);
+				return b;
+			}};		
+		Formula<Boolean, Container> f2= new Formula<Boolean, Container>("myF2", Boolean.class) {
+			@Override
+			protected Container f(Boolean... p) {
+				Container c = new Container();
+				if (p.length==0) return c;
+				c.b=(Boolean) f.invoke(p);
+				c.d=(p[0])? 100.0 : -100.0;
+				c.i=(f.satisfy(false, p))? 1 : -1;
+				c.r=relation("fromF2",p);
+				c.v=var();
+				c.v.set(c.b, c.d, c.i, c.r);
+				return c;
+			}};		
+		Relation r=r("testExists","Tzali","Maimon",30,61262291);
+		Relation r2=r("testExists","Tal","Zamir",33,"Don't know!");
+		associate(r);
+		associate(r("testExists"));
+		associate(r("testExists",10,20,30,40,50));
+		associate(new Group("testExists",1,2,3,4,5));
+		associate(r("testExists","relationType1",r,true));
+		associate(r("testExists","relationType2",r2,false));
+		associate(r("testExists","VariableType1",t,0));
+		associate(r("testExists","VariableType2",u,1));
+		associate(r("testExists","VariableType3",v,2));
+		associate(r("testExists","usingFormula1",false, false));
+		associate(r("testExists","usingFormula2",true, false));
+		assertTrue(e(r("testExists")));
+		assertTrue(e(r("testExists",10,20,30,40,50)));
+		assertTrue(e(r("testExists",3,2,4,1,5)));
+		assertTrue(e(r("testExists",x,3,y,2,1)));
+		assertFalse(var(x));
+		assertFalse(var(y));
+		assertTrue((x.equals(4) && y.equals(5)) || (x.equals(5) && y.equals(4)));
+		resetVars();
+		assertFalse(e(r("testExists",3,2,x,3,y)));
+		assertTrue(var(x));
+		assertTrue(var(y));
+		assertTrue(e(r("testExists",x,y,z),WHERE,c(e,true,y)));
+		assertTrue(x.equals("relationType1"));
+		assertTrue(same(z,true));
+	}
 }

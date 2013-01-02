@@ -64,7 +64,7 @@ public class Lazy extends Association implements Iterator<VariableMap>, Iterable
 				count=(var(keyVal))? rVarsCountMap.remove(keyVal) : rArgsCountMap.remove(keyVal);
 				count=(count==null)? -entry.getValue() : count-entry.getValue();
 				if (count>0) {
-					if (!var(keyVal)) return;
+					if (!var(keyVal)) { varsCount.put(new Variable(), 1);   return; }
 					rVarsCountMap.put((Variable) keyVal, count);
 				}
 				else if (count<0) valsCount.put(keyVal, -count); 
