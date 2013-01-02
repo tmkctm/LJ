@@ -5,6 +5,7 @@ import static LJava.LJ.var;
 
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
@@ -15,7 +16,7 @@ import LJava.Variable;
 import LJava.VariableMap;
 
 
-public class Lazy extends Association {
+public class Lazy extends Association implements Iterator<VariableMap>, Iterable<VariableMap> {
 		
 	private interface LazyItem {
 		public boolean satisfy(Object[] rArgs, VariableMap varValues);
@@ -215,6 +216,9 @@ public class Lazy extends Association {
 	
 //Start of class Lazy	
 	private final LazyItem lazy;
+	private final HashSet<Integer> ignore=new HashSet<Integer>();
+	private int currentI=0;
+	private boolean end=false;
 
 	
 	public Lazy(Group group, Object[] rArgs) {
@@ -256,6 +260,41 @@ public class Lazy extends Association {
 	
 	protected boolean isEmpty() {
 		return lazy.isEmpty();
+	}
+
+
+	@Override
+	public boolean hasNext() {
+		if (isEmpty()) end=true;
+		return !end;
+	}
+
+
+	@Override
+	public VariableMap next() {
+		currentI++;
+		while (ignore.contains(currentI)) lazy();
+		VariableMap m=lazy();
+		end=m.isEmpty();
+		return m; 
+	}
+
+
+	@Override
+	public void remove() {
+		ignore.add(currentI);
+	}
+
+	
+	public void startLazy() {
+		lazy.startLazy();
+		end=false;
+	}
+
+
+	@Override
+	public Iterator<VariableMap> iterator() {
+		return this;
 	}
 	
 }	

@@ -43,8 +43,7 @@ public class Main {
 		
 		//Another Way of doing it is the lazy way:
 		Lazy lazy=lazy(relation(vars),DIFFER,cons[8]);
-		VariableMap m;
-		while (!(m=lazy.lazy()).isEmpty()) {
+		for (VariableMap m : lazy) {
 			System.out.println("\n"); 
 			printResult(m.toArray(vars),0);
 			System.out.println("\n");
