@@ -273,7 +273,7 @@ public class Lazy extends Association implements Iterator<VariableMap>, Iterable
 	@Override
 	public VariableMap next() {
 		currentI++;
-		while (ignore.contains(currentI)) lazy();
+		while (ignore.contains(currentI) && !lazy().isEmpty()) currentI++;
 		VariableMap m=lazy();
 		end=m.isEmpty();
 		return m; 
