@@ -238,8 +238,4 @@ public class Variable {
 	}
 	
 
-/* to fix:
- * 	lock at instantiate versus consistWith. Consider an alternative.	
- */
-	
 }

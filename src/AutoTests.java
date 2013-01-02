@@ -50,7 +50,7 @@ public class AutoTests {
 		c.l=new ArrayList<Object>();		c.l.add(x);		c.l.add("tzali");		c.l.add(10);
 		c.v=var();		c.v.set(1,2,3);
 		y.set(11,12,13);
-		a=new Association("a", 0, c, false, new HashSet(), LJvar, x, y);
+		a=new Association("a", 0, c, false, new HashSet<Object>(), LJvar, x, y);
 		assertEquals(a.toString(), "a(0,int: 0 ; double: 0.0 ; String: null ; List: [$x$, tzali, 10]boolean: false ; Variable: [1,2,3] ; Constraint: nullRelation: null ; Group: null ; LazyGroup: null ; Array: null,false,[],$LJ_Variable$,$x$,[11,12,13])");
 		x.set(t);
 		t.set(z);

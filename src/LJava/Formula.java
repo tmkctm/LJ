@@ -79,4 +79,10 @@ public abstract class Formula<P,R> extends Relation {
 	protected boolean satisfied(Object[] arr, VariableMap m, boolean cut) {
 		return satisfy(arr, m);
 	}
+	
 }
+
+
+/* to fix:
+ * reverse formulas. 	
+ */

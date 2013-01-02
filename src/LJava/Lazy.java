@@ -260,3 +260,7 @@ public class Lazy extends Association {
 	
 }	
 
+
+/* to fix:
+ * lazy of LazyGroup is concurrent. 
+*/

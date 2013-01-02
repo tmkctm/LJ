@@ -309,5 +309,6 @@ public class Constraint implements QueryParameter {
 
 /* to fix:
  * Restrictions for conduct not perfect for Formula (that has multi vars in args) in Atom.
- * the implementation of the restrictions on arr needs to be above Atom.conduct and not inside it. 
+ * the implementation of the restrictions on arr needs to be above Atom.conduct and not inside it.
+ * Atoms lazy isn't concurrent. 
  */
