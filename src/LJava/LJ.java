@@ -256,6 +256,19 @@ public final class LJ {
 		return r(n,args);
 	}
 	
+
+	@SuppressWarnings("rawtypes")
+	public static Relation r(Formula f,Object... args) {
+		return new Relation(f.name,args);
+	}
+	
+	
+	@SuppressWarnings("rawtypes")
+	public static Relation relation(Formula f,Object... args) {
+		return r(f,args);
+	}
+
+	
 	
 	public static Relation r(Object... args) {
 		return new Relation("",args);
@@ -268,7 +281,7 @@ public final class LJ {
 	
 	
 	public static Object val(Object o) {
-		if (variable(o)) return ((Variable) o).get();
+		if (variable(o)) return ((Variable) o).get(0);
 		return o;
 	}
 	
@@ -316,6 +329,12 @@ public final class LJ {
 		if (count==null) count=0;
 		m.put(element,count+delta);	
 	}		
+	
+	
+	protected static String string(Object o) {
+		if (variable(o)) return "[$"+((Variable) o).getID()+"$]";
+		return o.toString();
+	}
 	
 	
 	protected static LJIterator iterate(int index) {

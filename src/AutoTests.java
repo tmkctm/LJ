@@ -51,12 +51,9 @@ public class AutoTests {
 		c.v=var();		c.v.set(1,2,3);
 		y.set(11,12,13);
 		a=new Association("a", 0, c, false, new HashSet<Object>(), LJvar, x, y);
-		assertEquals(a.toString(), "a(0,int: 0 ; double: 0.0 ; String: null ; List: [$x$, tzali, 10]boolean: false ; Variable: [1,2,3] ; Constraint: nullRelation: null ; Group: null ; LazyGroup: null ; Array: null,false,[],$LJ_Variable$,$x$,[11,12,13])");
 		x.set(t);
 		t.set(z);
-		assertEquals(a.toString(), "a(0,int: 0 ; double: 0.0 ; String: null ; List: [[[$z$]], tzali, 10]boolean: false ; Variable: [1,2,3] ; Constraint: nullRelation: null ; Group: null ; LazyGroup: null ; Array: null,false,[],$LJ_Variable$,[[$z$]],[11,12,13])");
 		z.set(abs);
-		assertEquals(a.toString(), "a(0,int: 0 ; double: 0.0 ; String: null ; List: [[[[Absolute()]]], tzali, 10]boolean: false ; Variable: [1,2,3] ; Constraint: nullRelation: null ; Group: null ; LazyGroup: null ; Array: null,false,[],$LJ_Variable$,[[[Absolute()]]],[11,12,13])");
 		assertTrue(_.equals(a));
 		assertTrue(_.equals(c));
 		a=a.replaceVariables(LJvar, u);
@@ -70,6 +67,9 @@ public class AutoTests {
 	@Test
 	public void testConstraint() {
 		//Constructors and satisfy
+		Constraint dump=new Constraint(pow);
+		assertTrue(dump.satisfy());
+		assertEquals(dump.toString(),"Power()");
 		Constraint q1=new Constraint(sum, 6,1,2,3);
 		assertTrue(q1.satisfy());
 		assertEquals(q1.toString(),"Sum(6,1,2,3)");
@@ -109,6 +109,9 @@ public class AutoTests {
 		assertFalse(t.contains(0));
 		assertTrue(x.contains(t));
 		assertTrue(same(y,true));
+		String s=q1.toString();
+		q1.replaceVariable(x, z);
+		assertTrue(s.equals(q1.toString()));
 		q1=q1.replaceVariable(x, z);
 		q1=q1.replaceVariable(y, u);
 		q2=q2.replaceVariable(t, v);
@@ -304,13 +307,95 @@ public class AutoTests {
 	
 	@Test
 	public void testVariable() {
-		
+		//set values
+		assertTrue(v.set(v));
+		assertFalse(var(v));
+		assertTrue(v.equals(undefined));
+		resetVars();
+		assertTrue(y.set('a',x,"TM"));
+		assertTrue(z.set(y,relation(1,2,y)));
+		assertTrue(t.set(undefined,2,1));
+		assertTrue(x.set(1,2,y));
+		assertFalse(z.set(1));
+		assertTrue(u.set(v));
+		assertTrue(var(v));
+		assertFalse(var(u));
+		assertTrue(x.contains(1));
+		assertFalse(x.contains(y));
+		assertTrue(x.contains(undefined));
+		assertTrue(y.contains(x));
+		assertTrue(y.contains(undefined));
+		assertTrue(y.contains(1));
+		assertTrue(z.contains(2));
+		assertFalse(x.equalValues(t));
+		assertTrue(x.equalValuesSet(t));
+		resetVars();
+		x.set(1,2,3,4,5);
+		y.set(1,9,8,7,6);
+		t.set(2,1,3,4,5);
+		assertTrue(x.equals(y));
+		assertFalse(x.equals(t));
+		assertTrue(x.equals(1));
+		assertFalse(x.equals(2));
+		//set with constraints
+		resetVars();
+		x.instantiate(new Object[]{6,6,6,1,3,4,5}, c(cmp,1,x,4), c(cmp,-1,x,-100));
+		y.instantiate(new Object[]{"a","b",false,10,20}, c(cmp,1,y,4), c(cmp,1,y,((Integer) x.get(3))*100));
+		v.instantiate(new ArrayList(), null, c(abs,1,v,10));
+		assertFalse(v.contains(10));
+		assertFalse(v.noValue());
+		assertTrue(v.contains(11));
+		assertTrue(v.contains(9));
+		Constraint c=x.getConstraint();
+		assertTrue(x.contains(6));
+		assertFalse(x.contains(1));
+		assertFalse(x.contains(3));
+		assertFalse(x.contains(4));
+		assertTrue(x.contains(-600));
+		assertTrue(same(x.get(0),x.get(1)));
+		assertTrue(same(x.get(1),x.get(2)));
+		assertTrue(same(6,x.get(2)));
+		assertTrue(same(5,x.get(3)));
+		assertTrue(y.contains(10));
+		assertFalse(y.contains("a"));
+		assertFalse(y.contains(false));
+		assertFalse(y.contains(30));
+		assertTrue(y.contains(600));
+		assertFalse(y.contains(500));
+		assertTrue(y.contains(501));		
+		assertTrue(y.getValues().length==2);
+		assertFalse(t.equals(v));
+		assertFalse(y.equals(x));
+		x=var();
+		Variable temp=(Variable) c.getVars().toArray()[0];
+		assertTrue(c.satisfy(temp,-1000));
+		assertFalse(c.satisfy(temp,0));
+		assertFalse(x.singleValue());
+		assertFalse(y.singleValue());
+		assertFalse(v.singleValue());
+		x.set(1);
+		assertTrue(x.singleValue());
 	}
 	
 	
 	@Test
 	public void testStrings() {
-		
+		//Association
+		Relation r=relation("testStrings",x);
+		associate(r("testStrings",1,2,r));
+		assertTrue(exists(r("testStrings",1,2,x)));
+		assertEquals(x.toString(),"[testStrings([$x$])]");
+		assertEquals(r.toString(),"testStrings([$x$])");
+		assertEquals(sum.toString(), "Sum()");
+		r=r(sum,1,2,3);
+		assertEquals(r.toString(),"Sum(1,2,3)");
+		Constraint q1=new Constraint(max, x, 10, 20, 30, y);
+		Constraint q2=new Constraint(min, 100, x, 300);
+		Constraint q=new Constraint(q1,AND,q2);
+		y.set(q);
+		assertEquals(q.toString(), "(Max([$x$],10,20,30,[$y$])) AND (Min(100,[$x$],300))");
+		System.out.println(y);
+		assertEquals(y.toString(), "[(Max([$x$],10,20,30,[$y$])) AND (Min(100,[$x$],300))]");
 	}
 	
 	

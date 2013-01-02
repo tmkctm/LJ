@@ -3,6 +3,7 @@ import static LJava.MathFormulas.*;
 import javax.swing.JOptionPane;
 import LJava.Constraint;
 import LJava.Lazy;
+import LJava.Relation;
 import LJava.Variable;
 import LJava.VariableMap;
 
@@ -11,7 +12,6 @@ public class Main {
 	public static void main(String[] args) {
 		//describe the space of the problem
 		group(1,2,3,4,5,6,7,8);
-		
 		//Describe the variables of the problem
 		Variable[] vars = varArray(8);
 		

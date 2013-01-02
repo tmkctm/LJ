@@ -36,19 +36,19 @@ public class Constraint implements QueryParameter {
 		}
 		
 		public Atom(Atom a, Variable v1, Object v2) {
-			this(a.relation, a.args);
-			for (int i=0; i<args.length; i++)
+			relation=(Relation) a.relation.replaceVariables(v1, v2);
+			args=new Object[a.args.length];
+			for (int i=0; i<a.args.length; i++)
 				args[i] = (a.args[i]==v1) ? v2 : a.args[i];
+			iterator=emptyIterator;
 		}
 		
 		public String toString() {	
 			StringBuilder s = new StringBuilder(relation.name()+"(");
 			if (args.length>0) {
-				for (int i=0; i<args.length; i++)	
-					if (variable(args[i])) s.append("[$"+((Variable) args[i]).getID()+"$],");
-					else s.append(args[i]+",");
+				for (int i=0; i<args.length; i++) s.append(string(args[i])+",");	
+				s.deleteCharAt(s.length()-1);
 			}
-			s.deleteCharAt(s.length()-1);
 			s.append(")");
 			return s.toString();
 		}
@@ -78,7 +78,7 @@ public class Constraint implements QueryParameter {
 				Object[] arr=restrict(restrictions,args);
 				r=relation(relation.name, arr);
 			}
-			else if (relation instanceof Formula) r=relation(relation.name, args);
+			else if (relation.isFormula()) r=relation(relation.name, args);
 			else r=relation;
 			if (iterator==emptyIterator) iterator=iterate(r.args.length);
 			while (iterator.hasNext()) 

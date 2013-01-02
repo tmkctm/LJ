@@ -49,15 +49,16 @@ public class Association {
 		if (this==_) return "_";
 		StringBuilder s = new StringBuilder(name+"(");
 		if (args.length>0) {
-			for (int i=0; i<args.length-1; i++)	s.append(args[i]+",");
-			s.append(args[args.length-1].toString());
+			for (int i=0; i<args.length-1; i++)	s.append(string(args[i])+",");
+			s.append(string(args[args.length-1]));
 		}
 		s.append(")");
 		return s.toString();
 	}
 	
 
-	public Association replaceVariables(HashMap<Variable, Variable> replacements) {
+	public Association replaceVariables(HashMap<Variable, Object> replacements) {
+		if (isFormula()) return this;
 		Object arguments[]=new Object[args.length];
 		for (int i=0; i<args.length; i++) {
 			arguments[i]=replacements.get(args[i]);
@@ -67,8 +68,8 @@ public class Association {
 	}
 
 	
-	public Association replaceVariables(Variable v1, Variable v2) {
-		HashMap<Variable, Variable> m=new HashMap<Variable, Variable>();
+	public Association replaceVariables(Variable v1, Object v2) {
+		HashMap<Variable, Object> m=new HashMap<Variable, Object>();
 		m.put(v1, v2);
 		return replaceVariables(m);
 	}

@@ -35,7 +35,7 @@ public class Variable {
 	
 	public final boolean equals(Object x) {		
 		x=val(x);
-		Object o=this.get();		
+		Object o=this.get(0);		
 		if (o==this) return (o==x);
 		return same(o,x);					
 	}
@@ -61,11 +61,6 @@ public class Variable {
 	}
 
 	
-	public final Object get() {
-		return get(0);
-	}
-	
-
 	public final Object get(int i){
 		if (isVar()) return this;
 		if (noValue()) return none;
@@ -74,13 +69,14 @@ public class Variable {
 
 
 	public final Constraint getConstraint() {
-		return constraint.replaceVariable(this,this);
+		return constraint.replaceVariable(this, new Variable());
 	}
 
 
 	public final boolean contains(Object o) {
 		for (Object v : value)
-			if (same(v,o)) return true;
+			if (variable(v) && ((Variable) v).contains(o)) return true;
+			else if (same(v,o)) return true;
 		return constraint.satisfy(this, o);
 	}
 
@@ -137,7 +133,10 @@ public class Variable {
 				ArrayList<Object> correct= new ArrayList<Object>();
 				if (where==null) where=new Constraint(LJTrue);
 				for (int i=0; i<vals.length; i++) {
-					if (variable(vals[i]) && !this.consistWith((Variable) vals[i])) {	correct.add(undefined);		continue;		}
+					if (variable(vals[i]) && !this.consistWith((Variable) vals[i])) {
+						correct.add(undefined);		
+						continue;
+					}
 					if (where.satisfy(this, vals[i])) correct.add(vals[i]);
 				}			
 				if (!correct.isEmpty()) this.value=correct.toArray();				
@@ -164,7 +163,7 @@ public class Variable {
 
 
 	public final boolean isPrimitiveType(){
-		return (get().getClass().isPrimitive());
+		return (get(0).getClass().isPrimitive());
 	}
 
 
@@ -176,44 +175,44 @@ public class Variable {
 
 
 	public final boolean isRelation(){
-		return (get() instanceof Relation);
+		return (get(0) instanceof Relation);
 	}
 
 
 	public final boolean isString(){
-		return (get() instanceof String);
+		return (get(0) instanceof String);
 	}
 
 
 	public final boolean isInteger(){
-		return (get() instanceof Integer);
+		return (get(0) instanceof Integer);
 	}
 
 
 	public final boolean isDouble(){
-		return (get() instanceof Double);	
+		return (get(0) instanceof Double);	
 	}
 
 
 	public final boolean isFloat(){
-		return (get() instanceof Float);	
+		return (get(0) instanceof Float);	
 	}
 
 
 	public final boolean ofClass(Class<?> c){						
-		return (get().getClass().equals(c));
+		return (get(0).getClass().equals(c));
 	}
 
 
 	public final boolean isNumber(){
-		return (get() instanceof Number);		
+		return (get(0) instanceof Number);		
 	}		
 
 
 //Returns the variable value.
 	private final Object flat(int i){
-		if (value.length==0) return undefined;
-		return val(value[i]);
+		if (value.length>i) return val(value[i]);
+		return undefined;
 	}
 
 
