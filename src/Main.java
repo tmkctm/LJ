@@ -32,21 +32,16 @@ public class Main {
 		
 		//Do whatever you want with the result.
 		for (int i = 0; i < ((Variable) vars[0]).getValues().length; i++) {
-			System.out.println("\n"); 
 			printResult(vars,i);
-			System.out.println("\n");
 			int answer = JOptionPane.showConfirmDialog(null, "NEXT?"); 
 			if (answer==JOptionPane.CANCEL_OPTION || answer==JOptionPane.NO_OPTION)
 				break;
 		}
 */
-		
 		//Another Way of doing it is the lazy way:
 		Lazy lazy=lazy(relation(vars),DIFFER,cons[8]);
 		for (VariableMap m : lazy) {
-			System.out.println("\n"); 
 			printResult(m.toArray(vars),0);
-			System.out.println("\n");
 			int answer = JOptionPane.showConfirmDialog(null, "NEXT?"); 
 			if (answer==JOptionPane.CANCEL_OPTION || answer==JOptionPane.NO_OPTION)
 				break;			
@@ -65,6 +60,7 @@ public class Main {
 		System.out.println("\t-------------");
 		System.out.println("\t    | "+(vars[7]).getValues()[i]+" |");
 		System.out.println("\t    -----");
+		System.out.println("\n");
 	}
 	
 }
