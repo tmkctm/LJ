@@ -2,6 +2,9 @@
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+
+import javax.swing.JOptionPane;
 
 import LJava.*;
 import static LJava.LJ.*;
@@ -269,12 +272,6 @@ public class AutoTests {
 	
 	
 	@Test
-	public void testLazyAll() {
-		
-	}
-	
-	
-	@Test
 	public void testRelation() {
 		associate(relation("testRelation",1,2,3,4,"TM"));
 		associate(relation("testRelation",1,'a',3,4,"TM"));
@@ -320,7 +317,10 @@ public class AutoTests {
 		assertFalse(z.set(1));
 		assertTrue(u.set(v));
 		assertTrue(var(v));
-		assertFalse(var(u));
+		assertFalse(var(u));		
+		assertTrue(u.contains(v));
+		v.set("Maimon","Tzali");
+		assertTrue(u.contains("Tzali"));
 		assertTrue(x.contains(1));
 		assertFalse(x.contains(y));
 		assertTrue(x.contains(undefined));
@@ -483,36 +483,16 @@ public class AutoTests {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void testExists() {
-		final Formula f=new Formula("myF", Boolean.class) {
-			@Override
-			protected Boolean f(Object... p) {
-				Boolean b=false;
-				for (Object o : p) b=(b || (Boolean) o);
-				return b;
-			}};		
-		Formula<Boolean, Container> f2= new Formula<Boolean, Container>("myF2", Boolean.class) {
-			@Override
-			protected Container f(Boolean... p) {
-				Container c = new Container();
-				if (p.length==0) return c;
-				c.b=(Boolean) f.invoke(p);
-				c.d=(p[0])? 100.0 : -100.0;
-				c.i=(f.satisfy(false, p))? 1 : -1;
-				c.r=relation("fromF2",p);
-				c.v=var();
-				c.v.set(c.b, c.d, c.i, c.r);
-				return c;
-			}};		
 		Relation r=r("testExists","Tzali","Maimon",30,61262291);
 		Relation r2=r("testExists","Tal","Zamir",33,"Don't know!");
 		associate(r);
 		associate(r("testExists"));
 		associate(r("testExists",10,20,30,40,50));
 		associate(new Group("testExists",1,2,3,4,5));
-		associate(r("testExists","relationType1",r,true));
 		associate(r("testExists","relationType2",r2,false));
 		associate(r("testExists","VariableType1",t,0));
 		associate(r("testExists","VariableType2",u,1));
+		associate(r("testExists","relationType1",r,true));
 		associate(r("testExists","VariableType3",v,2));
 		associate(r("testExists","usingFormula1",false, false));
 		associate(r("testExists","usingFormula2",true, false));
@@ -527,8 +507,132 @@ public class AutoTests {
 		assertFalse(e(r("testExists",3,2,x,3,y)));
 		assertTrue(var(x));
 		assertTrue(var(y));
-		assertTrue(e(r("testExists",x,y,z),WHERE,c(e,true,y)));
+		assertTrue(e(r("testExists",x,y,z), WHERE, c(e,true,y)));
 		assertTrue(x.equals("relationType1"));
 		assertTrue(same(z,true));
+		assertFalse(e(r("testExists",_,_,y), AND, r("testExists",_,true,y)));
+		resetVars();
+		assertFalse(e(r("testExists",_,_,y), AND, r("testExists",y,true)));
+		assertTrue(var(y));
+		assertTrue(e(r("testExists",_,_,y), AND, r("testExists",_,true,y)));
+		assertEquals(y,false);
+		assertTrue(e(r("testExists",x,_,2), OR, r("testExists",1,2,5,4,x)));
+		assertTrue(x.contains("VariableType3"));
+		assertFalse(x.contains(3));
+		assertFalse(x.contains("VariableType2"));
+		assertFalse(x.contains(false));
+		assertFalse(x.contains(1));
+		assertFalse(x.contains(10));
+		assertTrue(e(r("testExists",x,t,2)));
+		assertFalse(var(t));
+		assertFalse(t.contains(v));  //because we resetVars() and v has changed.
+		assertTrue(e(r("testExists",x,v,2)));
+		assertFalse(var(v));
+	}
+	
+	
+	@Test
+	public void testAll() {
+		Relation r=r("testExists","Tzali","Maimon",30,61262291);
+		Relation r2=r("testExists","Tal","Zamir",33,"Don't know!");
+		Relation r3=r("testExists","VariableType3",v,2);
+		Variable temp=(Variable) r3.args()[1];
+		assertTrue(var(temp));		
+		associate(r);
+		associate(r3);
+		associate(r("testExists"));
+		associate(r("testExists",10,20,30,40,50));
+		associate(new Group("testExists",1,2,3,4,5));
+		associate(r("testExists","relationType2",r2,false));
+		associate(r("testExists","VariableType1",t,0));
+		associate(r("testExists","VariableType2",u,1));
+		associate(r("testExists","relationType1",r,true));
+		associate(r("testExists","relationTypeR3",r3,true));
+		associate(r("testExists","usingFormula1",false, false));
+		associate(r("testExists","usingFormula2",true, false));
+		assertTrue(a(r("testExists")));
+		assertTrue(a(r("testExists",10,20,30,40,50)));
+		assertTrue(a(r("testExists",3,2,4,1,5)));
+		assertTrue(a(r("testExists",x,3,y,2,1)));
+		assertFalse(var(x));
+		assertFalse(var(y));
+		assertTrue(var(temp));	
+		assertTrue((x.equals(4) && y.equals(5)) || (x.equals(5) && y.equals(4)));
+		resetVars();
+		assertFalse(a(r("testExists",3,2,x,3,y)));
+		assertTrue(var(x));
+		assertTrue(var(y));
+		assertTrue(var(temp));	
+		assertTrue(a(r("testExists",x,y,z), WHERE, c(e,true,y)));
+		assertFalse(var(temp));	
+		assertTrue(x.contains("relationType1"));
+		assertTrue(x.contains("relationTypeR3"));
+		assertTrue(y.contains(r));
+		assertTrue(y.contains(r3));
+		assertTrue(same(z,true));
+		assertFalse(a(r("testExists",_,_,y), AND, r("testExists",_,true,y)));
+		resetVars();
+		assertFalse(a(r("testExists",_,_,y), AND, r("testExists",y,true)));
+		assertTrue(var(y));
+		assertTrue(a(r("testExists",_,_,y), AND, r("testExists",_,true,y)));
+		assertEquals(y,false);
+		assertTrue(a(r("testExists",x,_,2), OR, r("testExists",1,2,5,4,x)));
+		assertTrue(x.contains("VariableType3"));
+		assertTrue(x.contains(3));
+		assertFalse(x.contains("VariableType2"));
+		assertFalse(x.contains(false));
+		assertFalse(x.contains(1));
+		assertFalse(x.contains(10));
+		assertTrue(a(r("testExists",x,t,2)));
+		assertFalse(var(t));
+		assertTrue(t.contains(temp));
+		assertTrue(var(v));
+		assertTrue(a(r("testExists",x,v,2)));
+		assertFalse(var(v));
+	}
+	
+	
+	@Test
+	public void testLazyAll() {
+		Object[] values=new Object[] {1,2,3,4,5,6,7,8};
+		group(values);
+		Variable[] vars = varArray(8);
+		Constraint[] cons=new Constraint[9];
+		cons[0]=c(abs,1,vars[0],vars[2]);
+		cons[1]=c(cons[0],OR,c(abs,1,vars[1],vars[2]));
+		cons[2]=c(cons[1],OR,c(abs,1,vars[1],vars[4]));
+		cons[3]=c(cons[2],OR,c(abs,1,vars[2],vars[3]));
+		cons[4]=c(cons[3],OR,c(abs,1,vars[2],vars[5]));
+		cons[5]=c(cons[4],OR,c(abs,1,vars[3],vars[6]));
+		cons[6]=c(cons[5],OR,c(abs,1,vars[4],vars[5]));
+		cons[7]=c(cons[6],OR,c(abs,1,vars[5],vars[6]));
+		cons[8]=c(cons[7],OR,c(abs,1,vars[5],vars[7]));
+		Lazy lazy=lazy(relation(vars),DIFFER,cons[8]);
+		for (VariableMap m : lazy) {
+			Variable[] vs=varArray(8);
+			Object[] os=new Object[8];
+			int index=0;
+			for (Variable v : m.getVars()) {
+				assertTrue(m.getVals(v)!=undefined && ((ArrayList) m.getVals(v)).size()==1);
+				vs[index].set(((ArrayList) m.getVals(v)).get(0));
+				os[index]=vs[index].get(0);
+				index++;
+			}
+			boolean correct=true;
+			for (Object o: values) {
+				boolean found=false;
+				for (Variable v: vs) 
+					if (same(v,o)) {
+						found=true;
+						break;
+					}
+				if (!found) {
+					correct=false;
+					break;
+				}
+			}
+			assertTrue(correct);
+			assertFalse(cons[8].satisfy(os));
+		}		
 	}
 }

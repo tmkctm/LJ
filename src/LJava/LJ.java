@@ -287,8 +287,7 @@ public final class LJ {
 	
 	
 	public static boolean same(Object a, Object b) {
-		if ((variable(a)) || (a instanceof Association))
-				return a.equals(b);
+		if ((variable(a)) || (a instanceof Association)) return a.equals(b);
 		if ((a instanceof Number) && (b instanceof Number))
 				return (Math.abs(((Number) a).doubleValue()-((Number) b).doubleValue())<DoubleTolerance);
 		return b.equals(a);
