@@ -6,3 +6,7 @@ thing to have.
 
 The engine has the same power that Prolog has but much more. To Learn more, see the code
 or wait for the first version notes to come out.
+
+Here's a link to a clojure rope using LJ as the logic engine.
+You can see there a nice example on how LJ can help you even if you're not using JAVA:
+https://github.com/vadali/clj-LJ
