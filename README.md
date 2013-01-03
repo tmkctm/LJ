@@ -1,4 +1,4 @@
-LJava will be a logical engine for Java programmers.
+LJava is a logical engine written in java. It helps you bring Logic Programming to your code (as long as you can import LJ).
 
 This idea came to me when I studied Prolog and Logical Programming.
 I figured combining the ability of Logical Programming into OOP will be a nice
