@@ -81,8 +81,9 @@ public class Constraint implements QueryParameter {
 			else if (relation.isFormula()) r=relation(relation.name, args);
 			else r=relation;
 			if (iterator==emptyIterator) iterator=iterate(r.args.length);
-			while (iterator.hasNext()) 
-				if (evaluate(r, answer, iterator)) {
+			Association a;
+			while ((a=iterator.hasAndGrabNext(r.args))!=undefined) 
+				if (evaluate(r, answer, iterator, a)) {
 					answer.add(restrictions);
 					return true; 
 				}

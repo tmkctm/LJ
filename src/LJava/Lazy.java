@@ -78,6 +78,7 @@ public class Lazy extends Association implements Iterator<VariableMap>, Iterable
 		
 		@Override
 		public boolean satisfy(Object[] rArgs, VariableMap varValues) {
+			if (isEmpty()) return true;
 			return lazy(varValues);
 		}
 		
@@ -286,6 +287,11 @@ public class Lazy extends Association implements Iterator<VariableMap>, Iterable
 		return this;
 	}
 	
+	
+	@Override
+	public boolean isLazy() {
+		return true;
+	}	
 }	
 
 

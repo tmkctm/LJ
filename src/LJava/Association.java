@@ -38,6 +38,11 @@ public class Association {
 	public boolean isFormula() {
 		return false;
 	}
+
+
+	public boolean isLazy() {
+		return false;
+	}
 	
 	
 	public boolean undef() {

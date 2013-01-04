@@ -9,36 +9,42 @@ import java.util.Map;
 
 public final class LJ {
 	
+	protected static final HashMap<Integer, LinkedHashSet<Association>> LJavaRelationTable=new HashMap<Integer, LinkedHashSet<Association>>();
 	public final static Association _=new Association("_");
 	public final static Association undefined=new Association("$undefined$");
 	public final static Association none=new Association("$no_variable_value$");
-	protected static final HashMap<Integer, LinkedHashSet<Association>> LJavaRelationTable=new HashMap<Integer, LinkedHashSet<Association>>();
+	protected static final LJIterator emptyIterator=iterate(-2);
 	
 	static public final boolean CUT=true;
 	static public final LogicOperator OR=LogicOperator.OR;
 	static public final LogicOperator AND=LogicOperator.AND;
 	static public final LogicOperator DIFFER=LogicOperator.DIFFER;
 	static public final LogicOperator WHERE=LogicOperator.WHERE;
-	static public enum  LogicOperator{
-		OR, AND, DIFFER , NONE, WHERE  }	
+	static public enum  LogicOperator{	OR, AND, DIFFER , NONE, WHERE  }	
 	
-	protected static final LJIterator emptyIterator=iterate(-2);
-	protected static final double DoubleTolerance=0.00000000000001;
+	//System Properties
+	static public enum  Property { DoubleTolerance, DebugMode, ThreadCount  }
+	protected static double doubleTolerance=0.00000000000001;
+	protected static boolean debugMode=false;
+	protected static int threadCount=1;
 	
-	public static void associate(Association r) {
+	
+	public static boolean associate(Association r) {
+		if (r==undefined && r==none) return false;
 		addTo(LJavaRelationTable, r.argsLength(), r, LinkedHashSet.class);
+		return true;
 	}
 	
 
-	public static void relate(Object... args) {		
+	public static boolean relate(Object... args) {		
 		Relation r=new Relation("#LJavaRelationTableEntry#", args);
-		associate(r);
+		return associate(r);
 	}	
 
 	
-	public static void group(Object... args) {		
+	public static boolean group(Object... args) {		
 		Group r=new Group("#LJavaRelationTableEntry#", args);
-		associate(r);
+		return associate(r);
 	}
 	
 	
@@ -148,17 +154,12 @@ public final class LJ {
 	}
 	
 	
-	protected static boolean evaluate(Relation r, VariableMap varValues, LJIterator i) {		
-		Association element = i.next();
-		if (element instanceof Group) {
-			element=new Lazy((Group) element, r.args);
-			if (((Lazy)element).isEmpty()) return true;
-			i.lazyGroup=element;
-		}
+	protected static boolean evaluate(Relation r, VariableMap varValues, LJIterator i, Association element) {		
 		if (!(element.associationNameCompare(r)	&& element.satisfy(r.args, varValues))) {
 			i.lazyGroup=none;
 			return false;
 		}
+		if (element.isLazy() && ((Lazy) element).isEmpty()) i.lazyGroup=none;
 		return true;
 	}
 	
@@ -214,7 +215,7 @@ public final class LJ {
 	}
 	
 	
-	public static final boolean variable(Object x) {
+	public static boolean variable(Object x) {
 		return (x instanceof Variable);
 	}
 	
@@ -289,7 +290,7 @@ public final class LJ {
 	public static boolean same(Object a, Object b) {
 		if ((variable(a)) || (a instanceof Association)) return a.equals(b);
 		if ((a instanceof Number) && (b instanceof Number))
-				return (Math.abs(((Number) a).doubleValue()-((Number) b).doubleValue())<DoubleTolerance);
+				return (Math.abs(((Number) a).doubleValue()-((Number) b).doubleValue())<doubleTolerance);
 		return b.equals(a);
 	}
 	
@@ -341,12 +342,23 @@ public final class LJ {
 	}
 	
 	
+	public void setLJProperty(Property p, Object v) {
+		try {
+			switch (p) {
+			case DoubleTolerance: doubleTolerance=(Double)v; break;
+			case ThreadCount: threadCount=(Integer)v; break;
+			case DebugMode: debugMode=(Boolean)v; break;
+			default: break;
+			}
+		}catch (Exception e) {}
+	}
+	
+	
 //An inner LJ iterator.	
 	protected final class LJIterator {
-		Iterator<Association> i;
-		boolean onFormulas;
-		Association lazyGroup;
-		
+		public Iterator<Association> i;
+		public boolean onFormulas;
+		public Association lazyGroup;
 		
 		public LJIterator(int index) {
 			onFormulas=false;
@@ -360,14 +372,12 @@ public final class LJ {
 			else i=table.iterator();
 		}
 		
-		
-		public boolean hasNext() {
+		private boolean hasNext() {
 			if (i==null) return false;
 			return (i.hasNext() || lazyGroup!=none || (!onFormulas && LJavaRelationTable.get(-1)!=null));
 		}
 		
-		
-		public Association next() {
+		private Association next() {
 			if (lazyGroup!=none) return lazyGroup;
 			if (i.hasNext()) return i.next();
 			i=LJavaRelationTable.get(-1).iterator();
@@ -375,8 +385,14 @@ public final class LJ {
 			return i.next();
 		}
 		
-		public void setLazyGroup(Lazy group) {
-			lazyGroup=group;
+		public synchronized Association hasAndGrabNext(Object[] args) {
+			if (!hasNext()) return undefined;
+			Association element=next();
+			if (element.isGroup()) {
+				element=new Lazy((Group) element, args);
+				lazyGroup=element;
+			}			
+			return element;
 		}
 	}	
 	

@@ -3,7 +3,6 @@ import static LJava.MathFormulas.*;
 import javax.swing.JOptionPane;
 import LJava.Constraint;
 import LJava.Lazy;
-import LJava.Relation;
 import LJava.Variable;
 import LJava.VariableMap;
 

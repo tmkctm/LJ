@@ -1,11 +1,6 @@
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-
-import javax.swing.JOptionPane;
-
 import LJava.*;
 import static LJava.LJ.*;
 import static LJava.Utils.*;
@@ -498,7 +493,10 @@ public class AutoTests {
 		associate(r("testExists","usingFormula2",true, false));
 		assertTrue(e(r("testExists")));
 		assertTrue(e(r("testExists",10,20,30,40,50)));
-		assertTrue(e(r("testExists",3,2,4,1,5)));
+		assertTrue(a(r("testExists",3,2,4,1,5)));
+		assertTrue(a(r("testExists",3,5,4,1,2)));
+		assertFalse(a(r("testExists",3,2,1,1,5)));
+		assertFalse(a(r("testExists",3,2,4,1,3)));
 		assertTrue(e(r("testExists",x,3,y,2,1)));
 		assertFalse(var(x));
 		assertFalse(var(y));
@@ -553,6 +551,9 @@ public class AutoTests {
 		assertTrue(a(r("testExists")));
 		assertTrue(a(r("testExists",10,20,30,40,50)));
 		assertTrue(a(r("testExists",3,2,4,1,5)));
+		assertTrue(a(r("testExists",3,5,4,1,2)));
+		assertFalse(a(r("testExists",3,2,1,1,5)));
+		assertFalse(a(r("testExists",3,2,4,1,3)));
 		assertTrue(a(r("testExists",x,3,y,2,1)));
 		assertFalse(var(x));
 		assertFalse(var(y));

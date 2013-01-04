@@ -30,9 +30,10 @@ public class Relation extends Association implements QueryParameter{
 	@Override
 	public boolean map(VariableMap m, boolean cut) {
 		boolean out=false;
-		LJIterator i=iterate(this.argsLength());
-		while (i.hasNext()) {
-			out=(evaluate(this, m, i) || out);
+		LJIterator i=iterate(argsLength());
+		Association a;
+		while ((a=i.hasAndGrabNext(args))!=undefined) {
+			out=(evaluate(this, m, i, a) || out);
 			if (out && cut) return true;
 		}
 		return out;	
