@@ -41,6 +41,8 @@ public class Lazy extends Association implements Iterator<VariableMap>, Iterable
 		private LinkedList<VarIterator> iStack=new LinkedList<VarIterator>();
 		private TreeMap<Variable, Integer> varsCount=new TreeMap<Variable, Integer>();
 		private HashMap<Object, Integer> valsCount=new HashMap<Object, Integer>();
+		private boolean isEmpty=false;
+		private boolean noArgs=false;
 		
 		public LazyGroup(Group group, Object[] rArgs) {
 			super(group.name, group.args);
@@ -54,7 +56,7 @@ public class Lazy extends Association implements Iterator<VariableMap>, Iterable
 			for (Object element : rArgs) {
 				if (var(element)) increment(rVarsCountMap,(Variable) element,1);
 				else increment(rArgsCountMap, val(element),1);
-			}			
+			}
 		}
 		
 		private final void elimination(HashMap<Variable, Integer> rVarsCountMap, HashMap<Object, Integer> rArgsCountMap, Group g) {
@@ -64,11 +66,13 @@ public class Lazy extends Association implements Iterator<VariableMap>, Iterable
 				count=(var(keyVal))? rVarsCountMap.remove(keyVal) : rArgsCountMap.remove(keyVal);
 				count=(count==null)? -entry.getValue() : count-entry.getValue();
 				if (count>0) {
-					if (!var(keyVal)) { varsCount.put(new Variable(), 1);   return; }
+					if (!var(keyVal)) return;
 					rVarsCountMap.put((Variable) keyVal, count);
 				}
 				else if (count<0) valsCount.put(keyVal, -count); 
 			}
+			isEmpty=rVarsCountMap.isEmpty();
+			noArgs=valsCount.isEmpty();
 			if (rArgsCountMap.isEmpty() && !rVarsCountMap.isEmpty()) {				
 				varsCount = new TreeMap<Variable, Integer>(new MapComparatorByValue<Variable>(rVarsCountMap));
 				varsCount.putAll(rVarsCountMap);
@@ -78,7 +82,7 @@ public class Lazy extends Association implements Iterator<VariableMap>, Iterable
 		
 		@Override
 		public boolean satisfy(Object[] rArgs, VariableMap varValues) {
-			if (isEmpty()) return true;
+			if (isEmpty && noArgs) return true;
 			return lazy(varValues);
 		}
 		
@@ -154,7 +158,7 @@ public class Lazy extends Association implements Iterator<VariableMap>, Iterable
 		
 		@Override
 		public boolean isEmpty() {
-			return varsCount.isEmpty();
+			return isEmpty;
 		}
 		
 		@Override
@@ -296,5 +300,6 @@ public class Lazy extends Association implements Iterator<VariableMap>, Iterable
 
 
 /* to fix:
- * lazy of LazyGroup is concurrent. 
+ * lazy of LazyGroup is not concurrent.
+ * lazy extends association allowing it to be associated. 
 */

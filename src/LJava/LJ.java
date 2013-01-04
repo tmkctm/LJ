@@ -30,7 +30,7 @@ public final class LJ {
 	
 	
 	public static boolean associate(Association r) {
-		if (r==undefined && r==none) return false;
+		if (r==undefined || r==none) return false;
 		addTo(LJavaRelationTable, r.argsLength(), r, LinkedHashSet.class);
 		return true;
 	}
@@ -395,6 +395,13 @@ public final class LJ {
 			return element;
 		}
 	}	
+	
+	
+//Queries parameters interface
+	public interface QueryParameter {
+		public boolean map(VariableMap m, boolean cut);
+	}
+	
 	
 }
 

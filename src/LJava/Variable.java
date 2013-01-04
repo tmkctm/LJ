@@ -235,6 +235,9 @@ public class Variable {
 			if (!this.consistWith(element)) return false;
 		return true;
 	}
-	
 
 }
+
+/* to fix:
+ * the lock at consistWith versus instantiate. 
+ */

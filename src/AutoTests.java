@@ -609,6 +609,10 @@ public class AutoTests {
 		cons[7]=c(cons[6],OR,c(abs,1,vars[5],vars[6]));
 		cons[8]=c(cons[7],OR,c(abs,1,vars[5],vars[7]));
 		Lazy lazy=lazy(relation(vars),DIFFER,cons[8]);
+		VariableMap map=lazy.lazy();
+		assertFalse(map.isEmpty());
+		lazy.startLazy();
+		int counter=0;
 		for (VariableMap m : lazy) {
 			Variable[] vs=varArray(8);
 			Object[] os=new Object[8];
@@ -634,6 +638,14 @@ public class AutoTests {
 			}
 			assertTrue(correct);
 			assertFalse(cons[8].satisfy(os));
-		}		
+			counter++;
+		}
+		assertTrue(same(counter, 1656));
+		counter=0;
+		for (VariableMap m : lazy) counter++;
+		assertTrue(same(counter, 0));
+		lazy.startLazy();
+		for (VariableMap m : lazy) counter++;
+		assertTrue(same(counter, 1656));
 	}
 }
