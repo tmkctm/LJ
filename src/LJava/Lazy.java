@@ -86,7 +86,7 @@ public class Lazy extends Association implements Iterator<VariableMap>, Iterable
 		}
 		
 		@Override
-		public final boolean lazy(VariableMap varValues) {
+		public final synchronized boolean lazy(VariableMap varValues) {
 			//debug("Trying lazy evaluation on LazyGroup: "+this);
 			while (!iStack.isEmpty()) {
 				VarIterator i=iStack.pop();

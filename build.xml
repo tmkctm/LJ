@@ -1,0 +1,42 @@
+<project name="LJava">
+
+    <property name="src.dir"     location="src"/>
+    <property name="bin.dir"     location="bin"/>
+    <property name="jar.dir"     location="jar"/>
+	<property name="docs.dir"    location="docs"/>
+
+
+    <target name="clean">        
+    	<delete dir="${bin.dir}"/>
+    	<delete dir="${jar.dir}"/>
+    	<delete dir="${docs.dir}"/>
+    </target>
+	
+  	<target name="makedir">
+	    <mkdir dir="${bin.dir}" />	    
+	    <mkdir dir="${jar.dir}" />
+  		<mkdir dir="${docs.dir}" />	    	
+	</target>	
+
+	<target name="compile" depends="clean, makedir">       
+        <javac srcdir="${src.dir}" destdir="${bin.dir}"/>
+    </target>
+
+    <target name="jar" depends="compile">
+        <mkdir dir="${jar.dir}"/>
+        <jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${classes.dir}"/>
+    </target>
+
+	<!-- Creates Javadoc -->
+	<target name="docs" depends="compile">
+	  <javadoc packagenames="src" sourcepath="${src.dir}" destdir="${docs.dir}">	      
+	  	<fileset dir="${src.dir}">
+	     	<include name="**" />
+	  	</fileset>
+	  </javadoc>
+	</target>	
+	
+	
+    <target name="clean-build" depends="clean,jar"/>
+
+</project>
