@@ -27,7 +27,7 @@ public class Main {
 		cons[8]=c(cons[7],OR,c(abs,1,vars[5],vars[7]));
 		
 		//Ask for a result and that's it!
-/*		System.out.println(all(relation(vars),DIFFER,cons[8])+"\n");
+		System.out.println(all(relation(vars),DIFFER,cons[8])+"\n");
 		
 		//Do whatever you want with the result.
 		for (int i = 0; i < ((Variable) vars[0]).getValues().length; i++) {
@@ -36,15 +36,15 @@ public class Main {
 			if (answer==JOptionPane.CANCEL_OPTION || answer==JOptionPane.NO_OPTION)
 				break;
 		}
-*/
+
 		//Another Way of doing it is the lazy way:
-		Lazy lazy=lazy(relation(vars),DIFFER,cons[8]);
+/*		Lazy lazy=lazy(relation(vars),DIFFER,cons[8]);
 		for (VariableMap m : lazy) {
 			printResult(m.toArray(vars),0);
 			int answer = JOptionPane.showConfirmDialog(null, "NEXT?"); 
 			if (answer==JOptionPane.CANCEL_OPTION || answer==JOptionPane.NO_OPTION)
 				break;			
-		}
+		}*/
 		
 	}
 	

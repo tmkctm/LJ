@@ -41,6 +41,7 @@ public class Constraint implements QueryParameter {
 			for (int i=0; i<a.args.length; i++)
 				args[i] = (a.args[i]==v1) ? v2 : a.args[i];
 			iterator=emptyIterator;
+			//debug("new Constraint Atom with value: "+v2+" instead of "+v1);
 		}
 		
 		public String toString() {	
@@ -55,6 +56,7 @@ public class Constraint implements QueryParameter {
 		
 		@Override
 		public boolean satisfy(VariableMap restrictions) {
+			//debug("Satisfying relation: "+relation+" under restrictions: "+restrictions);
 			if (restrictions.isEmpty()) return relation.satisfied(args, new VariableMap(), true);
 			return relation.satisfied(restrict(restrictions,args), new VariableMap(), true);
 		}
@@ -81,6 +83,7 @@ public class Constraint implements QueryParameter {
 			else if (relation.isFormula()) r=relation(relation.name, args);
 			else r=relation;
 			if (iterator==emptyIterator) iterator=iterate(r.args.length);
+			//debug("Conduction relation: "+r+" at Atom");
 			Association a;
 			while ((a=iterator.hasAndGrabNext(r.args))!=undefined) 
 				if (evaluate(r, answer, iterator, a)) {
@@ -92,6 +95,7 @@ public class Constraint implements QueryParameter {
 		
 		@Override
 		public void startLazy(){
+			//debug("Starting Lazy at Atom");
 			iterator=emptyIterator;
 		}
 	}
@@ -122,6 +126,7 @@ public class Constraint implements QueryParameter {
 		
 		@Override
 		public Node replaceVariable(Variable v, Object o) {
+			//debug("Replacing variable: "+v+" at Junction: "+this+" with value: "+o);
 			return new Junction(left.replaceVariable(v, o), op, right.replaceVariable(v, o));
 		}
 		
@@ -137,33 +142,43 @@ public class Constraint implements QueryParameter {
 		public boolean conduct(VariableMap restrictions, VariableMap answer) {
 			VariableMap tempAnswer;
 			if (op==WHERE) {
+				//debug("Conducting WHERE at Junction: "+this);
 				do {
 					tempAnswer=new VariableMap();
 					if (!left.conduct(restrictions, tempAnswer)) return false;
 				} while (!right.satisfy(tempAnswer));
 				answer.add(tempAnswer);
+				//debug("Returning true answer: "+answer);
 			}
 			else if (op==AND) {
+				//debug("Conducting AND at Junction: "+this);
 				do {
 					tempAnswer=new VariableMap();
 					right.startLazy();
 					if (!left.conduct(restrictions, tempAnswer)) return false;
 				} while (!right.conduct(tempAnswer, answer));
+				//debug("Returning true answer: "+answer);
 			}
 			else if (op==DIFFER) {
+				//debug("Conducting DIFFER at Junction: "+this);
 				do {
 					tempAnswer=new VariableMap();
 					if (!left.conduct(restrictions, tempAnswer)) return false;
 				} while (right.satisfy(tempAnswer));
 				answer.add(tempAnswer);
+				//debug("Returning true answer: "+answer);
 			}
-			else if (op==OR)
+			else if (op==OR) {
+				//debug("Conducting OR at Junction: "+this);
 				if (!left.conduct(restrictions, answer) && !right.conduct(restrictions, answer)) return false;
+				//debug("Returning true answer: "+answer);
+			}
 			return true;
 		}
 		
 		@Override
 		public void startLazy() {
+			//debug("Starts Lazy at Junction: "+this);
 			left.startLazy();
 			right.startLazy();
 		}
@@ -193,6 +208,7 @@ public class Constraint implements QueryParameter {
 	
 	
 	public boolean satisfy(VariableMap map) {
+		//debug("Satisfying Constraint: "+this);
 		return atom.satisfy(map);
 	}
 	
@@ -296,6 +312,7 @@ public class Constraint implements QueryParameter {
 	
 	@SuppressWarnings("rawtypes")
 	private Object[] restrict(VariableMap restrictions, Object[] args) {
+		//debug("Restricting: "+restrictions+" upon: "+string(args));
 		Object[] arr = new Object[args.length];
 		for (int i=0; i<arr.length; i++) {
 			arr[i]=restrictions.map.get(args[i]);

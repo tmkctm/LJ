@@ -63,7 +63,10 @@ public abstract class Formula<P,R> extends Relation {
 		for (int i=1; i<rArgs.length; i++) {			
 			Object val = val(rArgs[i]);
 			if (!parametersType.isAssignableFrom(val.getClass())) {
-				if (!var(val)) return false;
+				if (!var(val)) {
+					debug("Failed casting: "+string(rArgs)+" upon Formula: "+this);
+					return false;
+				}
 				varInArgs=true;
 			}
 			else temp[i-1]=(P) val;

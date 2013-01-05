@@ -1,15 +1,12 @@
 package LJava;
-import static LJava.LJ.increment;
-import static LJava.LJ.val;
-import static LJava.LJ.var;
 
+import static LJava.LJ.*;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
-
 import LJava.Group;
 import LJava.Variable;
 import LJava.VariableMap;
@@ -46,10 +43,12 @@ public class Lazy extends Association implements Iterator<VariableMap>, Iterable
 		
 		public LazyGroup(Group group, Object[] rArgs) {
 			super(group.name, group.args);
+			//debug("Creating Lazy upon Group: "+group+" with argmunets: "+string(rArgs));
 			HashMap<Variable, Integer> rVarsCountMap=new HashMap<Variable, Integer>();
 			HashMap<Object, Integer> rArgsCountMap=new HashMap<Object, Integer>();
 			buildValsAndVarsCount(rArgs, rVarsCountMap, rArgsCountMap);
 			elimination(rVarsCountMap, rArgsCountMap, group);
+			//debug("LazyGroup created. vars are: "+varsCount+", vals are: "+valsCount);
 		}
 		
 		private final void buildValsAndVarsCount(Object[] rArgs, HashMap<Variable, Integer> rVarsCountMap, HashMap<Object, Integer> rArgsCountMap) {
@@ -88,6 +87,7 @@ public class Lazy extends Association implements Iterator<VariableMap>, Iterable
 		
 		@Override
 		public final boolean lazy(VariableMap varValues) {
+			//debug("Trying lazy evaluation on LazyGroup: "+this);
 			while (!iStack.isEmpty()) {
 				VarIterator i=iStack.pop();
 				if (varsCount.get(i.var)==null) backtrack(i);
@@ -101,6 +101,7 @@ public class Lazy extends Association implements Iterator<VariableMap>, Iterable
 					iStack.push(i);
 					if (varsCount.isEmpty()) {
 						varValues.add(answer);
+						//debug("Returning answer: "+answer);
 						return true;
 					}
 					i=new VarIterator(valsCount.entrySet().iterator(), varsCount.firstKey(), varsCount.remove(varsCount.firstKey()));
@@ -163,6 +164,7 @@ public class Lazy extends Association implements Iterator<VariableMap>, Iterable
 		
 		@Override
 		public void startLazy() {
+			//debug("String lazy on LazyGroup: "+this);
 			while (!iStack.isEmpty()) {
 				VarIterator i=iStack.pop();
 				if (varsCount.get(i.var)==null) backtrack(i);				

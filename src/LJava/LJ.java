@@ -23,15 +23,18 @@ public final class LJ {
 	static public enum  LogicOperator{	OR, AND, DIFFER , NONE, WHERE  }	
 	
 	//System Properties
-	static public enum  Property { DoubleTolerance, DebugMode, ThreadCount  }
+	static public enum  Property { DoubleTolerance, ThreadCount  }
 	protected static double doubleTolerance=0.00000000000001;
-	protected static boolean debugMode=false;
 	protected static int threadCount=1;
 	
 	
 	public static boolean associate(Association r) {
-		if (r==undefined || r==none) return false;
+		if (r==undefined || r==none) {
+			//debug("Tried to associate an illegal Association: "+r);
+			return false;
+		}
 		addTo(LJavaRelationTable, r.argsLength(), r, LinkedHashSet.class);
+		//debug("Associated: "+r);
 		return true;
 	}
 	
@@ -148,18 +151,22 @@ public final class LJ {
 
 	
 	private static boolean query(QueryParameter a, boolean cut) {
+		//debug("Querying: "+a+"  with cut flag: "+cut);
 		VariableMap varValues=new VariableMap();
 		if (!a.map(varValues,cut)) return false;
 		return instantiate(varValues);
 	}
 	
 	
-	protected static boolean evaluate(Relation r, VariableMap varValues, LJIterator i, Association element) {		
+	protected static boolean evaluate(Relation r, VariableMap varValues, LJIterator i, Association element) {
+		//debug("Evaluating: "+r+" against "+element);
 		if (!(element.associationNameCompare(r)	&& element.satisfy(r.args, varValues))) {
 			i.lazyGroup=none;
+			//debug("Failed evaluation!");
 			return false;
 		}
 		if (element.isLazy() && ((Lazy) element).isEmpty()) i.lazyGroup=none;
+		//debug("Success at evaluation!");
 		return true;
 	}
 	
@@ -304,6 +311,7 @@ public final class LJ {
 	
 
 	public static boolean instantiate(VariableMap varValues) {
+		//debug("Instantiating the map: "+varValues);
         boolean answer=true;
 		for (Variable v : varValues.getVars())
 			answer=(v.instantiate(varValues.map.get(v), null, varValues.constraints.get(v)) && answer);	
@@ -332,7 +340,15 @@ public final class LJ {
 	
 	
 	protected static String string(Object o) {
+		if (o==null) return "null";
 		if (variable(o)) return "[$"+((Variable) o).getID()+"$]";
+		if (o.getClass().isArray()) {
+			StringBuilder s=new StringBuilder("[");
+			for (Object obj: (Object[]) o) s.append(string(obj)+",");
+			if (s.length()>1) s.deleteCharAt(s.length()-1);
+			s.append("]");
+			return s.toString();
+		}
 		return o.toString();
 	}
 	
@@ -342,15 +358,19 @@ public final class LJ {
 	}
 	
 	
-	public void setLJProperty(Property p, Object v) {
+	public static void setLJProperty(Property p, Object v) {
 		try {
 			switch (p) {
 			case DoubleTolerance: doubleTolerance=(Double)v; break;
 			case ThreadCount: threadCount=(Integer)v; break;
-			case DebugMode: debugMode=(Boolean)v; break;
 			default: break;
 			}
 		}catch (Exception e) {}
+	}
+	
+	
+	protected static void debug(String s) {
+		System.out.println(s);
 	}
 	
 	
