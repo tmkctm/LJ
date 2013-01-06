@@ -428,6 +428,7 @@ public final class LJ {
 
 /* to fix:
  * instantiate needs synchronized against Variable.instantiate.
+ * enable Future Formula.
  */
 
 

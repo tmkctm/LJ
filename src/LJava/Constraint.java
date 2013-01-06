@@ -322,10 +322,28 @@ public class Constraint implements QueryParameter {
 	}
 	
 
+//The thread class to run the map function
+	private class goFish implements Runnable {
+		private AtomicBoolean result;
+		private VariableMap map;
+		
+		public goFish(VariableMap m, AtomicBoolean b) { 
+			result=b;
+			map=m;
+		}
+		
+		@Override
+		public void run() {
+			if (!lz(map)) result.compareAndSet(true, false);
+		}
+	}
+	
+	
 }
 
 
 /* to fix:
  * Restrictions for conduct not perfect for Formula (that has multi vars in args) in Atom.
  * the implementation of the restrictions on arr needs to be above Atom.conduct and not inside it.
+ * Junction's conduct at the AND case.
  */

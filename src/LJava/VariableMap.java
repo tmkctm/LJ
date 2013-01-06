@@ -26,7 +26,7 @@ public class VariableMap {
 	}
 	
 	
-	public final void clear() {
+	public final synchronized void clear() {
 		map=new HashMap<Variable, ArrayList<Object>>();
 		constraints= new HashMap<Variable, Constraint>();
 	}
@@ -38,7 +38,7 @@ public class VariableMap {
 	}
 	
 	
-	public final void updateValsMap(Variable key, Object val) {
+	public final synchronized void updateValsMap(Variable key, Object val) {
 		addTo(map, key, val, ArrayList.class);
 	}
 	
@@ -56,7 +56,7 @@ public class VariableMap {
 	}
 	
 	
-	public final void updateConstraintsMap(Variable key, Constraint val) {
+	public final synchronized void updateConstraintsMap(Variable key, Constraint val) {
 		Constraint c = constraints.get(key);
 		if (c==null) constraints.put(key, val);
 		else constraints.put(key, new Constraint(val,OR,c));
@@ -107,3 +107,8 @@ public class VariableMap {
 		return result;
 	}
 }
+
+
+/* to fix:
+* eliminate this class, return answers from queries in a different way (remember it should still return boolean)
+*/
