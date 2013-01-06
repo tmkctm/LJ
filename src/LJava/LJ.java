@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 public final class LJ {
@@ -25,8 +28,9 @@ public final class LJ {
 	//System Properties
 	static public enum  Property { DoubleTolerance, ThreadCount  }
 	protected static double doubleTolerance=0.00000000000001;
-	protected static int threadCount=1;
-	
+	protected static int threadCount=4;
+	protected static AtomicInteger workingThreads=new AtomicInteger(0);
+	protected static ExecutorService pool = Executors.newCachedThreadPool();
 	
 	public static boolean associate(Association r) {
 		if (r==undefined || r==none) {

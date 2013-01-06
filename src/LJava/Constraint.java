@@ -6,6 +6,8 @@ import static LJava.LJ.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Stack;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import LJava.LJ.LJIterator;
@@ -185,7 +187,6 @@ public class Constraint implements QueryParameter {
 	}
 	
 	private final Node atom;
-
 	
 	public Constraint(Relation r, Object... params) {
 		atom=new Atom(r, params);
@@ -246,9 +247,20 @@ public class Constraint implements QueryParameter {
 	@Override
 	public boolean map(VariableMap m, boolean cut) {
 		if (cut) return lz(m);
-		if (!lz(m)) return false;
-		while (lz(m)) {}
-		return true;
+		AtomicBoolean found=new AtomicBoolean(false);
+		LinkedList<Boolean> bQ=new LinkedList<Boolean>();
+		Thread stacker=new Thread(new StackCostumer(bQ));
+		stacker.setDaemon(true);
+		stacker.start();
+		while (stacker.isAlive()) {
+			while (stacker.isAlive() && workingThreads.get()<threadCount) {
+				workingThreads.incrementAndGet();
+				System.out.println("in work "+workingThreads.get());
+				try{pool.execute(new goFish(m, bQ, found));}catch(Exception e){}
+			}
+		}
+		workingThreads.set(0);
+		return found.get();
 	}
 	
 	
@@ -322,22 +334,44 @@ public class Constraint implements QueryParameter {
 	}
 	
 
-//The thread class to run the map function
+//The threads classes to run the map function
 	private class goFish implements Runnable {
-		private AtomicBoolean result;
+		private LinkedList<Boolean> stack;
 		private VariableMap map;
+		private AtomicBoolean found;
 		
-		public goFish(VariableMap m, AtomicBoolean b) { 
-			result=b;
+		public goFish(VariableMap m, LinkedList<Boolean> s, AtomicBoolean f) { 
+			stack=s;
 			map=m;
+			found=f;
 		}
 		
 		@Override
 		public void run() {
-			if (!lz(map)) result.compareAndSet(true, false);
+			boolean b=lz(map);
+			found.compareAndSet(false, b);
+			stack.add(b);
 		}
 	}
 	
+	private class StackCostumer implements Runnable {
+		private LinkedList<Boolean> stack;
+		private boolean go=true;
+		
+		public StackCostumer(LinkedList<Boolean> s) { 
+			stack=s; 
+		}
+		
+		@Override
+		public void run() {
+			while (go) {
+				if (!stack.isEmpty()) {
+					go=stack.removeFirst();
+					workingThreads.decrementAndGet();
+				}
+			}
+		}
+	}
 	
 }
 
@@ -345,5 +379,5 @@ public class Constraint implements QueryParameter {
 /* to fix:
  * Restrictions for conduct not perfect for Formula (that has multi vars in args) in Atom.
  * the implementation of the restrictions on arr needs to be above Atom.conduct and not inside it.
- * Junction's conduct at the AND case.
+ * Junction's conduct at the AND case isn't concurrent + a AND b isnt equal b AND a!
  */
