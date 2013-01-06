@@ -16,11 +16,11 @@ public class Lazy extends Association implements Iterator<VariableMap>, Iterable
 		
 	private interface LazyItem {
 		public boolean satisfy(Object[] rArgs, VariableMap varValues);
-		public boolean lazy(VariableMap varValues);
-		public VariableMap lazy();
+		public boolean lz(VariableMap varValues);
+		public VariableMap lz();
 		public VariableMap current();
 		public String toString();
-		public boolean isEmpty();
+		public boolean noVars();
 		public void startLazy();
 	}
 	
@@ -38,7 +38,7 @@ public class Lazy extends Association implements Iterator<VariableMap>, Iterable
 		private LinkedList<VarIterator> iStack=new LinkedList<VarIterator>();
 		private TreeMap<Variable, Integer> varsCount=new TreeMap<Variable, Integer>();
 		private HashMap<Object, Integer> valsCount=new HashMap<Object, Integer>();
-		private boolean isEmpty=false;
+		private boolean noVars=false;
 		private boolean noArgs=false;
 		
 		public LazyGroup(Group group, Object[] rArgs) {
@@ -70,7 +70,7 @@ public class Lazy extends Association implements Iterator<VariableMap>, Iterable
 				}
 				else if (count<0) valsCount.put(keyVal, -count); 
 			}
-			isEmpty=rVarsCountMap.isEmpty();
+			noVars=rVarsCountMap.isEmpty();
 			noArgs=valsCount.isEmpty();
 			if (rArgsCountMap.isEmpty() && !rVarsCountMap.isEmpty()) {				
 				varsCount = new TreeMap<Variable, Integer>(new MapComparatorByValue<Variable>(rVarsCountMap));
@@ -81,12 +81,12 @@ public class Lazy extends Association implements Iterator<VariableMap>, Iterable
 		
 		@Override
 		public boolean satisfy(Object[] rArgs, VariableMap varValues) {
-			if (isEmpty && noArgs) return true;
-			return lazy(varValues);
+			if (noVars && noArgs) return true;
+			return lz(varValues);
 		}
 		
 		@Override
-		public final synchronized boolean lazy(VariableMap varValues) {
+		public final synchronized boolean lz(VariableMap varValues) {
 			//debug("Trying lazy evaluation on LazyGroup: "+this);
 			while (!iStack.isEmpty()) {
 				VarIterator i=iStack.pop();
@@ -111,9 +111,9 @@ public class Lazy extends Association implements Iterator<VariableMap>, Iterable
 		}
 		
 		@Override
-		public final VariableMap lazy() {
+		public final VariableMap lz() {
 			VariableMap m=new VariableMap();
-			if (!lazy(m)) return new VariableMap();
+			if (!lz(m)) return new VariableMap();
 			return m;
 		}
 		
@@ -158,12 +158,12 @@ public class Lazy extends Association implements Iterator<VariableMap>, Iterable
 		}
 		
 		@Override
-		public boolean isEmpty() {
-			return isEmpty;
+		public boolean noVars() {
+			return noVars;
 		}
 		
 		@Override
-		public void startLazy() {
+		public synchronized void startLazy() {
 			//debug("String lazy on LazyGroup: "+this);
 			while (!iStack.isEmpty()) {
 				VarIterator i=iStack.pop();
@@ -189,13 +189,13 @@ public class Lazy extends Association implements Iterator<VariableMap>, Iterable
 		}
 		
 		@Override
-		public boolean lazy(VariableMap varValues) {
-			return c.lazy(varValues);
+		public boolean lz(VariableMap varValues) {
+			return c.lz(varValues);
 		}
 		
 		@Override
-		public VariableMap lazy() {
-			return c.lazy();
+		public VariableMap lz() {
+			return c.lz();
 		}
 		
 		@Override
@@ -209,7 +209,7 @@ public class Lazy extends Association implements Iterator<VariableMap>, Iterable
 		}
 		
 		@Override
-		public boolean isEmpty() {
+		public boolean noVars() {
 			return c.getVars().isEmpty();
 		}
 		
@@ -241,13 +241,13 @@ public class Lazy extends Association implements Iterator<VariableMap>, Iterable
 	}
 	
 	
-	public boolean lazy(VariableMap varValues) {
-		return lazy.lazy(varValues);
+	public boolean lz(VariableMap varValues) {
+		return lazy.lz(varValues);
 	}
 	
 	
-	public VariableMap lazy() {
-		return lazy.lazy();
+	public VariableMap lz() {
+		return lazy.lz();
 	}
 	
 	
@@ -261,20 +261,20 @@ public class Lazy extends Association implements Iterator<VariableMap>, Iterable
 	}
 	
 	
-	protected boolean isEmpty() {
-		return lazy.isEmpty();
+	protected boolean noVars() {
+		return lazy.noVars();
 	}
 
 
 	@Override
 	public boolean hasNext() {
-		return lazy(new VariableMap());
+		return lz(new VariableMap());
 	}
 
 
 	@Override
 	public VariableMap next() {
-		if (current().isEmpty()) return lazy();
+		if (current().isEmpty()) return lz();
 		return current();
 	}
 
@@ -302,6 +302,6 @@ public class Lazy extends Association implements Iterator<VariableMap>, Iterable
 
 
 /* to fix:
- * lazy of LazyGroup is not concurrent.
- * lazy extends association allowing it to be associated. 
+ * lazy extends association allowing it to be associated.
+ * allow return of a PersonalLazy object for each thread. 
 */

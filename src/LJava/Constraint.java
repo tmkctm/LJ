@@ -245,14 +245,14 @@ public class Constraint implements QueryParameter {
 	
 	@Override
 	public boolean map(VariableMap m, boolean cut) {
-		if (cut) return lazy(m);
-		if (!lazy(m)) return false;
-		while (lazy(m)) {}
+		if (cut) return lz(m);
+		if (!lz(m)) return false;
+		while (lz(m)) {}
 		return true;
 	}
 	
 	
-	public boolean lazy(VariableMap m) {
+	public boolean lz(VariableMap m) {
 		VariableMap answer=new VariableMap();
 		if (atom.conduct(new VariableMap(), answer)) {
 			m.add(answer);
@@ -267,9 +267,9 @@ public class Constraint implements QueryParameter {
 	}
 	
 	
-	public final VariableMap lazy() {
+	public final VariableMap lz() {
 		VariableMap m=new VariableMap();
-		if (!lazy(m)) return new VariableMap();
+		if (!lz(m)) return new VariableMap();
 		return m;
 	}
 	

@@ -131,15 +131,15 @@ public class AutoTests {
 		associate(relation("testConstraint",1, 'c'));
 		q=new Constraint(relation("testConstraint",x,_,_,_,_,_,_,_,_,_));
 		m=new VariableMap();
-		assertTrue(q.lazy(m));
+		assertTrue(q.lz(m));
 		assertEquals(m.getVars().size(),1);
 		assertTrue(m.getVars().contains(x));
 		assertTrue(m.getVals(x) instanceof ArrayList);
 		assertEquals(((ArrayList) m.getVals(x)).size(),1);
 		assertTrue(((ArrayList) m.getVals(x)).contains(1));
-		assertTrue(q.lazy(m));
-		assertTrue(q.lazy(m));
-		assertFalse(q.lazy(m));
+		assertTrue(q.lz(m));
+		assertTrue(q.lz(m));
+		assertFalse(q.lz(m));
 		assertEquals(m.getVars().size(),1);
 		assertTrue(m.getVars().contains(x));
 		assertTrue(m.getVals(x) instanceof ArrayList);
@@ -150,7 +150,7 @@ public class AutoTests {
 		assertTrue(x.contains("s1"));
 		q=new Constraint(relation("testConstraint",y,_,z,_,_,_,_,_,_,_),WHERE, or(relation("testConstraint",_,z), c(cmp,0,1,y)));
 		m=new VariableMap();
-		assertTrue(q.lazy(m));
+		assertTrue(q.lz(m));
 		assertEquals(m.getVars().size(),2);
 		assertTrue(m.getVars().contains(y));
 		assertTrue(m.getVars().contains(z));
@@ -162,18 +162,18 @@ public class AutoTests {
 		assertTrue(((ArrayList) m.getVals(z)).contains(3));
 		assertFalse(((ArrayList) m.getVals(y)).contains('a'));
 		assertFalse(((ArrayList) m.getVals(z)).contains('c'));
-		assertTrue(q.lazy(m));
-		assertFalse(q.lazy(m));
+		assertTrue(q.lz(m));
+		assertFalse(q.lz(m));
 		q.startLazy();
-		assertTrue(q.lazy(m));
-		assertTrue(q.lazy(m));
-		assertFalse(q.lazy(m));
+		assertTrue(q.lz(m));
+		assertTrue(q.lz(m));
+		assertFalse(q.lz(m));
 		q=q.replaceVariable(y, t);
 		q=q.replaceVariable(z, u);		
 		m=new VariableMap();
-		assertTrue(q.lazy(m));
-		assertTrue(q.lazy(m));
-		assertFalse(q.lazy(m));
+		assertTrue(q.lz(m));
+		assertTrue(q.lz(m));
+		assertFalse(q.lz(m));
 		instantiate(m);
 		m=q.current();
 		assertEquals(m.getVars().size(),2);
@@ -238,7 +238,7 @@ public class AutoTests {
 		assertTrue(c.lg.current().isEmpty());
 		VariableMap m=new VariableMap();
 		int counter=0;
-		while (c.lg.lazy(m)) {
+		while (c.lg.lz(m)) {
 			counter++;
 			assertTrue(m.getVars().size()==4);
 			assertTrue( ((ArrayList) m.getVals(x)).size()==counter);
@@ -609,7 +609,7 @@ public class AutoTests {
 		cons[7]=c(cons[6],OR,c(abs,1,vars[5],vars[6]));
 		cons[8]=c(cons[7],OR,c(abs,1,vars[5],vars[7]));
 		Lazy lazy=lazy(relation(vars),DIFFER,cons[8]);
-		VariableMap map=lazy.lazy();
+		VariableMap map=lazy.lz();
 		assertFalse(map.isEmpty());
 		lazy.startLazy();
 		int counter=0;

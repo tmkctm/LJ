@@ -165,7 +165,7 @@ public final class LJ {
 			//debug("Failed evaluation!");
 			return false;
 		}
-		if (element.isLazy() && ((Lazy) element).isEmpty()) i.lazyGroup=none;
+		if (element.isLazy() && ((Lazy) element).noVars()) i.lazyGroup=none;
 		//debug("Success at evaluation!");
 		return true;
 	}
