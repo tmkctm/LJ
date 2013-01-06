@@ -255,11 +255,9 @@ public class Constraint implements QueryParameter {
 		while (stacker.isAlive()) {
 			while (stacker.isAlive() && workingThreads.get()<threadCount) {
 				workingThreads.incrementAndGet();
-				System.out.println("in work "+workingThreads.get());
 				try{pool.execute(new goFish(m, bQ, found));}catch(Exception e){}
 			}
 		}
-		workingThreads.set(0);
 		return found.get();
 	}
 	
@@ -351,6 +349,7 @@ public class Constraint implements QueryParameter {
 			boolean b=lz(map);
 			found.compareAndSet(false, b);
 			stack.add(b);
+			workingThreads.decrementAndGet();
 		}
 	}
 	
@@ -365,10 +364,7 @@ public class Constraint implements QueryParameter {
 		@Override
 		public void run() {
 			while (go) {
-				if (!stack.isEmpty()) {
-					go=stack.removeFirst();
-					workingThreads.decrementAndGet();
-				}
+				if (!stack.isEmpty()) go=stack.removeFirst();
 			}
 		}
 	}
@@ -378,6 +374,6 @@ public class Constraint implements QueryParameter {
 
 /* to fix:
  * Restrictions for conduct not perfect for Formula (that has multi vars in args) in Atom.
- * the implementation of the restrictions on arr needs to be above Atom.conduct and not inside it.
+ * IF NOT PREVENTING THREAD-SAFE: the implementation of the restrictions on arr needs to be above Atom.conduct and not inside it.
  * Junction's conduct at the AND case isn't concurrent + a AND b isnt equal b AND a!
  */
