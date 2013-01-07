@@ -41,6 +41,6 @@ public class Relation extends Association implements QueryParameter{
 	
 
 	protected boolean satisfied(Object[] arr, VariableMap m, boolean cut) {
-		return relation(name, arr).map(m, true);
+		return relation(name, arr).map(m, cut);
 	}
 }

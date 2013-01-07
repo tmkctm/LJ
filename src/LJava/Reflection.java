@@ -29,6 +29,15 @@ public static Formula<Object, Object> varArray=new Formula<Object, Object>("varA
 	}};
 
 
+public static Formula<Object, Object> relate=new Formula<Object, Object>("relate", Object.class) {
+	@Override
+	protected Object f(Object... p) {
+		try {	return relate(p);	}
+		catch (Exception e) {}
+		return undefined;
+	}};
+
+
 public static Formula<Object, Object> isSet=new Formula<Object, Object>("isSet", Object.class) {
 	@Override
 	protected Object f(Object... p) {
@@ -170,6 +179,17 @@ public static Formula<Object, Object> where=new Formula<Object, Object>("where",
 	}};
 
 
+public static Formula<Object, Object> associate=new Formula<Object, Object>("associate", Object.class) {
+	@Override
+	protected Object f(Object... p) {
+		if (p.length==1) {
+			try {	return associate((Association) p[0]);	}
+			catch (Exception e) {}
+		}
+		return undefined;
+	}};
+
+
 public static Formula<Object, Object> and=new Formula<Object, Object>("and", Object.class) {
 	@Override
 	protected Object f(Object... p) {
@@ -240,6 +260,15 @@ public static Formula<Object, Object> lazy=new Formula<Object, Object>("lazy", O
 			try {	return lazy((QueryParameter) p[0], (LogicOperator) p[1], (QueryParameter) p[2]);	}
 			catch (Exception e) {}
 		}
+		return undefined;
+	}};
+
+
+public static Formula<Object, Object> group=new Formula<Object, Object>("group", Object.class) {
+	@Override
+	protected Object f(Object... p) {
+		try {	return group(p);	}
+		catch (Exception e) {}
 		return undefined;
 	}};
 

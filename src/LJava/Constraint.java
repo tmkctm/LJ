@@ -16,7 +16,7 @@ public class Constraint implements QueryParameter {
 	private AtomicBoolean inSet=new AtomicBoolean(false);
 	
 	private interface Node {
-		public boolean satisfy(VariableMap restrictions);
+		public boolean satisfy(VariableMap restrictions, VariableMap m, boolean cut);
 		public Node replaceVariable(Variable v, Object o);
 		public HashSet<Variable> getVars();
 		public boolean conduct(VariableMap restrictions, VariableMap answer);
@@ -55,10 +55,9 @@ public class Constraint implements QueryParameter {
 		}
 		
 		@Override
-		public boolean satisfy(VariableMap restrictions) {
+		public boolean satisfy(VariableMap restrictions, VariableMap m, boolean cut) {
 			//debug("Satisfying relation: "+relation+" under restrictions: "+restrictions);
-			if (restrictions.isEmpty()) return relation.satisfied(args, new VariableMap(), true);
-			return relation.satisfied(restrict(restrictions,args), new VariableMap(), true);
+			return relation.satisfied(restrict(restrictions, args), m, cut);
 		}
 		
 		@Override
@@ -75,13 +74,7 @@ public class Constraint implements QueryParameter {
 		
 		@Override
 		public boolean conduct(VariableMap restrictions, VariableMap answer) {
-			Relation r;
-			if (!restrictions.isEmpty()) {
-				Object[] arr=restrict(restrictions,args);
-				r=relation(relation.name, arr);
-			}
-			else if (relation.isFormula()) r=relation(relation.name, args);
-			else r=relation;
+			Relation r=relation(relation.name, restrict(restrictions, args)); 
 			if (iterator==emptyIterator) iterator=iterate(r.args.length);
 			//debug("Conduction relation: "+r+" at Atom");
 			Association a;
@@ -113,10 +106,10 @@ public class Constraint implements QueryParameter {
 		}		
 		
 		@Override
-		public boolean satisfy(VariableMap map) { 
-			if (op==AND || op==WHERE) return (left.satisfy(map) && right.satisfy(map));
-			if (op==OR) return (left.satisfy(map) || right.satisfy(map));
-			if (op==DIFFER) return (left.satisfy(map) && !right.satisfy(map));
+		public boolean satisfy(VariableMap restrictions, VariableMap m, boolean cut) { 
+			if (op==AND || op==WHERE) return (left.satisfy(restrictions, m, cut) && right.satisfy(restrictions, m, cut));
+			if (op==OR) return (left.satisfy(restrictions, m, cut) || right.satisfy(restrictions, m, cut));
+			if (op==DIFFER) return (left.satisfy(restrictions, m, cut) && !right.satisfy(restrictions, m, cut));
 			return true;
 		}
 		
@@ -146,7 +139,7 @@ public class Constraint implements QueryParameter {
 				do {
 					tempAnswer=new VariableMap();
 					if (!left.conduct(restrictions, tempAnswer)) return false;
-				} while (!right.satisfy(tempAnswer));
+				} while (!right.satisfy(tempAnswer, new VariableMap(), true));
 				answer.add(tempAnswer);
 				//debug("Returning true answer: "+answer);
 			}
@@ -164,7 +157,7 @@ public class Constraint implements QueryParameter {
 				do {
 					tempAnswer=new VariableMap();
 					if (!left.conduct(restrictions, tempAnswer)) return false;
-				} while (right.satisfy(tempAnswer));
+				} while (right.satisfy(tempAnswer, new VariableMap(), true));
 				answer.add(tempAnswer);
 				//debug("Returning true answer: "+answer);
 			}
@@ -187,6 +180,7 @@ public class Constraint implements QueryParameter {
 	private final Node atom;
 	
 	public Constraint(Relation r, Object... params) {
+		if (params.length==0) params=r.args;
 		atom=new Atom(r, params);
 	}
 	
@@ -208,7 +202,7 @@ public class Constraint implements QueryParameter {
 	
 	public boolean satisfy(VariableMap map) {
 		//debug("Satisfying Constraint: "+this);
-		return atom.satisfy(map);
+		return atom.satisfy(map, new VariableMap(), true);
 	}
 	
 	
@@ -216,12 +210,12 @@ public class Constraint implements QueryParameter {
 		if (vs.length>os.length) return false;
 		VariableMap map=new VariableMap();
 		for (int i=0; i<vs.length; i++) map.updateValsMap(vs[i],os[i]);
-		return atom.satisfy(map);
+		return atom.satisfy(map, new VariableMap(), true);
 	}
 	
 	
 	public boolean satisfy(HashMap<Variable,Object> map) {
-		return atom.satisfy(new VariableMap(map));
+		return atom.satisfy(new VariableMap(map), new VariableMap(), true);
 	}
 
 	
@@ -233,7 +227,7 @@ public class Constraint implements QueryParameter {
 			if (!variable(pairs[i])) return false;
 			map.updateValsMap((Variable) pairs[i], pairs[i+1]);
 		}
-		return atom.satisfy(map);
+		return atom.satisfy(map, new VariableMap(), true);
 	}
 	
 
@@ -256,8 +250,7 @@ public class Constraint implements QueryParameter {
 		if (atom.conduct(new VariableMap(), answer)) {
 			m.add(answer);
 			if (inSet.compareAndSet(false, true)) {
-				current=new VariableMap();
-				current.add(answer);
+				current=new VariableMap().add(answer);
 				inSet.set(false);
 			}
 			return true;
@@ -312,6 +305,7 @@ public class Constraint implements QueryParameter {
 	@SuppressWarnings("rawtypes")
 	private Object[] restrict(VariableMap restrictions, Object[] args) {
 		//debug("Restricting: "+restrictions+" upon: "+string(args));
+		if (restrictions.isEmpty()) return args;
 		Object[] arr = new Object[args.length];
 		for (int i=0; i<arr.length; i++) {
 			arr[i]=restrictions.map.get(args[i]);
@@ -326,7 +320,7 @@ public class Constraint implements QueryParameter {
 
 
 /* to fix:
+ * Junction's AND should use satisfy instead conduct now on right side.
  * Restrictions for conduct not perfect for Formula (that has multi vars in args) in Atom.
  * IF NOT PREVENTING THREAD-SAFE: the implementation of the restrictions on arr needs to be above Atom.conduct and not inside it.
- * Junction's conduct at the AND case isn't concurrent + a AND b isn't equal b AND a!
  */
