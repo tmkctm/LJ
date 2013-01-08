@@ -24,13 +24,18 @@ public abstract class Formula<P,R> extends Relation {
 	
 	
 	public R value(P... params) {
-		return this.f(params);
+		return v(params);
 	}
+
+	
+	public R v(P... params) {
+		return this.f(params);
+	}	
 	
 	
 	@SuppressWarnings("unchecked")
 	public Object invoke(Object... params) {
-		try { return value((P[])Arrays.copyOf(params, params.length, ((P[])Array.newInstance(parametersType, 0)).getClass())); }
+		try { return v((P[])Arrays.copyOf(params, params.length, ((P[])Array.newInstance(parametersType, 0)).getClass())); }
 		catch (Exception e) {}
 		if ((params.length==1) && (params[0].getClass().isArray()))
 			try {
@@ -88,6 +93,7 @@ public abstract class Formula<P,R> extends Relation {
 	protected boolean satisfied(Object[] arr, VariableMap m, boolean cut) {
 		return satisfy(arr, m);
 	}
+	
 	
 }
 

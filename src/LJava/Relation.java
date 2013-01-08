@@ -53,6 +53,13 @@ public class Relation extends Association implements QueryParameter{
 	}
 	
 	
+	public VariableMap lz() {
+		VariableMap m=new VariableMap();
+		lz(m);
+		return m;
+	}
+	
+	
 	protected boolean satisfied(Object[] arr, VariableMap m, boolean cut) {
 		return relation(this.name,arr).map(m, cut);
 	}	
