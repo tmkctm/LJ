@@ -8,10 +8,14 @@ import LJava.LJ.LJIterator;
 
 public class Relation extends Association implements QueryParameter{
 	
+	private LJIterator iterator;
+	
 	public Relation(String n, Object... params){
 		super (n, params);
+		iterator=emptyIterator;
 	}
-
+	
+	
 	@Override
 	protected boolean satisfy(Object[] rArgs, VariableMap varValues){
 		HashMap<Variable,Object> vars=new HashMap<Variable, Object>();
@@ -27,20 +31,30 @@ public class Relation extends Association implements QueryParameter{
 		return true;
 	}			
 
+	
 	@Override
-	public boolean map(VariableMap m, boolean cut) {
-		boolean out=false;
-		LJIterator i=iterate(argsLength());
-		Association a;
-		while ((a=i.hasAndGrabNext(args))!=undefined) {
-			out=(evaluate(this, m, i, a) || out);
-			if (out && cut) return true;
+	public boolean map(VariableMap answer, boolean cut) {
+		LJIterator i=iterate(args.length);
+		Association a;			boolean result=false;
+		while ((a=i.hasAndGrabNext(args))!=undefined) { 
+			result=(evaluate(this, answer, i, a) || result);
+			if (result && cut) return true;
 		}
-		return out;	
+		return result;
 	}
 	
-
-	protected boolean satisfied(Object[] arr, VariableMap m, boolean cut) {
-		return relation(name, arr).map(m, cut);
+	
+	public boolean lz(VariableMap answer) {
+		if (iterator==emptyIterator) iterator=iterate(args.length);
+		Association a;
+		while ((a=iterator.hasAndGrabNext(args))!=undefined) 
+			if (evaluate(this, answer, iterator, a)) return true; 
+		return false;		
 	}
+	
+	
+	protected boolean satisfied(Object[] arr, VariableMap m, boolean cut) {
+		return relation(this.name,arr).map(m, cut);
+	}	
+	
 }
