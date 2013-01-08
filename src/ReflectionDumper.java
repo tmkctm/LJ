@@ -68,7 +68,7 @@ public class ReflectionDumper {
 			for (Map.Entry<String, ArrayList<Signature>> e: sigs.entrySet()) {
 				text.append("public static Formula<Object, Object> "+e.getKey()+"=new Formula<Object, Object>(\""+e.getKey()+"\", Object.class) {\n"+
 						"\t@Override\n"+
-						"\tprotected Object f(Object... p) {\n");
+						"\tprotected Object f(Object[] p) {\n");
 				for (Signature s: e.getValue()) {
 					if (!s.threeDots) {
 						text.append("\t\tif (p.length=="+s.types.size()+") {\n"+
@@ -126,7 +126,8 @@ public class ReflectionDumper {
 			for (int j=i; j<tokens.length; j++) {
 				if (!tokens[j].contains(")") && !tokens[j].contains("{")) {
 					String t=tokens[j];
-					if (tokens[j].contains(",")) 
+					if (tokens[j].contains(","))
+						if (tokens[j].contains(">")) t=tokens[j];
 						if (tokens[j].indexOf(',')!=tokens[j].length()-1) t=tokens[j].substring(tokens[j].indexOf(',')+1);
 						else continue;
 					if (t.contains("Object...")) 

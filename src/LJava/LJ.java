@@ -55,8 +55,13 @@ public final class LJ {
 	}
 	
 	
-	public static Lazy lazy(Group g, Object... args) {
-		return new Lazy(g,args);
+	public static Lazy<Group, VariableMap> lz(Group g, Object... args) {
+		return g.goLazy(args);
+	}
+	
+	
+	public static <P,R> Lazy<Formula<P,R>, R> lz(Formula<P,R> f, Formula<P,P[]> inc, P... params) {
+		return f.goLazy(inc, params);
 	}
 	
 			
@@ -96,11 +101,6 @@ public final class LJ {
 	}
 	
 	
-	public static Lazy lazy(Constraint a) {
-		return new Lazy(a);
-	}
-	
-	
 	public static boolean a(QueryParameter a) {
 		return query(a,false);
 	}
@@ -108,11 +108,6 @@ public final class LJ {
 	
 	public static boolean all(QueryParameter a, LogicOperator op, QueryParameter b) {
 		return a(a,op,b);
-	}
-	
-	
-	public static Lazy lazy(QueryParameter a, LogicOperator op, QueryParameter b) {
-		return lazy(new Constraint(a,op,b));
 	}
 	
 	
@@ -155,23 +150,22 @@ public final class LJ {
 
 	
 	private static boolean query(QueryParameter a, boolean cut) {
-		//debug("Querying: "+a+"  with cut flag: "+cut);
 		VariableMap varValues=new VariableMap();
 		if (!a.map(varValues,cut)) return false;
 		return instantiate(varValues);
 	}
 	
 	
-	protected static boolean evaluate(Relation r, VariableMap varValues, LJIterator i, Association element) {
-		//debug("Evaluating: "+r+" against "+element);
-		if (!(element.associationNameCompare(r)	&& element.satisfy(r.args, varValues))) {
-			i.lazyGroup=none;
-			//debug("Failed evaluation!");
-			return false;
-		}
-		if (element.isLazy() && ((Lazy) element).noVars()) i.lazyGroup=none;
-		//debug("Success at evaluation!");
-		return true;
+	@SuppressWarnings("rawtypes")
+	protected static boolean evaluate(Relation r, VariableMap varValues, LJIterator i) {
+		Association element;
+		while ((element=i.hasAndGrabNext(r.args))!=undefined)
+			if (element.associationNameCompare(r) && element.satisfy(r.args, varValues)) {
+				if (element.isLazy() && ((Lazy) element).noVars()) i.lazyGroup=none;
+				return true;
+			}
+		i.lazyGroup=none;
+		return false;
 	}
 	
 	
@@ -313,9 +307,13 @@ public final class LJ {
 		return a;
 	}
 	
+	
+	public boolean undef(Object o) {
+		return (val(o)==undefined);
+	}
+	
 
 	public static boolean instantiate(VariableMap varValues) {
-		//debug("Instantiating the map: "+varValues);
         boolean answer=true;
 		for (Variable v : varValues.getVars())
 			answer=(v.instantiate(varValues.map.get(v), null, varValues.constraints.get(v)) && answer);	
@@ -336,7 +334,7 @@ public final class LJ {
 	}	
 	
 	
-	protected static <T> void increment(Map<T, Integer> m, T element, int delta) {
+	protected static <T> void increment(Map<T,Integer> m, T element, int delta) {
 		Integer count=m.get(element);
 		if (count==null) count=0;
 		m.put(element,count+delta);	
@@ -370,11 +368,6 @@ public final class LJ {
 			default: break;
 			}
 		}catch (Exception e) {}
-	}
-	
-	
-	protected static void debug(String s) {
-		System.out.println(s);
 	}
 	
 	
@@ -413,7 +406,7 @@ public final class LJ {
 			if (!hasNext()) return undefined;
 			Association element=next();
 			if (element.isGroup()) {
-				element=new Lazy((Group) element, args);
+				element=((Group) element).goLazy(args);
 				lazyGroup=element;
 			}			
 			return element;

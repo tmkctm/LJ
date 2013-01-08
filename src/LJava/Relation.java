@@ -34,34 +34,17 @@ public class Relation extends Association implements QueryParameter{
 	
 	@Override
 	public boolean map(VariableMap answer, boolean cut) {
-		LJIterator i=iterate(args.length);
-		Association a;			boolean result=false;
-		while ((a=i.hasAndGrabNext(args))!=undefined) { 
-			result=(evaluate(this, answer, i, a) || result);
-			if (result && cut) return true;
-		}
-		return result;
+		LJIterator i=iterate(argsLength());
+		if (cut) evaluate(this, answer, i);
+		if (!evaluate(this, answer, i)) return false;
+		while (evaluate(this, answer, i)) {}
+		return true;
 	}
 	
 	
-	public boolean lz(VariableMap answer) {
-		if (iterator==emptyIterator) iterator=iterate(args.length);
-		Association a;
-		while ((a=iterator.hasAndGrabNext(args))!=undefined) 
-			if (evaluate(this, answer, iterator, a)) return true; 
-		return false;		
+	protected boolean lz(VariableMap answer) {
+		if (iterator==emptyIterator) iterator=iterate(argsLength());
+		return evaluate(this, answer, iterator); 
 	}
-	
-	
-	public VariableMap lz() {
-		VariableMap m=new VariableMap();
-		lz(m);
-		return m;
-	}
-	
-	
-	protected boolean satisfied(Object[] arr, VariableMap m, boolean cut) {
-		return relation(this.name,arr).map(m, cut);
-	}	
 	
 }

@@ -1,4 +1,5 @@
 package LJava;
+
 import static LJava.LJ.*;
 import static LJava.Utils.LJFalse;
 import static LJava.Utils.LJTrue;
@@ -15,7 +16,7 @@ public abstract class Formula<P,R> extends Relation {
 	}
 	
 	
-	protected abstract R f(P... p);
+	protected abstract R f(P[] p);
 	
 	
 	public boolean satisfy(Object val, P... params) {
@@ -29,7 +30,7 @@ public abstract class Formula<P,R> extends Relation {
 
 	
 	public R v(P... params) {
-		return this.f(params);
+		return f((P[]) params);
 	}	
 	
 	
@@ -68,10 +69,7 @@ public abstract class Formula<P,R> extends Relation {
 		for (int i=1; i<rArgs.length; i++) {			
 			Object val = val(rArgs[i]);
 			if (!parametersType.isAssignableFrom(val.getClass())) {
-				if (!var(val)) {
-					debug("Failed casting: "+string(rArgs)+" upon Formula: "+this);
-					return false;
-				}
+				if (!var(val)) return false;
 				varInArgs=true;
 			}
 			else temp[i-1]=(P) val;
@@ -89,15 +87,56 @@ public abstract class Formula<P,R> extends Relation {
 	}
 	
 	
-	@Override
-	protected boolean satisfied(Object[] arr, VariableMap m, boolean cut) {
-		return satisfy(arr, m);
+	protected LazyFormula goLazy(Formula<P, P[]> inc, P... params) {
+		return new LazyFormula(this, inc, params);
 	}
 	
 	
+//Lazy Formula
+	private class LazyFormula implements Lazy<Formula<P,R>, R> {
+		
+		private final Formula<P,R> f;
+		private final Formula<P, P[]> increment;
+		private final P[] baseArgs;
+		private P[] args;
+		private R current;
+		
+		@SuppressWarnings("unchecked")
+		public LazyFormula(Formula<P,R> formula, Formula<P, P[]> inc, P... params) {
+			f=formula;
+			increment=inc;
+			baseArgs=params;
+			args=(P[]) Array.newInstance(parametersType, baseArgs.length);
+			for (int i=0; i<args.length; i++) args[i]=baseArgs[i];
+		}
+		
+		@Override
+		public synchronized R lz() {
+			current=f.v(args);
+			args=increment.v(args);
+			return current;
+		}
+		
+		@Override
+		public R current() {
+			return current;
+		}
+		
+		@Override
+		public boolean noVars() {
+			return false;
+		}
+		
+		@SuppressWarnings("unchecked")
+		@Override
+		public synchronized void startLazy() {
+			args=(P[]) Array.newInstance(parametersType, args.length);
+			for (int i=0; i<args.length; i++) args[i]=baseArgs[i];			
+		}
+		
+		@Override
+		public Formula<P,R> base() {
+			return f;
+		}
+	}
 }
-
-
-/* to fix:
- * reverse formulas. 	
- */
