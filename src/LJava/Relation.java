@@ -3,16 +3,17 @@ package LJava;
 import static LJava.LJ.*;
 
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 import LJava.LJ.LJIterator;
 
 public class Relation extends Association implements QueryParameter{
 	
-	private LJIterator iterator;
+	private AtomicReference<LJIterator> iterator;
 	
 	public Relation(String n, Object... params){
 		super (n, params);
-		iterator=emptyIterator;
+		iterator.set(emptyIterator);
 	}
 	
 	
@@ -42,9 +43,27 @@ public class Relation extends Association implements QueryParameter{
 	}
 	
 	
-	protected boolean lz(VariableMap answer) {
-		if (iterator==emptyIterator) iterator=iterate(argsLength());
-		return evaluate(this, answer, iterator); 
+	protected boolean lz(VariableMap answer) {		
+		iterator.compareAndSet(emptyIterator, iterate(argsLength()));
+		return evaluate(this, answer, iterator.get()); 
 	}
+	
+	
+	public Relation replaceVariables(HashMap<Variable, Object> replacements) {
+		Object arguments[]=new Object[args.length];
+		for (int i=0; i<args.length; i++) {
+			arguments[i]=replacements.get(args[i]);
+			arguments[i]= (arguments[i]==null)? args[i]: arguments[i];
+		}
+		return relation(name, arguments);
+	}
+
+	
+	public Relation replaceVariables(Variable v1, Object v2) {
+		HashMap<Variable, Object> m=new HashMap<Variable, Object>();
+		m.put(v1, v2);
+		return replaceVariables(m);
+	}
+	
 	
 }

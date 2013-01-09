@@ -33,12 +33,8 @@ public final class LJ {
 	protected static ExecutorService pool = Executors.newCachedThreadPool();
 	
 	public static boolean associate(Association r) {
-		if (r==undefined || r==none) {
-			//debug("Tried to associate an illegal Association: "+r);
-			return false;
-		}
+		if (r==undefined || r==none) return false;
 		addTo(LJavaRelationTable, r.argsLength(), r, LinkedHashSet.class);
-		//debug("Associated: "+r);
 		return true;
 	}
 	
@@ -50,7 +46,7 @@ public final class LJ {
 
 	
 	public static boolean group(Object... args) {		
-		Group r=new Group("#LJavaRelationTableEntry#", args);
+		Group r=new Group("#LJavaGroupTableEntry#", args);
 		return associate(r);
 	}
 	
@@ -275,7 +271,6 @@ public final class LJ {
 	}
 
 	
-	
 	public static Relation r(Object... args) {
 		return new Relation("",args);
 	}
@@ -369,7 +364,7 @@ public final class LJ {
 			}
 		}catch (Exception e) {}
 	}
-	
+		
 	
 //An inner LJ iterator.	
 	protected final class LJIterator {
@@ -411,6 +406,7 @@ public final class LJ {
 			}			
 			return element;
 		}
+		
 	}	
 	
 	
@@ -421,12 +417,5 @@ public final class LJ {
 	
 	
 }
-
-
-/* to fix:
- * instantiate needs synchronized against Variable.instantiate.
- * enable Future Formula.
- */
-
 
 

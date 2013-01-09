@@ -25,7 +25,7 @@ public class Constraint implements QueryParameter {
 		}
 		
 		public Atom(Atom a, Variable v1, Object v2) {
-			relation=(Relation) a.relation.replaceVariables(v1, v2);
+			relation=a.relation.replaceVariables(v1, v2);
 			args=new Object[a.args.length];
 			for (int i=0; i<a.args.length; i++)
 				args[i] = (a.args[i]==v1) ? v2 : a.args[i];
@@ -34,15 +34,15 @@ public class Constraint implements QueryParameter {
 		public String toString() {	
 			StringBuilder s = new StringBuilder(relation.name()+"(");
 			if (args.length>0) {
-				for (int i=0; i<args.length; i++) s.append(string(args[i])+",");	
-				s.deleteCharAt(s.length()-1);
-			}
-			s.append(")");
+				for (int i=0; i<args.length; i++) s.append(string(args[i])+",");
+				s.deleteCharAt(s.length()-1);		}
+			s.append(')');
 			return s.toString();
 		}
 		
 		@Override
 		public boolean satisfy(VariableMap restrictions, VariableMap answer, boolean cut) {
+			//TBD
 			return (relation==LJTrue);
 		}
 		
@@ -91,6 +91,7 @@ public class Constraint implements QueryParameter {
 		
 		@Override
 		public boolean satisfy(VariableMap restrictions, VariableMap answer, boolean cut) {
+			//TBD
 			return false;
 		}
 	}
@@ -162,6 +163,7 @@ public class Constraint implements QueryParameter {
 	
 	@Override
 	public boolean map(VariableMap m, boolean cut) {
+		//TBD
 		return false;
 	}
 	

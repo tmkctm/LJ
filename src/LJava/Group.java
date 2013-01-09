@@ -24,7 +24,7 @@ public class Group extends Association {
 	
 	
 	public Group(Object... params) {
-		this("#LJGroupEntry",params);
+		this("#LJavaGroupTableEntry",params);
 	}
 	
 	

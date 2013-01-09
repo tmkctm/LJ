@@ -2,7 +2,6 @@ package LJava;
 
 import static LJava.LJ.*;
 import java.util.Arrays;
-import java.util.HashMap;
 
 public class Association {
 
@@ -45,38 +44,14 @@ public class Association {
 	}
 	
 	
-	public boolean undef() {
-		return (this==undefined);
-	}
-	
-	
 	public String toString(){
 		if (this==_) return "_";
 		StringBuilder s = new StringBuilder(name+"(");
 		if (args.length>0) {
 			for (int i=0; i<args.length-1; i++)	s.append(string(args[i])+",");
-			s.append(string(args[args.length-1]));
-		}
-		s.append(")");
+			s.deleteCharAt(s.length()-1);		}
+		s.append(')');
 		return s.toString();
-	}
-	
-
-	public Association replaceVariables(HashMap<Variable, Object> replacements) {
-		if (isFormula()) return this;
-		Object arguments[]=new Object[args.length];
-		for (int i=0; i<args.length; i++) {
-			arguments[i]=replacements.get(args[i]);
-			arguments[i]= (arguments[i]==null)? args[i]: arguments[i];
-		}
-		return relation(name, arguments);
-	}
-
-	
-	public Association replaceVariables(Variable v1, Object v2) {
-		HashMap<Variable, Object> m=new HashMap<Variable, Object>();
-		m.put(v1, v2);
-		return replaceVariables(m);
 	}
 	
 
@@ -100,7 +75,7 @@ public class Association {
 	}
 	
 	
-//Compares between 2 relations.
+//Compares between 2 Associations.
 	private boolean equalsAssociation(Association r){
 		if (!this.getClass().equals(r.getClass())) return false;
 		if (!associationNameCompare(r)) return false;

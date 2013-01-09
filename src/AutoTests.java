@@ -20,7 +20,9 @@ public class AutoTests {
 		public String s;		public List<Object> l;
 		public boolean b;		public Variable v;
 		public Constraint c;	public Relation r;
-		public Group g;			public Lazy lg;
+		public Group g;			
+		@SuppressWarnings("rawtypes")
+		public Lazy lg;
 		public Object[] arr;
 		
 		public String toString() {
@@ -41,7 +43,6 @@ public class AutoTests {
 	
 	
 //Test classes	
-	@Test
 	public void testAssociation() {
 		Association a=new Association("");
 		assertEquals(a.name(),"#LJRelation");
@@ -55,10 +56,6 @@ public class AutoTests {
 		z.set(abs);
 		assertTrue(_.equals(a));
 		assertTrue(_.equals(c));
-		a=a.replaceVariables(LJvar, u);
-		assertEquals(a.args()[4],u);
-		assertFalse(a.args()[5].equals(u));
-		assertFalse(a.args()[6].equals(u));
 	}
 
 /*	
@@ -201,7 +198,7 @@ public class AutoTests {
 	public void testFormula() {
 		final Formula f=new Formula("myF", Boolean.class) {
 			@Override
-			protected Boolean f(Object... p) {
+			protected Boolean f(Object[] p) {
 				Boolean b=false;
 				for (Object o : p) b=(b || (Boolean) o);
 				return b;
@@ -211,7 +208,7 @@ public class AutoTests {
 		assertFalse((Boolean) f.invoke(false,false));
 		Formula<Boolean, Container> f2= new Formula<Boolean, Container>("myF2", Boolean.class) {
 			@Override
-			protected Container f(Boolean... p) {
+			protected Container f(Boolean[] p) {
 				Container c = new Container();
 				if (p.length==0) return c;
 				c.b=(Boolean) f.invoke(p);
@@ -299,6 +296,7 @@ public class AutoTests {
 	}
 	
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void testVariable() {
 		//set values
@@ -476,7 +474,6 @@ public class AutoTests {
 	}		
 	
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void testExists() {
 		Relation r=r("testExists","Tzali","Maimon",30,61262291);

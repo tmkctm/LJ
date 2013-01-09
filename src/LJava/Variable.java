@@ -125,18 +125,15 @@ public class Variable {
 	}
 	
 	public final boolean instantiate(Object[] vals, Constraint where, Constraint valByConstraint){
-		//debug("Entered instantiate on variable: "+this);
 		lockKey.lock();
 		if (isVar && inSet.compareAndSet(false,true)){
 			lockKey.unlock();
-			//debug("Instantiating "+this+" with values: "+string(vals)+ " where "+where+" or "+valByConstraint);
 			if (valByConstraint==null) valByConstraint=new Constraint(LJFalse);			
 			if (vals!=null && vals.length>0) {
 				ArrayList<Object> correct= new ArrayList<Object>();
 				if (where==null) where=new Constraint(LJTrue);
 				for (int i=0; i<vals.length; i++) {
 					if (variable(vals[i]) && !this.consistWith((Variable) vals[i])) {
-						//debug("Found variable: "+vals[i]+" inconsistant with "+this);
 						correct.add(undefined);
 						continue;
 					}
@@ -149,7 +146,6 @@ public class Variable {
 			return true;						
 		}
 		lockKey.unlock();
-		//debug("Found "+this+" immutable");
 		return false;
 	}
 
@@ -242,6 +238,3 @@ public class Variable {
 
 }
 
-/* to fix:
- * the lock at consistWith versus instantiate. 
- */
