@@ -9,15 +9,17 @@ import java.util.HashSet;
 public class Constraint implements QueryParameter {
 
 	private interface Node {
-		public boolean satisfy(VariableMap restrictions, VariableMap answer, boolean cut);
+		public boolean satisfy(VariableMap restrictions, VariableMap answer);
 		public Node replaceVariable(Variable v, Object o);
 		public HashSet<Variable> getVars();
+		public void startLazy();
 	}
 	
 
 	private final class Atom implements Node {
 		private final Relation relation;
 		private final Object[] args;
+		private final HashMap<VariableMap, Relation> lazyMap=new HashMap<VariableMap, Relation>();
 		
 		public Atom(Relation r, Object... params) {
 			relation=(r==null) ? LJTrue : r;
@@ -41,9 +43,19 @@ public class Constraint implements QueryParameter {
 		}
 		
 		@Override
-		public boolean satisfy(VariableMap restrictions, VariableMap answer, boolean cut) {
-			//TBD
-			return (relation==LJTrue);
+		public boolean satisfy(VariableMap restrictions, VariableMap answer) {
+			Relation r;
+			synchronized (this) {
+				if ((r=lazyMap.get(restrictions))==null) {
+					r=restrict(args, restrictions, relation.name);
+					lazyMap.put(restrictions, r);
+				}}
+			if (r.lz(answer)) {
+				answer.add(restrictions);
+				return true;
+			}
+			lazyMap.remove(restrictions);
+			return false;
 		}
 		
 		@Override
@@ -58,6 +70,11 @@ public class Constraint implements QueryParameter {
 			return set;
 		}
 		
+		@Override
+		public synchronized void startLazy() {
+			lazyMap.clear();
+		}
+		
 	}
 	
 	
@@ -65,6 +82,7 @@ public class Constraint implements QueryParameter {
 		private final Node left;
 		private final Node right;
 		private final LogicOperator op;
+		private final HashMap<VariableMap, Object> lazyMap=new HashMap<VariableMap, Object>();
 		
 		public Junction(Node l, LogicOperator lp, Node r) {
 			right = (r==null) ? new Atom(LJTrue) : r;
@@ -90,9 +108,53 @@ public class Constraint implements QueryParameter {
 		}
 		
 		@Override
-		public boolean satisfy(VariableMap restrictions, VariableMap answer, boolean cut) {
-			//TBD
-			return false;
+		public boolean satisfy(VariableMap restrictions, VariableMap answer) {
+			if (op==AND) operateAnd(restrictions, answer);
+			else if (op==WHERE) operateWhere(restrictions, answer, true);
+			else if (op==DIFFER) operateWhere(restrictions, answer, false);
+			else if (op==OR) operateOr(restrictions, answer);
+			return true;
+		}
+		
+		private boolean operateAnd(VariableMap restrictions, VariableMap answer) {
+			VariableMap knownRestriction;
+			do { synchronized (this) {
+				knownRestriction=(VariableMap) lazyMap.get(restrictions);
+				if (knownRestriction==null) {
+					knownRestriction=new VariableMap();
+					if (!left.satisfy(restrictions, knownRestriction)) return false;
+					lazyMap.put(restrictions, knownRestriction);
+				}}
+				if (right.satisfy(knownRestriction, answer)) return true; 
+				lazyMap.remove(restrictions);
+			} while (true);
+		}
+		
+		private boolean operateWhere(VariableMap restrictions, VariableMap answer, boolean where) {
+			if (lazyMap.get(restrictions)!=null) return false;
+			do {
+				answer.clear();
+				if (!left.satisfy(restrictions, answer)) {
+					lazyMap.put(restrictions, true);
+					return false;
+				}
+			} while (where ^ right.satisfy(answer, new VariableMap()));			
+			return true;
+		}
+		
+		private boolean operateOr(VariableMap restrictions, VariableMap answer) {
+			Object prev=lazyMap.get(restrictions);
+			if (prev!=null || !left.satisfy(restrictions, answer)) {
+				if (!(Boolean) prev) return false;
+				Boolean rightSatisfied=right.satisfy(restrictions, answer);
+				lazyMap.put(restrictions, rightSatisfied);
+				return rightSatisfied;
+			}
+			return true;
+		}
+		
+		public void startLazy() {
+			lazyMap.clear();
 		}
 	}
 	
@@ -127,7 +189,7 @@ public class Constraint implements QueryParameter {
 	
 	
 	public boolean satisfy(VariableMap map) {
-		return atom.satisfy(map, new VariableMap(), true);
+		return atom.satisfy(map, new VariableMap());
 	}
 	
 	
@@ -135,12 +197,12 @@ public class Constraint implements QueryParameter {
 		if (vs.length>os.length) return false;
 		VariableMap map=new VariableMap();
 		for (int i=0; i<vs.length; i++) map.updateValsMap(vs[i],os[i]);
-		return atom.satisfy(map, new VariableMap(), true);
+		return atom.satisfy(map, new VariableMap());
 	}
 	
 	
 	public boolean satisfy(HashMap<Variable,Object> map) {
-		return atom.satisfy(new VariableMap(map), new VariableMap(), true);
+		return atom.satisfy(new VariableMap(map), new VariableMap());
 	}
 
 	
@@ -152,7 +214,7 @@ public class Constraint implements QueryParameter {
 			if (!variable(pairs[i])) return false;
 			map.updateValsMap((Variable) pairs[i], pairs[i+1]);
 		}
-		return atom.satisfy(map, new VariableMap(), true);
+		return atom.satisfy(map, new VariableMap());
 	}
 	
 
@@ -165,6 +227,11 @@ public class Constraint implements QueryParameter {
 	public boolean map(VariableMap m, boolean cut) {
 		//TBD
 		return false;
+	}
+	
+	
+	protected boolean lz(VariableMap answer) {
+		return atom.satisfy(new VariableMap(), answer);
 	}
 	
 	
@@ -188,5 +255,14 @@ public class Constraint implements QueryParameter {
 		return atom.getVars();
 	}
 	
+	
+	private Relation restrict(Object[] args, VariableMap restrictions, String n) {
+		Object[] arr=new Object[args.length];
+		for (int i=0; i<args.length; i++) {
+			arr[i]=restrictions.map.get(args[i]).get(0);
+			if (arr[i]==null) arr[i]=args[i];
+		}
+		return relation(n,arr);
+	}
 	
 }

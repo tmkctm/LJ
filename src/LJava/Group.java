@@ -154,6 +154,11 @@ public class Group extends Association {
 		}	
 		
 		@Override
+		public Variable[] getVars() {
+			return (Variable[]) varsCount.keySet().toArray();
+		}
+		
+		@Override
 		public boolean noVars() {
 			return noVars;
 		}

@@ -7,7 +7,7 @@ public final class Utils {
 	public static Formula<Object,Integer> cmp=new Formula<Object,Integer>("Compare", Object.class) {
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		@Override
-		protected Integer f(Object... p) {
+		protected Integer f(Object[] p) {
 			if (p.length!=2) return Integer.MIN_VALUE;
 			if ((p[0] instanceof Number) && (p[1] instanceof Number)) {
 				double a=((Number)p[0]).doubleValue();
@@ -29,13 +29,13 @@ public final class Utils {
 
 	public static Formula<Object, Boolean> LJTrue=new Formula<Object,Boolean>("$LJava_True$", Object.class) {
 		@Override
-		protected Boolean f(Object... p) {
+		protected Boolean f(Object[] p) {
 			return true;
 		}};
 
 	public static Formula<Object, Boolean> LJFalse=new Formula<Object,Boolean>("$LJava_False$", Object.class) {
 		@Override
-		protected Boolean f(Object... p) {
+		protected Boolean f(Object[] p) {
 			return false;
 		}};
 //End of predefined functors

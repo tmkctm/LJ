@@ -123,8 +123,13 @@ public abstract class Formula<P,R> extends Relation {
 		}
 		
 		@Override
+		public Variable[] getVars() {
+			return new Variable[0];
+		}
+		
+		@Override
 		public boolean noVars() {
-			return false;
+			return true;
 		}
 		
 		@SuppressWarnings("unchecked")
