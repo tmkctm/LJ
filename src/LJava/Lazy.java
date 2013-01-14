@@ -8,10 +8,9 @@ public interface Lazy<B,P> {
 	public String toString();
 	public Variable[] getVars();
 	public boolean noVars();
-	public void startLazy();
+	public void resetLazy();
 	public B base();
 }	
-
 
 
 

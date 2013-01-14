@@ -101,7 +101,7 @@ public class Group extends Association {
 			return lz(varValues);
 		}
 		
-		public final synchronized boolean lz(VariableMap varValues) {
+		public synchronized final boolean lz(VariableMap varValues) {
 			while (!iStack.isEmpty()) {
 				VarIterator i=iStack.pop();
 				if (varsCount.get(i.var)==null) backtrack(i);
@@ -132,9 +132,7 @@ public class Group extends Association {
 		
 		@Override
 		public final VariableMap current() {
-			VariableMap map=new VariableMap();
-			map.add(answer);
-			return map;
+			return new VariableMap().add(answer);
 		}
 		
 		private final void backtrack(VarIterator i) {
@@ -164,7 +162,7 @@ public class Group extends Association {
 		}
 		
 		@Override
-		public synchronized void startLazy() {
+		public synchronized void resetLazy() {
 			while (!iStack.isEmpty()) {
 				VarIterator i=iStack.pop();
 				if (varsCount.get(i.var)==null) backtrack(i);				

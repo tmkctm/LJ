@@ -362,7 +362,7 @@ public class AutoTests {
 		assertFalse(t.equals(v));
 		assertFalse(y.equals(x));
 		x=var();
-		Variable temp=(Variable) c.getVars().toArray()[0];
+		Variable temp=(Variable) c.getVars()[0];
 		assertTrue(c.satisfy(temp,-1000));
 		assertFalse(c.satisfy(temp,0));
 		assertFalse(x.singleValue());

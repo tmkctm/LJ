@@ -134,7 +134,7 @@ public abstract class Formula<P,R> extends Relation {
 		
 		@SuppressWarnings("unchecked")
 		@Override
-		public synchronized void startLazy() {
+		public synchronized void resetLazy() {
 			args=(P[]) Array.newInstance(parametersType, args.length);
 			for (int i=0; i<args.length; i++) args[i]=baseArgs[i];			
 		}

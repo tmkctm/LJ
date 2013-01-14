@@ -6,7 +6,7 @@ import static LJava.LJ.*;
 import java.util.HashMap;
 import java.util.HashSet;
 
-public class Constraint implements QueryParameter {
+public class Constraint implements QueryParameter, Lazy<Constraint, VariableMap> {
 
 	private interface Node {
 		public boolean satisfy(VariableMap restrictions, VariableMap answer);
@@ -161,6 +161,7 @@ public class Constraint implements QueryParameter {
 	
 //The Constraint Class	
 	private final Node atom;
+	private VariableMap current;
 	
 	public Constraint(Relation r) {
 		atom=new Atom(r, r.args);
@@ -217,7 +218,8 @@ public class Constraint implements QueryParameter {
 		return atom.satisfy(map, new VariableMap());
 	}
 	
-
+	
+	@Override
 	public String toString() {
 		return atom.toString();
 	}
@@ -230,8 +232,26 @@ public class Constraint implements QueryParameter {
 	}
 	
 	
-	protected boolean lz(VariableMap answer) {
-		return atom.satisfy(new VariableMap(), answer);
+	protected boolean lz(VariableMap varsMap) {
+		VariableMap answer=new VariableMap();
+		boolean result=atom.satisfy(new VariableMap(), answer);
+		current=answer;
+		varsMap.add(answer);
+		return result;
+	}
+	
+	
+	@Override
+	public VariableMap lz() {
+		VariableMap m=new VariableMap();
+		lz(m);
+		return m;
+	}
+	
+	
+	@Override
+	public VariableMap current() {
+		return new VariableMap().add(current);
 	}
 	
 	
@@ -251,8 +271,27 @@ public class Constraint implements QueryParameter {
 	}
 	
 	
-	public HashSet<Variable> getVars() {
-		return atom.getVars();
+	@Override
+	public Variable[] getVars() {
+		return (Variable[]) atom.getVars().toArray();
+	}
+	
+	
+	@Override
+	public boolean noVars() {
+		return atom.getVars().isEmpty();
+	}
+	
+	
+	@Override
+	public void resetLazy() {
+		atom.startLazy();
+	}
+	
+	
+	@Override
+	public Constraint base() {
+		return this;
 	}
 	
 	

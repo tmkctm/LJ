@@ -60,6 +60,16 @@ public final class LJ {
 		return f.goLazy(inc, params);
 	}
 	
+	
+	public static Lazy<Constraint, VariableMap> lz(QueryParameter a, LogicOperator op, QueryParameter b) {
+		return lz(new Constraint(a,op,b));
+	}
+	
+	
+	public static Lazy<Constraint, VariableMap> lz(Constraint c) {
+		return c;
+	}
+	
 			
 	public static boolean exists(QueryParameter a) {
 		return e(a);
