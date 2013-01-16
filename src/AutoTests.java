@@ -590,7 +590,7 @@ public class AutoTests {
 		assertFalse(var(v));
 	}
 	
-/*	
+	
 	@Test
 	public void testLazyAll() {
 		Object[] values=new Object[] {1,2,3,4,5,6,7,8};
@@ -606,12 +606,13 @@ public class AutoTests {
 		cons[6]=c(cons[5],OR,c(abs,1,vars[4],vars[5]));
 		cons[7]=c(cons[6],OR,c(abs,1,vars[5],vars[6]));
 		cons[8]=c(cons[7],OR,c(abs,1,vars[5],vars[7]));
-		Lazy lazy=lazy(relation(vars),DIFFER,cons[8]);
+		Lazy<Constraint, VariableMap> lazy=lz(relation(vars),DIFFER,cons[8]);
 		VariableMap map=lazy.lz();
 		assertFalse(map.isEmpty());
-		lazy.startLazy();
+		lazy.resetLazy();
 		int counter=0;
-		for (VariableMap m : lazy) {
+		VariableMap m=new VariableMap();
+		while (!(m=lazy.lz()).isEmpty()) {
 			Variable[] vs=varArray(8);
 			Object[] os=new Object[8];
 			int index=0;
@@ -640,11 +641,12 @@ public class AutoTests {
 		}
 		assertTrue(same(counter, 1656));
 		counter=0;
-		for (VariableMap m : lazy) counter++;
+		m=new VariableMap();
+		while (!(m=lazy.lz()).isEmpty()) counter++;
 		assertTrue(same(counter, 0));
-		lazy.startLazy();
-		for (VariableMap m : lazy) counter++;
+		lazy.resetLazy();
+		while (!(m=lazy.lz()).isEmpty()) counter++;
 		assertTrue(same(counter, 1656));
 	}
-*/
+
 }

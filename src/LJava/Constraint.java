@@ -5,6 +5,7 @@ import static LJava.Utils.LJTrue;
 import static LJava.LJ.*;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 public class Constraint implements QueryParameter, Lazy<Constraint, VariableMap> {
 
@@ -163,16 +164,16 @@ public class Constraint implements QueryParameter, Lazy<Constraint, VariableMap>
 	private final Node atom;
 	private VariableMap current;
 	
-	public Constraint(Relation r) {
-		atom=new Atom(r, r.args);
-	}
-	
-	
 	@SuppressWarnings("rawtypes")
 	public Constraint(Formula f, Object... params) {
 		atom=new Atom(f, params);
 	}
-
+	
+	
+	public Constraint(Relation r) {
+		atom=new Atom(r, r.args);
+	}
+	
 	
 	private Constraint(Node n) {
 		atom=n;
@@ -295,11 +296,12 @@ public class Constraint implements QueryParameter, Lazy<Constraint, VariableMap>
 	}
 	
 	
+	@SuppressWarnings("unchecked")
 	private Relation restrict(Object[] args, VariableMap restrictions, String n) {
 		Object[] arr=new Object[args.length];
 		for (int i=0; i<args.length; i++) {
-			arr[i]=restrictions.map.get(args[i]).get(0);
-			if (arr[i]==null) arr[i]=args[i];
+			arr[i]=restrictions.map.get(args[i]);
+			arr[i]=(arr[i]==null)? arr[i]=args[i]: ((List<Object>) arr[i]).get(0);
 		}
 		return relation(n,arr);
 	}
