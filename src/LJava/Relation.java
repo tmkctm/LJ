@@ -13,7 +13,7 @@ public class Relation extends Association implements QueryParameter{
 	
 	public Relation(String n, Object... params){
 		super (n, params);
-		iterator.set(emptyIterator);
+		iterator=new AtomicReference<LJIterator>(emptyIterator);
 	}
 	
 	
@@ -36,7 +36,7 @@ public class Relation extends Association implements QueryParameter{
 	@Override
 	public boolean map(VariableMap answer, boolean cut) {
 		LJIterator i=iterate(argsLength());
-		if (cut) evaluate(this, answer, i);
+		if (cut) return evaluate(this, answer, i);
 		if (!evaluate(this, answer, i)) return false;
 		while (evaluate(this, answer, i)) {}
 		return true;

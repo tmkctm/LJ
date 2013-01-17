@@ -174,6 +174,11 @@ public class Group extends Association {
 		public Group base() {
 			return g;
 		}
+		
+		@Override
+		public boolean isLazy() {
+			return true;
+		}
 	}
 		
 	

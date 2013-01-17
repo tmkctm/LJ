@@ -169,8 +169,7 @@ public final class LJ {
 			if (element.associationNameCompare(r) && element.satisfy(r.args, varValues)) {
 				if (element.isLazy() && ((Lazy) element).noVars()) i.lazyGroup=none;
 				return true;
-			}
-		i.lazyGroup=none;
+			} else i.lazyGroup=none; 
 		return false;
 	}
 	

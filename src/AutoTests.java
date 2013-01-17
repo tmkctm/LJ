@@ -506,9 +506,8 @@ public class AutoTests {
 		assertTrue(e(r("testExists",x,y,z), WHERE, c(e,true,y)));
 		assertTrue(x.equals("relationType1"));
 		assertTrue(same(z,true));
-		assertFalse(e(r("testExists",_,_,y), AND, r("testExists",_,true,y)));
+		assertFalse(e(r("testExists",_,_,y), AND, r("testExists",_,y,true)));
 		resetVars();
-		assertFalse(e(r("testExists",_,_,y), AND, r("testExists",y,true)));
 		assertTrue(var(y));
 		assertTrue(e(r("testExists",_,_,y), AND, r("testExists",_,true,y)));
 		assertEquals(y,false);

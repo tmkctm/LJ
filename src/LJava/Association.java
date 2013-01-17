@@ -48,7 +48,7 @@ public class Association {
 		if (this==_) return "_";
 		StringBuilder s = new StringBuilder(name+"(");
 		if (args.length>0) {
-			for (int i=0; i<args.length-1; i++)	s.append(string(args[i])+",");
+			for (int i=0; i<args.length; i++) s.append(string(args[i])+",");
 			s.deleteCharAt(s.length()-1);		}
 		s.append(')');
 		return s.toString();
