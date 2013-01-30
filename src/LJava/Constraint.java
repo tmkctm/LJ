@@ -6,6 +6,8 @@ import static LJava.LJ.*;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Constraint implements QueryParameter, Lazy<Constraint, VariableMap> {
 
@@ -235,9 +237,18 @@ public class Constraint implements QueryParameter, Lazy<Constraint, VariableMap>
 	@Override
 	public boolean map(VariableMap m, boolean cut) {
 		if (cut) return lz(m);
-		if (!lz(m)) return false;
-		while (lz(m)) {}
-		return true;		
+		AtomicBoolean result=new AtomicBoolean(false);
+		AtomicBoolean go=new AtomicBoolean(true);
+		AtomicInteger workCount=new AtomicInteger(0);
+		while (go.get()) {
+			while (!ThreadsManager.free() && go.get()) {}
+			if (go.get()) {
+				workCount.incrementAndGet();
+				ThreadsManager.assign(new RunLazy(m, result, go, workCount));
+			}
+		}
+		while (workCount.get()>0) {}
+		return result.get();		
 	}
 	
 	
@@ -316,4 +327,25 @@ public class Constraint implements QueryParameter, Lazy<Constraint, VariableMap>
 		return arr;
 	}
 	
+	
+	private class RunLazy implements Runnable {
+		private VariableMap map;
+		private AtomicBoolean b;
+		private AtomicBoolean work;
+		private AtomicInteger count;
+		public RunLazy(VariableMap m, AtomicBoolean result, AtomicBoolean go, AtomicInteger c) {
+			map=m;
+			b=result;
+			work=go;
+			count=c;
+		}
+		@Override
+		public void run() {
+			boolean result=lz(map);
+			b.compareAndSet(false, result);
+			work.compareAndSet(true, result);
+			count.decrementAndGet();
+			ThreadsManager.done();
+		}
+	}
 }

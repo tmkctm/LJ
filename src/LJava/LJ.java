@@ -1,5 +1,6 @@
 package LJava;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -29,8 +30,7 @@ public final class LJ {
 	static public enum  Property { DoubleTolerance, ThreadCount  }
 	protected static double doubleTolerance=0.00000000000001;
 	protected static int threadCount=4;
-	protected static AtomicInteger workingThreads=new AtomicInteger(0);
-	protected static ExecutorService pool = Executors.newCachedThreadPool();
+
 	
 	public static boolean associate(Association r) {
 		if (r==undefined || r==none) return false;
@@ -417,6 +417,33 @@ public final class LJ {
 		}
 		
 	}	
+	
+	
+	protected static class ThreadsManager {
+		private static AtomicInteger workingThreads=new AtomicInteger(0);
+		private static ExecutorService pool = Executors.newCachedThreadPool();
+		private static ArrayList<Runnable> queue=new ArrayList<Runnable>();
+		
+		public synchronized static void assign(Runnable r) {
+			if (workingThreads.get()<threadCount) {
+				workingThreads.incrementAndGet();
+				pool.execute(r);
+			}
+			else queue.add(r);
+		}
+		
+		public synchronized static void done() {
+			workingThreads.decrementAndGet();
+			if (workingThreads.get()<threadCount && !queue.isEmpty()) {
+				workingThreads.incrementAndGet();
+				pool.execute(queue.remove(0));
+			}
+		}
+		
+		public synchronized static boolean free() {
+			return (workingThreads.get()<threadCount);
+		}
+	}
 	
 	
 //Queries parameters interface
