@@ -166,7 +166,7 @@ public final class LJ {
 	protected static boolean evaluate(Relation r, VariableMap varValues, LJIterator i) {
 		Association element;
 		while ((element=i.hasAndGrabNext(r.args))!=undefined)
-			if (element.associationNameCompare(r) && element.satisfy(r.args, varValues)) {
+			if (element.associationNameCompare(r) && element.satisfy(r.args, varValues)) {				
 				if (element.isLazy() && ((Lazy) element).noVars()) i.lazyGroup=none;
 				return true;
 			} else i.lazyGroup=none; 
@@ -420,19 +420,23 @@ public final class LJ {
 	
 	
 	protected static class ThreadsManager {
-		private static AtomicInteger workingThreads=new AtomicInteger(0);
-		private static ExecutorService pool = Executors.newCachedThreadPool();
-		private static ArrayList<Runnable> queue=new ArrayList<Runnable>();
+		public static AtomicInteger doneThreads=new AtomicInteger(0);
+		public static AtomicInteger workingThreads=new AtomicInteger(0);
+		public static ExecutorService pool = Executors.newCachedThreadPool();
+		public static ArrayList<Runnable> queue=new ArrayList<Runnable>();
 		
 		public synchronized static void assign(Runnable r) {
 			if (workingThreads.get()<threadCount) {
 				workingThreads.incrementAndGet();
-				pool.execute(r);
+				Thread t=new Thread(r);
+				t.setDaemon(true);
+				pool.execute(t);
 			}
 			else queue.add(r);
 		}
 		
 		public synchronized static void done() {
+			doneThreads.incrementAndGet();
 			workingThreads.decrementAndGet();
 			if (workingThreads.get()<threadCount && !queue.isEmpty()) {
 				workingThreads.incrementAndGet();
