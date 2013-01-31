@@ -169,7 +169,7 @@ public final class LJ {
 			if (element.associationNameCompare(r) && element.satisfy(r.args, varValues)) {				
 				if (element.isLazy() && ((Lazy) element).noVars()) i.lazyGroup=none;
 				return true;
-			} else i.lazyGroup=none; 
+			} else i.lazyGroup=none;
 		return false;
 	}
 	
@@ -428,9 +428,7 @@ public final class LJ {
 		public synchronized static void assign(Runnable r) {
 			if (workingThreads.get()<threadCount) {
 				workingThreads.incrementAndGet();
-				Thread t=new Thread(r);
-				t.setDaemon(true);
-				pool.execute(t);
+				pool.execute(r);
 			}
 			else queue.add(r);
 		}

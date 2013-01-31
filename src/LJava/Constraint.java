@@ -6,6 +6,7 @@ import static LJava.LJ.*;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -50,7 +51,7 @@ public class Constraint implements QueryParameter, Lazy<Constraint, VariableMap>
 		@Override
 		public boolean satisfy(VariableMap restrictions, VariableMap answer) {
 			Relation r;
-			synchronized (this) {
+			synchronized (lazyMap) {
 				if ((r=lazyMap.get(restrictions))==null) {
 					r=r(relation.name, restrict(args, restrictions));
 					lazyMap.put(restrictions, r);
@@ -59,7 +60,7 @@ public class Constraint implements QueryParameter, Lazy<Constraint, VariableMap>
 				answer.add(restrictions);
 				return true;
 			}
-			lazyMap.remove(restrictions);
+			//lazyMap.remove(restrictions);
 			return false;
 		}
 		
@@ -87,7 +88,7 @@ public class Constraint implements QueryParameter, Lazy<Constraint, VariableMap>
 		private final Node left;
 		private final Node right;
 		private final LogicOperator op;
-		private final HashMap<VariableMap, Object> lazyMap=new HashMap<VariableMap, Object>();
+		private final ConcurrentHashMap<VariableMap, Object> lazyMap=new ConcurrentHashMap<VariableMap, Object>();
 		
 		public Junction(Node l, LogicOperator lp, Node r) {
 			right = (r==null) ? new Atom(LJTrue) : r;
@@ -123,7 +124,7 @@ public class Constraint implements QueryParameter, Lazy<Constraint, VariableMap>
 		
 		private boolean operateAnd(VariableMap restrictions, VariableMap answer) {
 			VariableMap knownRestriction;
-			do { synchronized (this) {
+			do { synchronized (lazyMap) {
 				knownRestriction=(VariableMap) lazyMap.get(restrictions);
 				if (knownRestriction==null) {
 					knownRestriction=new VariableMap();
@@ -135,7 +136,7 @@ public class Constraint implements QueryParameter, Lazy<Constraint, VariableMap>
 			} while (true);
 		}
 		
-		private synchronized boolean operateWhere(VariableMap restrictions, VariableMap answer, boolean where) {
+		private boolean operateWhere(VariableMap restrictions, VariableMap answer, boolean where) {
 			if (lazyMap.get(restrictions)!=null) return false;
 			VariableMap tempAnswer;
 			do {
@@ -149,7 +150,7 @@ public class Constraint implements QueryParameter, Lazy<Constraint, VariableMap>
 			return true;
 		}
 		
-		private synchronized boolean operateOr(VariableMap restrictions, VariableMap answer) {
+		private boolean operateOr(VariableMap restrictions, VariableMap answer) {
 			Object prev=lazyMap.get(restrictions);
 			if (prev!=null || !left.satisfy(restrictions, answer)) {
 				if (prev!=null && !(Boolean) prev) return false;
