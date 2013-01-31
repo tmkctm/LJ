@@ -587,13 +587,32 @@ public class AutoTests {
 		assertTrue(var(v));
 		assertTrue(a(r("testExists",x,v,2)));
 		assertFalse(var(v));
+		Object[] values=new Object[] {1,2,3,4,5,6,7,8};
+		associate(new Group("testAll",values));		
+		System.out.println("Repeatitive Test Starts at testAll (10)");
+		for (int i=0; i<10; i++) {
+			Variable[] vars = varArray(8);
+			Constraint[] cons=new Constraint[9];
+			cons[0]=c(abs,1,vars[0],vars[2]);
+			cons[1]=c(cons[0],OR,c(abs,1,vars[1],vars[2]));
+			cons[2]=c(cons[1],OR,c(abs,1,vars[1],vars[4]));
+			cons[3]=c(cons[2],OR,c(abs,1,vars[2],vars[3]));
+			cons[4]=c(cons[3],OR,c(abs,1,vars[2],vars[5]));
+			cons[5]=c(cons[4],OR,c(abs,1,vars[3],vars[6]));
+			cons[6]=c(cons[5],OR,c(abs,1,vars[4],vars[5]));
+			cons[7]=c(cons[6],OR,c(abs,1,vars[5],vars[6]));
+			cons[8]=c(cons[7],OR,c(abs,1,vars[5],vars[7]));
+			assertTrue(a(r("testAll",vars),DIFFER,cons[8]));
+			assertEquals(vars[0].getValues().length, 1656);
+			System.out.println("Done test number "+(i+1));
+		}
 	}
 	
 	
 	@Test
 	public void testLazyAll() {
 		Object[] values=new Object[] {1,2,3,4,5,6,7,8};
-		group(values);
+		associate(new Group("testLazyAll",values));
 		Variable[] vars = varArray(8);
 		Constraint[] cons=new Constraint[9];
 		cons[0]=c(abs,1,vars[0],vars[2]);
@@ -605,12 +624,13 @@ public class AutoTests {
 		cons[6]=c(cons[5],OR,c(abs,1,vars[4],vars[5]));
 		cons[7]=c(cons[6],OR,c(abs,1,vars[5],vars[6]));
 		cons[8]=c(cons[7],OR,c(abs,1,vars[5],vars[7]));
-		Lazy<Constraint, VariableMap> lazy=lz(relation(vars),DIFFER,cons[8]);
+		Lazy<Constraint, VariableMap> lazy=lz(r("testLazyAll",vars),DIFFER,cons[8]);
 		VariableMap map=lazy.lz();
 		assertFalse(map.isEmpty());
 		lazy.resetLazy();
 		int counter=0;
 		VariableMap m=new VariableMap();
+		System.out.println("Start First Lazy Test at testLazyAll");
 		while (!(m=lazy.lz()).isEmpty()) {
 			Variable[] vs=varArray(8);
 			Object[] os=new Object[8];
@@ -639,13 +659,18 @@ public class AutoTests {
 			counter++;
 		}
 		assertTrue(same(counter, 1656));
+		System.out.println("Done First Lazy Test at testLazyAll");
 		counter=0;
 		m=new VariableMap();
+		System.out.println("Start Second Lazy Test at testLazyAll");
 		while (!(m=lazy.lz()).isEmpty()) counter++;
 		assertTrue(same(counter, 0));
+		System.out.println("Done Second Lazy Test at testLazyAll");
 		lazy.resetLazy();
+		System.out.println("Start Third Lazy Test at testLazyAll");
 		while (!(m=lazy.lz()).isEmpty()) counter++;
 		assertTrue(same(counter, 1656));
+		System.out.println("Done Third Lazy Test at testLazyAll");
 	}
 
 }

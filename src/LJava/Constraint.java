@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Constraint implements QueryParameter, Lazy<Constraint, VariableMap> {
 
-	public static HashSet<String> set=new HashSet<String>();
+	public static HashSet<String> debugSet=new HashSet<String>();
 	
 	private interface Node {
 		public boolean satisfy(VariableMap restrictions, VariableMap answer);
@@ -49,7 +49,6 @@ public class Constraint implements QueryParameter, Lazy<Constraint, VariableMap>
 		
 		@Override
 		public boolean satisfy(VariableMap restrictions, VariableMap answer) {
-			set.add("satisfy "+this.hashCode());
 			Relation r;
 			synchronized (this) {
 				if ((r=lazyMap.get(restrictions))==null) {
@@ -58,11 +57,9 @@ public class Constraint implements QueryParameter, Lazy<Constraint, VariableMap>
 				}}
 			if ((!relation.isFormula() && r.lz(answer)) || (relation.isFormula() && relation.satisfy(r.args, answer))) {
 				answer.add(restrictions);
-				set.remove("satisfy "+this.hashCode());
 				return true;
 			}
 			lazyMap.remove(restrictions);
-			set.remove("satisfy "+this.hashCode());
 			return false;
 		}
 		
@@ -139,39 +136,27 @@ public class Constraint implements QueryParameter, Lazy<Constraint, VariableMap>
 		}
 		
 		private synchronized boolean operateWhere(VariableMap restrictions, VariableMap answer, boolean where) {
-			set.add("where "+this.hashCode());
-			if (lazyMap.get(restrictions)!=null) {
-				set.remove("where "+this.hashCode());
-				return false;
-			}
+			if (lazyMap.get(restrictions)!=null) return false;
 			VariableMap tempAnswer;
 			do {
 				tempAnswer=new VariableMap();
 				if (!left.satisfy(restrictions, tempAnswer)) {
 					lazyMap.put(restrictions, true);
-					set.remove("where "+this.hashCode());
 					return false;
 				}
 			} while (where ^ right.satisfy(tempAnswer, new VariableMap()));
 			answer.add(tempAnswer);
-			set.remove("where "+this.hashCode());
 			return true;
 		}
 		
 		private synchronized boolean operateOr(VariableMap restrictions, VariableMap answer) {
-			set.add("OR "+this.hashCode());
 			Object prev=lazyMap.get(restrictions);
 			if (prev!=null || !left.satisfy(restrictions, answer)) {
-				if (prev!=null && !(Boolean) prev) {
-					set.remove("OR "+this.hashCode());
-					return false;
-				}
+				if (prev!=null && !(Boolean) prev) return false;
 				Boolean rightSatisfied=right.satisfy(restrictions, answer);
 				lazyMap.put(restrictions, rightSatisfied);
-				set.remove("OR "+this.hashCode());
 				return rightSatisfied;
 			}
-			set.remove("OR "+this.hashCode());
 			return true;
 		}
 		
@@ -257,13 +242,8 @@ public class Constraint implements QueryParameter, Lazy<Constraint, VariableMap>
 		AtomicBoolean result=new AtomicBoolean(false);
 		AtomicBoolean go=new AtomicBoolean(true);
 		AtomicInteger workCount=new AtomicInteger(0);
-		long i=0;
 		while (go.get()) {
-			while (!ThreadsManager.free() && go.get()) {
-				i++;
-				if (i%10000000==0) System.out.println("Stuck  "+set);
-			}
-			i=0;
+			while (!ThreadsManager.free() && go.get()) {}
 			if (go.get()) {
 				workCount.incrementAndGet();
 				ThreadsManager.assign(new RunLazy(m, result, go, workCount));
