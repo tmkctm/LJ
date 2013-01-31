@@ -11,8 +11,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Constraint implements QueryParameter, Lazy<Constraint, VariableMap> {
-
-	public static HashSet<String> debugSet=new HashSet<String>();
 	
 	private interface Node {
 		public boolean satisfy(VariableMap restrictions, VariableMap answer);
