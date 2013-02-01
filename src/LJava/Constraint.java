@@ -259,8 +259,8 @@ public class Constraint implements QueryParameter, Lazy<Constraint, VariableMap>
 		if (!lz(m)) return false;
 		while (lz(m)) {}
 		return true;
-	}*/	
-	
+	}	
+	*/
 	
 	
 	protected boolean lz(VariableMap varsMap) {
