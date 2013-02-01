@@ -29,7 +29,7 @@ public final class LJ {
 	//System Properties
 	static public enum  Property { DoubleTolerance, ThreadCount  }
 	protected static double doubleTolerance=0.00000000000001;
-	protected static int threadCount=4;
+	protected static int threadCount=2;
 
 	
 	public static boolean associate(Association r) {
@@ -167,9 +167,9 @@ public final class LJ {
 		Association element;
 		while ((element=i.hasAndGrabNext(r.args))!=undefined)
 			if (element.associationNameCompare(r) && element.satisfy(r.args, varValues)) {				
-				if (element.isLazy() && ((Lazy) element).noVars()) i.lazyGroup=none;
+				if (element.isLazy() && ((Lazy) element).noVars()) i.noLazyGroup();
 				return true;
-			} else i.lazyGroup=none;
+			} else i.noLazyGroup();
 		return false;
 	}
 	
@@ -416,11 +416,14 @@ public final class LJ {
 			return element;
 		}
 		
+		public synchronized void noLazyGroup() {
+			lazyGroup=none;
+		}
+		
 	}	
 	
 	
 	protected static class ThreadsManager {
-		public static AtomicInteger doneThreads=new AtomicInteger(0);
 		public static AtomicInteger workingThreads=new AtomicInteger(0);
 		public static ExecutorService pool = Executors.newCachedThreadPool();
 		public static ArrayList<Runnable> queue=new ArrayList<Runnable>();
@@ -434,7 +437,6 @@ public final class LJ {
 		}
 		
 		public synchronized static void done() {
-			doneThreads.incrementAndGet();
 			workingThreads.decrementAndGet();
 			if (workingThreads.get()<threadCount && !queue.isEmpty()) {
 				workingThreads.incrementAndGet();

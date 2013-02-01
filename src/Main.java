@@ -2,6 +2,7 @@ import static LJava.LJ.*;
 import static LJava.MathFormulas.abs;
 import static org.junit.Assert.assertFalse;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -16,8 +17,9 @@ public class Main {
 	public static void main(String[] args) {
 		Object[] values=new Object[] {1,2,3,4,5,6,7,8};
 		group(values);
-		
-		for (int j=0; j<20; j++) {
+		setLJProperty(Property.ThreadCount, 2);
+		double sum=0;
+		for (int j=0; j<30; j++) {
 		Variable[] vars = varArray(8);
 		Constraint[] cons=new Constraint[9];
 		cons[0]=c(abs,1,vars[0],vars[2]);
@@ -30,28 +32,13 @@ public class Main {
 		cons[7]=c(cons[6],OR,c(abs,1,vars[5],vars[6]));
 		cons[8]=c(cons[7],OR,c(abs,1,vars[5],vars[7]));
 		
+		long start=new Date().getTime();
 		System.out.println(a(relation(vars),DIFFER,cons[8]));
-		int count=vars[0].getValues().length;
-		System.out.println("wtf: "+count);
-		
-		HashMap<String, Integer> set=new HashMap<String, Integer>();
-		for (int i=0; i<count; i++) {
-			String s=vars[0].getValues()[i].toString()+
-					vars[1].getValues()[i].toString()+
-					vars[2].getValues()[i].toString()+
-					vars[3].getValues()[i].toString()+
-					vars[4].getValues()[i].toString()+
-					vars[5].getValues()[i].toString()+
-					vars[6].getValues()[i].toString()+
-					vars[7].getValues()[i].toString();
-			if (set.containsKey(s)) {
-				System.out.println(i+";  "+set.get(s)+";   "+ s);
-			}
-			else set.put(s,i);
+		sum=sum+(new Date().getTime())-start;
+		System.out.println("finished "+j);
 		}
-		}
+		System.out.println(sum/30);
 		System.exit(0);
 	}
-	
 	
 }

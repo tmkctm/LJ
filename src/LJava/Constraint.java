@@ -242,15 +242,25 @@ public class Constraint implements QueryParameter, Lazy<Constraint, VariableMap>
 		AtomicBoolean go=new AtomicBoolean(true);
 		AtomicInteger workCount=new AtomicInteger(0);
 		while (go.get()) {
-			while (!ThreadsManager.free() && go.get()) {}
-			if (go.get()) {
+			if (ThreadsManager.free()) {
 				workCount.incrementAndGet();
 				ThreadsManager.assign(new RunLazy(m, result, go, workCount));
 			}
 		}
 		while (workCount.get()>0) {}
 		return result.get();		
-	}
+	}  
+
+
+/*	
+	@Override
+	public boolean map(VariableMap m, boolean cut) {
+		if (cut) return lz(m);
+		if (!lz(m)) return false;
+		while (lz(m)) {}
+		return true;
+	}*/	
+	
 	
 	
 	protected boolean lz(VariableMap varsMap) {
