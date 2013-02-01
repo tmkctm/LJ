@@ -459,3 +459,11 @@ public final class LJ {
 }
 
 
+/* future plan:
+ * - ability to get a self-lazy object for (disconnect the lz() at a certain point).
+ * - the Future Answer ability.
+ * - return answers from queries and lazy in a diffrent structure then VariableMap 
+ * - smart map() in constraint, only use threads when size of constraint is big.
+ * - DataBase structure into hamt and ability to load, save and switch worlds inside the memory without disk.
+ * - work on reflection.
+*/

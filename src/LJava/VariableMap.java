@@ -114,7 +114,3 @@ public class VariableMap {
 	}
 }
 
-
-/* to fix:
-* eliminate this class, return answers from queries in a different way (remember it should still return boolean)
-*/
