@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Constraint implements QueryParameter, Lazy<Constraint, VariableMap> {
-	
+
 	private interface Node {
 		public boolean satisfy(VariableMap restrictions, VariableMap answer);
 		public Node replaceVariable(Variable v, Object o);
@@ -234,7 +234,7 @@ public class Constraint implements QueryParameter, Lazy<Constraint, VariableMap>
 		return atom.toString();
 	}
 	
-	
+
 	@Override
 	public boolean map(VariableMap m, boolean cut) {
 		if (cut) return lz(m);
@@ -252,17 +252,6 @@ public class Constraint implements QueryParameter, Lazy<Constraint, VariableMap>
 	}  
 
 
-/*	
-	@Override
-	public boolean map(VariableMap m, boolean cut) {
-		if (cut) return lz(m);
-		if (!lz(m)) return false;
-		while (lz(m)) {}
-		return true;
-	}	
-	*/
-	
-	
 	protected boolean lz(VariableMap varsMap) {
 		VariableMap answer=new VariableMap();
 		boolean result;

@@ -65,7 +65,6 @@ public class Group extends Association {
 		private boolean noVars=false;
 		private boolean noArgs=false;
 		
-		
 		public LazyGroup(Group group, Object[] rArgs) {
 			super(group.name, group.args);
 			g=group;
