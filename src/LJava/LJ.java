@@ -466,4 +466,5 @@ public final class LJ {
  * - smart map() in constraint, only use threads when size of constraint is big.
  * - DataBase structure into hamt and ability to load, save and switch worlds inside the memory without disk.
  * - work on reflection.
+ * - distinct solutions from query (without duplications).
 */
