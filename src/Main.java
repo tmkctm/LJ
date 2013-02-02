@@ -4,14 +4,8 @@ import static LJava.LJ.associate;
 import static LJava.LJ.c;
 import static LJava.LJ.lz;
 import static LJava.LJ.r;
-import static LJava.LJ.same;
-import static LJava.LJ.undefined;
 import static LJava.LJ.varArray;
 import static LJava.MathFormulas.abs;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 
@@ -24,6 +18,7 @@ import LJava.VariableMap;
 public class Main {
 	
 	public static void main(String[] args) {
+		
 		Object[] values=new Object[] {1,2,3,4,5,6,7,8};
 		associate(new Group("testLazyAll",values));
 		Variable[] vars = varArray(8);
@@ -38,11 +33,13 @@ public class Main {
 		cons[7]=c(cons[6],OR,c(abs,1,vars[5],vars[6]));
 		cons[8]=c(cons[7],OR,c(abs,1,vars[5],vars[7]));
 		Lazy<Constraint, VariableMap> lazy=lz(r("testLazyAll",vars),DIFFER,cons[8]);
+		
 		VariableMap m=new VariableMap();
 		while (!(m=lazy.lz()).isEmpty()) {
 			print(m.toArray(vars)); 
 			JOptionPane.showConfirmDialog(null, "continue?");
 		}
+		
 	}
 	
 	
