@@ -10,6 +10,7 @@ public interface Lazy<P> {
 	public boolean noVars();
 	public void resetLazy();
 	public Object base();
+	public Lazy<P> branch();
 }	
 
 

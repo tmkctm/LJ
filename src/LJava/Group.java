@@ -94,6 +94,11 @@ public class Group extends Association {
 			}			
 		}
 		
+		public LazyGroup(Group group) {
+			super(group.name, group.args);
+			g=group;
+		}
+		
 		@Override
 		public boolean satisfy(Object[] rArgs, VariableMap varValues) {
 			if (noVars && noArgs) return true;
@@ -174,6 +179,20 @@ public class Group extends Association {
 			return g;
 		}
 		
+		@SuppressWarnings("unchecked")
+		@Override
+		public synchronized Lazy<VariableMap> branch() {
+			LazyGroup lg=new LazyGroup(g);
+			lg.answer.add(answer);
+			lg.iStack.addAll(iStack);
+			lg.varsCount = new TreeMap<Variable, Integer>(new MapComparatorByValue<Variable>(((MapComparatorByValue<Variable>) varsCount.comparator()).sourceMap));
+			lg.varsCount.putAll(varsCount);
+			lg.valsCount.putAll(valsCount);
+			lg.noVars=noVars;
+			lg.noArgs=noArgs;			
+			return lg;
+		}
+		
 		@Override
 		public boolean isLazy() {
 			return true;
@@ -184,8 +203,8 @@ public class Group extends Association {
 	
 	//Comparator for maps according to it's values and not keys	
 	private class MapComparatorByValue<T> implements Comparator<T> {	
-		Map<T,Integer> sourceMap;		
-		public MapComparatorByValue(HashMap<T,Integer> m) {
+		public Map<T,Integer> sourceMap;		
+		public MapComparatorByValue(Map<T,Integer> m) {
 			sourceMap=m;
 		}		
 		@Override

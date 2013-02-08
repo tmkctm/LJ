@@ -143,5 +143,13 @@ public abstract class Formula<P,R> extends Relation {
 		public Object base() {
 			return f;
 		}
+		
+		@Override
+		public synchronized Lazy<R> branch() {
+			LazyFormula l=new LazyFormula(f, increment, baseArgs);
+			for (int i=0; i<args.length; i++) l.args[i]=args[i];
+			l.current=current;
+			return l;
+		}
 	}
 }

@@ -6,6 +6,7 @@ import static LJava.LJ.*;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -17,6 +18,7 @@ public class Constraint implements QueryParameter, Lazy<VariableMap> {
 		public Node replaceVariable(Variable v, Object o);
 		public HashSet<Variable> getVars();
 		public void startLazy();
+		public Node duplicate(VariableMap oldNoRestrictAddress, VariableMap newNoRestrictAddress);
 	}
 	
 
@@ -35,6 +37,15 @@ public class Constraint implements QueryParameter, Lazy<VariableMap> {
 			args=new Object[a.args.length];
 			for (int i=0; i<a.args.length; i++)
 				args[i] = (a.args[i]==v1)? v2 : a.args[i];
+		}
+		
+		@Override
+		public Atom duplicate(VariableMap oldNoRestrictAddress, VariableMap newNoRestrictAddress) {
+			Atom a=new Atom(relation, args);
+			for (Map.Entry<VariableMap, Relation> entry: lazyMap.entrySet())
+				if (entry.getKey()==oldNoRestrictAddress) a.lazyMap.put(newNoRestrictAddress, entry.getValue());
+				else a.lazyMap.put(entry.getKey(), entry.getValue());
+			return a;
 		}
 		
 		public String toString() {	
@@ -93,6 +104,14 @@ public class Constraint implements QueryParameter, Lazy<VariableMap> {
 			left = (l==null) ? new Atom(LJTrue) : l;
 			op = lp;
 		}		
+		
+		public Junction duplicate(VariableMap oldNoRestrictAddress, VariableMap newNoRestrictAddress) {
+			Junction j=new Junction(left,op,right);
+			for (Map.Entry<VariableMap, Object> entry: lazyMap.entrySet())
+				if (entry.getKey()==oldNoRestrictAddress) j.lazyMap.put(newNoRestrictAddress, entry.getValue());
+				else j.lazyMap.put(entry.getKey(), entry.getValue());
+			return j;
+		}
 		
 		public String toString() {
 			return ("("+left+") "+op+" ("+right+")");
@@ -171,21 +190,30 @@ public class Constraint implements QueryParameter, Lazy<VariableMap> {
 //The Constraint Class	
 	private final Node atom;
 	private VariableMap current;
-	private static final VariableMap noRestrictions=new VariableMap();
+	private final VariableMap noRestrictions;
 	
 	@SuppressWarnings("rawtypes")
 	public Constraint(Formula f, Object... params) {
 		atom=new Atom(f, params);
+		noRestrictions=new VariableMap();
 	}
 	
 	
 	public Constraint(Relation r) {
 		atom=new Atom(r, r.args);
+		noRestrictions=new VariableMap();
 	}
 	
 	
 	private Constraint(Node n) {
 		atom=n;
+		noRestrictions=new VariableMap();
+	}
+	
+	
+	private Constraint(Node n, VariableMap noRestrict) {
+		atom=n;
+		noRestrictions=noRestrict;
 	}
 	
 	
@@ -196,6 +224,7 @@ public class Constraint implements QueryParameter, Lazy<VariableMap> {
 			atom=new Junction(left,lp,right);
 		}
 		else atom=new Atom(LJTrue);
+		noRestrictions=new VariableMap();
 	}
 	
 	
@@ -313,6 +342,13 @@ public class Constraint implements QueryParameter, Lazy<VariableMap> {
 	@Override
 	public Object base() {
 		return this;
+	}
+	
+	
+	@Override
+	public Lazy<VariableMap> branch() {
+		VariableMap noRestrictAddress=new VariableMap();
+		return new Constraint(atom.duplicate(noRestrictions, noRestrictAddress), noRestrictAddress);
 	}
 	
 	
