@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Constraint implements QueryParameter, Lazy<Constraint, VariableMap> {
+public class Constraint implements QueryParameter, Lazy<VariableMap> {
 
 	private interface Node {
 		public boolean satisfy(VariableMap restrictions, VariableMap answer);
@@ -311,7 +311,7 @@ public class Constraint implements QueryParameter, Lazy<Constraint, VariableMap>
 	
 	
 	@Override
-	public Constraint base() {
+	public Object base() {
 		return this;
 	}
 	

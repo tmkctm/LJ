@@ -32,7 +32,7 @@ public class Main {
 		cons[6]=c(cons[5],OR,c(abs,1,vars[4],vars[5]));
 		cons[7]=c(cons[6],OR,c(abs,1,vars[5],vars[6]));
 		cons[8]=c(cons[7],OR,c(abs,1,vars[5],vars[7]));
-		Lazy<Constraint, VariableMap> lazy=lz(r("testLazyAll",vars),DIFFER,cons[8]);
+		Lazy<VariableMap> lazy=lz(r("testLazyAll",vars),DIFFER,cons[8]);
 		
 		VariableMap m=new VariableMap();
 		while (!(m=lazy.lz()).isEmpty()) {

@@ -47,7 +47,7 @@ public class Group extends Association {
 	
 	
 //Lazy Group	
-	private class LazyGroup extends Association implements Lazy<Group, VariableMap> {
+	private class LazyGroup extends Association implements Lazy<VariableMap> {
 		private class VarIterator {
 			Iterator<Map.Entry<Object, Integer>> iterator;
 			Variable var;
@@ -170,7 +170,7 @@ public class Group extends Association {
 		}
 		
 		@Override
-		public Group base() {
+		public Object base() {
 			return g;
 		}
 		

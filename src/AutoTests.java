@@ -230,7 +230,7 @@ public class AutoTests {
 	@SuppressWarnings("rawtypes")
 	@Test
 	public void testLazyGroup() {
-		Lazy<Group, VariableMap> l=lz(new Group("testLazyGroup",1,2,3,4,5,6), new Object[] { x,2,z,4,y,t } );
+		Lazy<VariableMap> l=lz(new Group("testLazyGroup",1,2,3,4,5,6), new Object[] { x,2,z,4,y,t } );
 		assertTrue(l.current().isEmpty());
 		VariableMap m=new VariableMap();
 		VariableMap m2=new VariableMap();
@@ -624,7 +624,7 @@ public class AutoTests {
 		cons[6]=c(cons[5],OR,c(abs,1,vars[4],vars[5]));
 		cons[7]=c(cons[6],OR,c(abs,1,vars[5],vars[6]));
 		cons[8]=c(cons[7],OR,c(abs,1,vars[5],vars[7]));
-		Lazy<Constraint, VariableMap> lazy=lz(r("testLazyAll",vars),DIFFER,cons[8]);
+		Lazy<VariableMap> lazy=lz(r("testLazyAll",vars),DIFFER,cons[8]);
 		VariableMap map=lazy.lz();
 		assertFalse(map.isEmpty());
 		lazy.resetLazy();

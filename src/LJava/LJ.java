@@ -51,22 +51,22 @@ public final class LJ {
 	}
 	
 	
-	public static Lazy<Group, VariableMap> lz(Group g, Object... args) {
+	public static Lazy<VariableMap> lz(Group g, Object... args) {
 		return g.goLazy(args);
 	}
 	
 	
-	public static <P,R> Lazy<Formula<P,R>, R> lz(Formula<P,R> f, Formula<P,P[]> inc, P... params) {
+	public static <P,R> Lazy<R> lz(Formula<P,R> f, Formula<P,P[]> inc, P... params) {
 		return f.goLazy(inc, params);
 	}
 	
 	
-	public static Lazy<Constraint, VariableMap> lz(QueryParameter a, LogicOperator op, QueryParameter b) {
+	public static Lazy<VariableMap> lz(QueryParameter a, LogicOperator op, QueryParameter b) {
 		return lz(new Constraint(a,op,b));
 	}
 	
 	
-	public static Lazy<Constraint, VariableMap> lz(Constraint c) {
+	public static Lazy<VariableMap> lz(Constraint c) {
 		return c;
 	}
 	

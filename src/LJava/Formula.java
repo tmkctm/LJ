@@ -93,7 +93,7 @@ public abstract class Formula<P,R> extends Relation {
 	
 	
 //Lazy Formula
-	private class LazyFormula implements Lazy<Formula<P,R>, R> {
+	private class LazyFormula implements Lazy<R> {
 		
 		private final Formula<P,R> f;
 		private final Formula<P, P[]> increment;
@@ -140,7 +140,7 @@ public abstract class Formula<P,R> extends Relation {
 		}
 		
 		@Override
-		public Formula<P,R> base() {
+		public Object base() {
 			return f;
 		}
 	}
