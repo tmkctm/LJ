@@ -1,7 +1,10 @@
 package LJava;
 
-public class MathFormulas {
+import static LJava.LJ.lz;
 
+public class LJMath {
+
+//Formulas for known math functions
 	public static Formula<Number,Double> max=new Formula<Number,Double>("Max", Number.class) {
 		@Override
 		protected Double f(Number[] p) {
@@ -67,5 +70,43 @@ public class MathFormulas {
 			for (int i=1; i<p.length; i++) result=result*p[i].doubleValue();
 			return result;
 		}};
-	
+		
+		
+//Lazy for Countable Math Domains
+		
+	//Q
+		private static Formula<Integer, Integer[]> Qf=new Formula<Integer, Integer[]>("f", Integer.class) {
+			@Override
+			protected Integer[] f(Integer[] args) {
+				return args;
+			}};
+		private static Formula<Integer, Integer[]> Qinc=new Formula<Integer, Integer[]>("inc", Integer.class) {
+			@Override
+			protected Integer[] f(Integer[] args) {
+				if (args[0]>=0) return new Integer[]{ -args[0], args[1], args[2] };
+				if (args[2]==2) return new Integer[]{ (-args[0]-1), (args[1]+1), 0};
+				if (args[2]==3) return new Integer[]{ (-args[0]+1), (args[1]-1), 1};
+				if (args[1]==1) return new Integer[]{ (-args[0]+1), args[1], 2};
+				if (args[0]==-1)	return new Integer[]{ -args[0], (args[1]+1), 3};
+				if (args[2]==0) return new Integer[]{ (-args[0]-1), (args[1]+1), 0};
+				if (args[2]==1) return new Integer[]{ (-args[0]+1), (args[1]-1), 1};
+				return args;
+			}};
+		public static Lazy<Integer[]> LjQ=lz(Qf, Qinc, 1, 1, 0);
+
+		
+	//Z
+		private static Formula<Integer, Integer> Zf=new Formula<Integer, Integer>("f", Integer.class) {
+			@Override
+			protected Integer f(Integer[] args) {
+				return args[0];
+			}};
+		private static Formula<Integer, Integer[]> Zinc=new Formula<Integer, Integer[]>("inc", Integer.class) {
+			@Override
+			protected Integer[] f(Integer[] args) {
+				if (args[0]>0) return new Integer[] {-args[0]};
+				return new Integer[] {-args[0]+1};
+			}};
+		public static Lazy<Integer> LjZ=lz(Zf, Zinc, 0);		
+		
 }

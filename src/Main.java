@@ -5,11 +5,12 @@ import static LJava.LJ.c;
 import static LJava.LJ.lz;
 import static LJava.LJ.r;
 import static LJava.LJ.varArray;
-import static LJava.MathFormulas.abs;
+import static LJava.LJMath.*;
 
 import javax.swing.JOptionPane;
 
 import LJava.Constraint;
+import LJava.Formula;
 import LJava.Group;
 import LJava.Lazy;
 import LJava.Variable;
@@ -18,21 +19,7 @@ import LJava.VariableMap;
 public class Main {
 	
 	public static void main(String[] args) {
-		
-		Lazy<VariableMap> lazy=lz(new Group(1,2,3), varArray(3));
-		System.out.println(lazy.lz());
-		System.out.println(lazy.lz());
-		System.out.println(lazy.lz());
-		Lazy lazy2=lazy.branch();
-		System.out.println(lazy.lz());
-		System.out.println(lazy.lz());
-		System.out.println(lazy.lz());
-		System.out.println("---------------------");
-		System.out.println(lazy2.current());
-		System.out.println(lazy2.lz());
-		System.out.println(lazy.current());
-		System.out.println(lazy2.current());
-		
+		puzzleSolving();
 	}
 	
 	

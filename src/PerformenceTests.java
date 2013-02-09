@@ -10,7 +10,7 @@ import static LJava.LJ.relate;
 import static LJava.LJ.relation;
 import static LJava.LJ.setLJProperty;
 import static LJava.LJ.varArray;
-import static LJava.MathFormulas.abs;
+import static LJava.LJMath.abs;
 
 import java.util.Date;
 

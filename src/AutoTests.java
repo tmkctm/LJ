@@ -4,7 +4,7 @@ import java.util.List;
 import LJava.*;
 import static LJava.LJ.*;
 import static LJava.Utils.*;
-import static LJava.MathFormulas.*;
+import static LJava.LJMath.*;
 import static LJava.Reflection.*;
 
 import org.junit.*;
