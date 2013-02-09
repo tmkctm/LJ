@@ -460,10 +460,14 @@ public final class LJ {
 
 
 /* future plan:
- * - return answers from queries and lazy in a different structure then VariableMap 
- * - the Future Answer ability.
- * - smart map() in constraint, only use threads when size of constraint is big.
+ * - return answers from queries and lazy in a different structure then VariableMap
  * - DataBase structure into hamt and ability to load, save and switch worlds inside the memory without disk.
  * - work on reflection.
+*/
+
+/* Next version:
+ * - Reverse Formulas.  
+ * - the Future Answer ability.
+ * - smart map() in constraint, only use threads when size of constraint is big.
  * - distinct solutions from query (without duplications).
 */
