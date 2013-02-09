@@ -19,6 +19,24 @@ public class Main {
 	
 	public static void main(String[] args) {
 		
+		Lazy<VariableMap> lazy=lz(new Group(1,2,3), varArray(3));
+		System.out.println(lazy.lz());
+		System.out.println(lazy.lz());
+		System.out.println(lazy.lz());
+		Lazy lazy2=lazy.branch();
+		System.out.println(lazy.lz());
+		System.out.println(lazy.lz());
+		System.out.println(lazy.lz());
+		System.out.println("---------------------");
+		System.out.println(lazy2.current());
+		System.out.println(lazy2.lz());
+		System.out.println(lazy.current());
+		System.out.println(lazy2.current());
+		
+	}
+	
+	
+	public static void puzzleSolving() {
 		Object[] values=new Object[] {1,2,3,4,5,6,7,8};
 		associate(new Group("testLazyAll",values));
 		Variable[] vars = varArray(8);
@@ -38,11 +56,8 @@ public class Main {
 		while (!(m=lazy.lz()).isEmpty()) {
 			print(m.toArray(vars)); 
 			JOptionPane.showConfirmDialog(null, "continue?");
-		}
-		
+		}		
 	}
-	
-	
 	
 	public static void print(Variable[] vars) {
 		System.out.println("\n\n");
