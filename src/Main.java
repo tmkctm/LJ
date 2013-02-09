@@ -41,10 +41,10 @@ public class Main {
 		
 		VariableMap m=new VariableMap();
 		while (!(m=lazy.lz()).isEmpty()) {
-			print(m.toArray(vars)); 
+			print(m.toArray(vars));
 			JOptionPane.showConfirmDialog(null, "continue?");
-		}		
-	}
+		}
+	}		
 	
 	public static void print(Variable[] vars) {
 		System.out.println("\n\n");
