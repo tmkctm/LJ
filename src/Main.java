@@ -14,7 +14,7 @@ import LJava.Formula;
 import LJava.Group;
 import LJava.Lazy;
 import LJava.Variable;
-import LJava.VariableMap;
+import LJava.LJMap;
 
 public class Main {
 	
@@ -37,11 +37,11 @@ public class Main {
 		cons[6]=c(cons[5],OR,c(abs,1,vars[4],vars[5]));
 		cons[7]=c(cons[6],OR,c(abs,1,vars[5],vars[6]));
 		cons[8]=c(cons[7],OR,c(abs,1,vars[5],vars[7]));
-		Lazy<VariableMap> lazy=lz(r("testLazyAll",vars),DIFFER,cons[8]);
+		Lazy<LJMap> lazy=lz(r("testLazyAll",vars),DIFFER,cons[8]);
 		
-		VariableMap m=new VariableMap();
+		LJMap m=new LJMap();
 		while (!(m=lazy.lz()).isEmpty()) {
-			print(m.toArray(vars));
+			print(m.get(vars));
 			JOptionPane.showConfirmDialog(null, "continue?");
 		}
 	}		

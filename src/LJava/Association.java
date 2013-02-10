@@ -70,7 +70,7 @@ public class Association {
 	}
 		
 	
-	protected boolean satisfy(Object[] rArgs, VariableMap varValues) {
+	protected boolean satisfy(Object[] rArgs, LJMap varValues) {
 		return false;
 	}
 	

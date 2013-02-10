@@ -61,7 +61,7 @@ public abstract class Formula<P,R> extends Relation {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	protected boolean satisfy(Object[] rArgs, VariableMap varValues){
+	protected boolean satisfy(Object[] rArgs, LJMap varValues){
 		if (this==LJFalse) return false;
 		if (this==LJTrue || rArgs.length==0) return true;
 		P[] temp=(P[]) Array.newInstance(parametersType, rArgs.length-1);

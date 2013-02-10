@@ -10,10 +10,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Constraint implements QueryParameter, Lazy<VariableMap> {
+public class Constraint implements QueryParameter, Lazy<LJMap> {
 
 	private interface Node {
-		public boolean satisfy(VariableMap restrictions, VariableMap answer);
+		public boolean satisfy(LJMap restrictions, LJMap answer);
 		public Node replaceVariable(Variable v, Object o);
 		public HashSet<Variable> getVars();
 		public void startLazy();
@@ -23,7 +23,7 @@ public class Constraint implements QueryParameter, Lazy<VariableMap> {
 	private final class Atom implements Node {
 		private final Relation relation;
 		private final Object[] args;
-		private final HashMap<VariableMap, Relation> lazyMap=new HashMap<VariableMap, Relation>();
+		private final HashMap<LJMap, Relation> lazyMap=new HashMap<LJMap, Relation>();
 		
 		public Atom(Relation r, Object... params) {
 			relation=(r==null)? LJTrue : r;
@@ -47,7 +47,7 @@ public class Constraint implements QueryParameter, Lazy<VariableMap> {
 		}
 		
 		@Override
-		public boolean satisfy(VariableMap restrictions, VariableMap answer) {
+		public boolean satisfy(LJMap restrictions, LJMap answer) {
 			Relation r;
 			synchronized (lazyMap) {
 				if ((r=lazyMap.get(restrictions))==null) {
@@ -86,7 +86,7 @@ public class Constraint implements QueryParameter, Lazy<VariableMap> {
 		private final Node left;
 		private final Node right;
 		private final LogicOperator op;
-		private final ConcurrentHashMap<VariableMap, Object> lazyMap=new ConcurrentHashMap<VariableMap, Object>();
+		private final ConcurrentHashMap<LJMap, Object> lazyMap=new ConcurrentHashMap<LJMap, Object>();
 		
 		public Junction(Node l, LogicOperator lp, Node r) {
 			right = (r==null) ? new Atom(LJTrue) : r;
@@ -112,7 +112,7 @@ public class Constraint implements QueryParameter, Lazy<VariableMap> {
 		}
 		
 		@Override
-		public boolean satisfy(VariableMap restrictions, VariableMap answer) {			
+		public boolean satisfy(LJMap restrictions, LJMap answer) {			
 			if (op==AND) return operateAnd(restrictions, answer);
 			else if (op==WHERE) return operateWhere(restrictions, answer, true);
 			else if (op==DIFFER) return operateWhere(restrictions, answer, false);
@@ -120,12 +120,12 @@ public class Constraint implements QueryParameter, Lazy<VariableMap> {
 			return true;
 		}
 		
-		private boolean operateAnd(VariableMap restrictions, VariableMap answer) {
-			VariableMap knownRestriction;
+		private boolean operateAnd(LJMap restrictions, LJMap answer) {
+			LJMap knownRestriction;
 			do { synchronized (lazyMap) {
-				knownRestriction=(VariableMap) lazyMap.get(restrictions);
+				knownRestriction=(LJMap) lazyMap.get(restrictions);
 				if (knownRestriction==null) {
-					knownRestriction=new VariableMap();
+					knownRestriction=new LJMap();
 					if (!left.satisfy(restrictions, knownRestriction)) return false;
 					lazyMap.put(restrictions, knownRestriction);
 				}}
@@ -134,21 +134,21 @@ public class Constraint implements QueryParameter, Lazy<VariableMap> {
 			} while (true);
 		}
 		
-		private boolean operateWhere(VariableMap restrictions, VariableMap answer, boolean where) {
+		private boolean operateWhere(LJMap restrictions, LJMap answer, boolean where) {
 			if (lazyMap.get(restrictions)!=null) return false;
-			VariableMap tempAnswer;
+			LJMap tempAnswer;
 			do {
-				tempAnswer=new VariableMap();
+				tempAnswer=new LJMap();
 				if (!left.satisfy(restrictions, tempAnswer)) {
 					lazyMap.put(restrictions, true);
 					return false;
 				}
-			} while (where ^ right.satisfy(tempAnswer, new VariableMap()));
+			} while (where ^ right.satisfy(tempAnswer, new LJMap()));
 			answer.add(tempAnswer);
 			return true;
 		}
 		
-		private boolean operateOr(VariableMap restrictions, VariableMap answer) {
+		private boolean operateOr(LJMap restrictions, LJMap answer) {
 			Object prev=lazyMap.get(restrictions);
 			if (prev!=null || !left.satisfy(restrictions, answer)) {
 				if (prev!=null && !(Boolean) prev) return false;
@@ -170,25 +170,25 @@ public class Constraint implements QueryParameter, Lazy<VariableMap> {
 	
 //The Constraint Class	
 	private final Node atom;
-	private VariableMap current;
-	private final VariableMap noRestrictions;
+	private LJMap current;
+	private final LJMap noRestrictions;
 	
 	@SuppressWarnings("rawtypes")
 	public Constraint(Formula f, Object... params) {
 		atom=new Atom(f, params);
-		noRestrictions=new VariableMap();
+		noRestrictions=new LJMap();
 	}
 	
 	
 	public Constraint(Relation r) {
 		atom=new Atom(r, r.args);
-		noRestrictions=new VariableMap();
+		noRestrictions=new LJMap();
 	}
 	
 	
 	private Constraint(Node n) {
 		atom=n;
-		noRestrictions=new VariableMap();
+		noRestrictions=new LJMap();
 	}
 	
 	
@@ -199,37 +199,37 @@ public class Constraint implements QueryParameter, Lazy<VariableMap> {
 			atom=new Junction(left,lp,right);
 		}
 		else atom=new Atom(LJTrue);
-		noRestrictions=new VariableMap();
+		noRestrictions=new LJMap();
 	}
 	
 	
-	public boolean satisfy(VariableMap map) {
-		return atom.satisfy(map, new VariableMap());
+	public boolean satisfy(LJMap map) {
+		return atom.satisfy(map, new LJMap());
 	}
 	
 	
 	public boolean satisfy(Variable[] vs, Object[] os) {
 		if (vs.length>os.length) return false;
-		VariableMap map=new VariableMap();
+		LJMap map=new LJMap();
 		for (int i=0; i<vs.length; i++) map.updateValsMap(vs[i],os[i]);
-		return atom.satisfy(map, new VariableMap());
+		return atom.satisfy(map, new LJMap());
 	}
 	
 	
 	public boolean satisfy(HashMap<Variable,Object> map) {
-		return atom.satisfy(new VariableMap(map), new VariableMap());
+		return atom.satisfy(new LJMap(map), new LJMap());
 	}
 
 	
 	public boolean satisfy(Object... pairs) {
 		if (pairs.length%2==1) return false;
-		VariableMap map=new VariableMap();
+		LJMap map=new LJMap();
 		int i=-2;
 		while ((i=i+2)<pairs.length) {
 			if (!variable(pairs[i])) return false;
 			map.updateValsMap((Variable) pairs[i], pairs[i+1]);
 		}
-		return atom.satisfy(map, new VariableMap());
+		return atom.satisfy(map, new LJMap());
 	}
 	
 	
@@ -240,7 +240,7 @@ public class Constraint implements QueryParameter, Lazy<VariableMap> {
 	
 
 	@Override
-	public boolean map(VariableMap m, boolean cut) {
+	public boolean map(LJMap m, boolean cut) {
 		if (cut) return lz(m);
 		AtomicBoolean result=new AtomicBoolean(false);
 		AtomicBoolean go=new AtomicBoolean(true);
@@ -256,8 +256,8 @@ public class Constraint implements QueryParameter, Lazy<VariableMap> {
 	}  
 
 
-	protected boolean lz(VariableMap varsMap) {
-		VariableMap answer=new VariableMap();
+	protected boolean lz(LJMap varsMap) {
+		LJMap answer=new LJMap();
 		boolean result;
 		if (result=atom.satisfy(noRestrictions, answer))
 			varsMap.add(answer);
@@ -267,16 +267,16 @@ public class Constraint implements QueryParameter, Lazy<VariableMap> {
 	
 	
 	@Override
-	public VariableMap lz() {
-		VariableMap m=new VariableMap();
+	public LJMap lz() {
+		LJMap m=new LJMap();
 		lz(m);
 		return m;
 	}
 	
 	
 	@Override
-	public VariableMap current() {
-		return new VariableMap().add(current);
+	public LJMap current() {
+		return new LJMap().add(current);
 	}
 	
 	
@@ -321,7 +321,7 @@ public class Constraint implements QueryParameter, Lazy<VariableMap> {
 	
 	
 	@SuppressWarnings("unchecked")
-	private Object[] restrict(Object[] args, VariableMap restrictions) {
+	private Object[] restrict(Object[] args, LJMap restrictions) {
 		if (restrictions.isEmpty()) return args;
 		Object[] arr=new Object[args.length];
 		for (int i=0; i<args.length; i++) {
@@ -333,11 +333,11 @@ public class Constraint implements QueryParameter, Lazy<VariableMap> {
 	
 	
 	private class RunLazy implements Runnable {
-		private VariableMap map;
+		private LJMap map;
 		private AtomicBoolean b;
 		private AtomicBoolean work;
 		private AtomicInteger count;
-		public RunLazy(VariableMap m, AtomicBoolean result, AtomicBoolean go, AtomicInteger c) {
+		public RunLazy(LJMap m, AtomicBoolean result, AtomicBoolean go, AtomicInteger c) {
 			map=m;
 			b=result;
 			work=go;

@@ -37,7 +37,7 @@ public class Group extends Association {
 	
 	
 	@Override
-	protected boolean satisfy(Object[] rArgs, VariableMap varValues){	
+	protected boolean satisfy(Object[] rArgs, LJMap varValues){	
 		return false;
 	}
 	
@@ -49,7 +49,7 @@ public class Group extends Association {
 	
 	
 //Lazy Group	
-	private class LazyGroup extends Association implements Lazy<VariableMap> {
+	private class LazyGroup extends Association implements Lazy<LJMap> {
 		private class VarIterator {
 			Iterator<Map.Entry<Object, Integer>> iterator;
 			Variable var;
@@ -60,7 +60,7 @@ public class Group extends Association {
 		}			
 	
 		private final Group g;
-		private final VariableMap answer=new VariableMap();
+		private final LJMap answer=new LJMap();
 		private final LinkedList<VarIterator> iStack=new LinkedList<VarIterator>();
 		private TreeMap<Variable, Integer> varsCount=new TreeMap<Variable, Integer>();
 		private HashMap<Object, Integer> valsCount=new HashMap<Object, Integer>();
@@ -102,12 +102,12 @@ public class Group extends Association {
 		}
 		
 		@Override
-		public boolean satisfy(Object[] rArgs, VariableMap varValues) {
+		public boolean satisfy(Object[] rArgs, LJMap varValues) {
 			if (noVars && noArgs) return true;
 			return lz(varValues);
 		}
 		
-		public synchronized final boolean lz(VariableMap varValues) {
+		public synchronized final boolean lz(LJMap varValues) {
 			while (!iStack.isEmpty()) {
 				VarIterator i=iStack.pop();
 				if (varsCount.get(i.var)==null) backtrack(i);
@@ -130,15 +130,15 @@ public class Group extends Association {
 		}
 		
 		@Override
-		public final VariableMap lz() {
-			VariableMap m=new VariableMap();
+		public final LJMap lz() {
+			LJMap m=new LJMap();
 			lz(m);
 			return m;
 		}
 		
 		@Override
-		public final VariableMap current() {
-			return new VariableMap().add(answer);
+		public final LJMap current() {
+			return new LJMap().add(answer);
 		}
 		
 		private final void backtrack(VarIterator i) {

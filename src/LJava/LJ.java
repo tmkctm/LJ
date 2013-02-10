@@ -51,7 +51,7 @@ public final class LJ {
 	}
 	
 	
-	public static Lazy<VariableMap> lz(Group g, Object... args) {
+	public static Lazy<LJMap> lz(Group g, Object... args) {
 		return g.goLazy(args);
 	}
 	
@@ -61,12 +61,12 @@ public final class LJ {
 	}
 	
 	
-	public static Lazy<VariableMap> lz(QueryParameter a, LogicOperator op, QueryParameter b) {
+	public static Lazy<LJMap> lz(QueryParameter a, LogicOperator op, QueryParameter b) {
 		return lz(new Constraint(a,op,b));
 	}
 	
 	
-	public static Lazy<VariableMap> lz(Constraint c) {
+	public static Lazy<LJMap> lz(Constraint c) {
 		return c;
 	}
 	
@@ -156,14 +156,14 @@ public final class LJ {
 
 	
 	private static boolean query(QueryParameter a, boolean cut) {
-		VariableMap varValues=new VariableMap();
+		LJMap varValues=new LJMap();
 		if (!a.map(varValues,cut)) return false;
 		return instantiate(varValues);
 	}
 	
 	
 	@SuppressWarnings("rawtypes")
-	protected static boolean evaluate(Relation r, VariableMap varValues, LJIterator i) {
+	protected static boolean evaluate(Relation r, LJMap varValues, LJIterator i) {
 		Association element;
 		while ((element=i.hasAndGrabNext(r.args))!=undefined)
 			if (element.associationNameCompare(r) && element.satisfy(r.args, varValues)) {				
@@ -317,7 +317,7 @@ public final class LJ {
 	}
 	
 
-	public static boolean instantiate(VariableMap varValues) {
+	public static boolean instantiate(LJMap varValues) {
         boolean answer=true;
 		for (Variable v : varValues.getVars())
 			answer=(v.instantiate(varValues.map.get(v), null, varValues.constraints.get(v)) && answer);	
@@ -452,7 +452,7 @@ public final class LJ {
 	
 //Queries parameters interface
 	public interface QueryParameter {
-		public boolean map(VariableMap m, boolean cut);
+		public boolean map(LJMap m, boolean cut);
 	}
 	
 	
@@ -460,7 +460,6 @@ public final class LJ {
 
 
 /* future plan:
- * - return answers from queries and lazy in a different structure then VariableMap
  * - DataBase structure into hamt and ability to load, save and switch worlds inside the memory without disk.
  * - work on reflection.
 */

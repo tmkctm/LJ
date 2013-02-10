@@ -230,10 +230,10 @@ public class AutoTests {
 	@SuppressWarnings("rawtypes")
 	@Test
 	public void testLazyGroup() {
-		Lazy<VariableMap> l=lz(new Group("testLazyGroup",1,2,3,4,5,6), new Object[] { x,2,z,4,y,t } );
+		Lazy<LJMap> l=lz(new Group("testLazyGroup",1,2,3,4,5,6), new Object[] { x,2,z,4,y,t } );
 		assertTrue(l.current().isEmpty());
-		VariableMap m=new VariableMap();
-		VariableMap m2=new VariableMap();
+		LJMap m=new LJMap();
+		LJMap m2=new LJMap();
 		int counter=0;
 		while (!(m=l.lz()).isEmpty()) {
 			counter++;
@@ -273,7 +273,7 @@ public class AutoTests {
 		associate(relation("testRelation","TzaliMaimon",2,3,4,"TM"));
 		associate(relation("testRelation",10,20,30,t,"TM"));
 		Relation r=relation("testRelation",x,y,_,4,_);
-		VariableMap m=new VariableMap();
+		LJMap m=new LJMap();
 		assertTrue(r.map(m, CUT));
 		instantiate(m);
 		assertTrue(x.getValues().length==1);
@@ -281,7 +281,7 @@ public class AutoTests {
 		assertTrue(same(x,1));
 		assertTrue(same(y,2));
 		assertTrue(var(t));
-		m=new VariableMap();
+		m=new LJMap();
 		Relation r2=relation("testRelation",v,_,u,4,_);
 		assertTrue(r2.map(m, !CUT));
 		instantiate(m);
@@ -624,12 +624,12 @@ public class AutoTests {
 		cons[6]=c(cons[5],OR,c(abs,1,vars[4],vars[5]));
 		cons[7]=c(cons[6],OR,c(abs,1,vars[5],vars[6]));
 		cons[8]=c(cons[7],OR,c(abs,1,vars[5],vars[7]));
-		Lazy<VariableMap> lazy=lz(r("testLazyAll",vars),DIFFER,cons[8]);
-		VariableMap map=lazy.lz();
+		Lazy<LJMap> lazy=lz(r("testLazyAll",vars),DIFFER,cons[8]);
+		LJMap map=lazy.lz();
 		assertFalse(map.isEmpty());
 		lazy.resetLazy();
 		int counter=0;
-		VariableMap m=new VariableMap();
+		LJMap m=new LJMap();
 		System.out.println("Start First Lazy Test at testLazyAll");
 		while (!(m=lazy.lz()).isEmpty()) {
 			Variable[] vs=varArray(8);
@@ -661,7 +661,7 @@ public class AutoTests {
 		assertTrue(same(counter, 1656));
 		System.out.println("Done First Lazy Test at testLazyAll");
 		counter=0;
-		m=new VariableMap();
+		m=new LJMap();
 		System.out.println("Start Second Lazy Test at testLazyAll");
 		while (!(m=lazy.lz()).isEmpty()) counter++;
 		assertTrue(same(counter, 0));

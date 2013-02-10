@@ -55,7 +55,7 @@ public static Formula<Object, Object> instantiate=new Formula<Object, Object>("i
 	@Override
 	protected Object f(Object[] p) {
 		if (p.length==1) {
-			try {	return instantiate((VariableMap) p[0]);	}
+			try {	return instantiate((LJMap) p[0]);	}
 			catch (Exception e) {}
 		}
 		return undefined;

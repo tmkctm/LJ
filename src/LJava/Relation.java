@@ -18,7 +18,7 @@ public class Relation extends Association implements QueryParameter{
 	
 	
 	@Override
-	protected boolean satisfy(Object[] rArgs, VariableMap varValues){
+	protected boolean satisfy(Object[] rArgs, LJMap varValues){
 		HashMap<Variable,Object> vars=new HashMap<Variable, Object>();
 		Object[] args=this.args();
 		for (int i=0; i<rArgs.length; i++) {			
@@ -34,7 +34,7 @@ public class Relation extends Association implements QueryParameter{
 
 	
 	@Override
-	public boolean map(VariableMap answer, boolean cut) {
+	public boolean map(LJMap answer, boolean cut) {
 		LJIterator i=iterate(argsLength());
 		if (cut) return evaluate(this, answer, i);
 		if (!evaluate(this, answer, i)) return false;
@@ -43,7 +43,7 @@ public class Relation extends Association implements QueryParameter{
 	}
 	
 	
-	protected boolean lz(VariableMap answer) {		
+	protected boolean lz(LJMap answer) {		
 		iterator.compareAndSet(emptyIterator, iterate(argsLength()));
 		return evaluate(this, answer, iterator.get()); 
 	}
