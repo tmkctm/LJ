@@ -3,9 +3,8 @@ package LJava;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -52,10 +51,10 @@ public class Group extends Association {
 //Lazy Group	
 	private class LazyGroup extends Association implements Lazy<VariableMap> {
 		private class VarIterator {
-			ListIterator<Map.Entry<Object, Integer>> iterator;
+			Iterator<Map.Entry<Object, Integer>> iterator;
 			Variable var;
 			int count;
-			public VarIterator(ListIterator<Map.Entry<Object, Integer>> i, Variable v, int c) {
+			public VarIterator(Iterator<Map.Entry<Object, Integer>> i, Variable v, int c) {
 				iterator=i;			var=v;		count=c;
 			}
 		}			
@@ -68,7 +67,6 @@ public class Group extends Association {
 		private boolean noVars=false;
 		private boolean noArgs=false;
 		
-		@SuppressWarnings("unchecked")
 		public LazyGroup(Group group, Object[] rArgs) {
 			super(group.name, group.args);
 			g=group;
@@ -94,7 +92,7 @@ public class Group extends Association {
 			if (rArgsCountMap.isEmpty() && !rVarsCountMap.isEmpty()) {				
 				varsCount = new TreeMap<Variable, Integer>(new MapComparatorByValue<Variable>(rVarsCountMap));
 				varsCount.putAll(rVarsCountMap);
-				iStack.push(new VarIterator(Arrays.asList(valsCount.entrySet().toArray()).listIterator(), varsCount.firstKey(), varsCount.get(varsCount.firstKey())));
+				iStack.push(new VarIterator(valsCount.entrySet().iterator(), varsCount.firstKey(), varsCount.get(varsCount.firstKey())));
 			}			
 		}
 		
@@ -109,7 +107,6 @@ public class Group extends Association {
 			return lz(varValues);
 		}
 		
-		@SuppressWarnings("unchecked")
 		public synchronized final boolean lz(VariableMap varValues) {
 			while (!iStack.isEmpty()) {
 				VarIterator i=iStack.pop();
@@ -126,8 +123,7 @@ public class Group extends Association {
 						varValues.add(answer);
 						return true;
 					}
-					
-					i=new VarIterator(Arrays.asList(valsCount.entrySet().toArray()).listIterator(), varsCount.firstKey(), varsCount.remove(varsCount.firstKey()));
+					i=new VarIterator(valsCount.entrySet().iterator(), varsCount.firstKey(), varsCount.remove(varsCount.firstKey()));
 				}
 			}
 			return false;
@@ -184,22 +180,6 @@ public class Group extends Association {
 		@Override
 		public Object base() {
 			return g;
-		}
-		
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		@Override
-		public synchronized Lazy<VariableMap> branch() {
-			LazyGroup lg=new LazyGroup(g);
-			lg.answer.add(answer);
-			lg.varsCount = new TreeMap<Variable, Integer>(new MapComparatorByValue<Variable>(((MapComparatorByValue<Variable>) varsCount.comparator()).sourceMap));
-			lg.varsCount.putAll(varsCount);
-			lg.valsCount.putAll(valsCount);
-			List l=Arrays.asList(lg.valsCount.entrySet().toArray());
-			for (VarIterator i: iStack) 
-				lg.iStack.add(new VarIterator(l.listIterator(i.iterator.nextIndex()), i.var, i.count));
-			lg.noVars=noVars;
-			lg.noArgs=noArgs;			
-			return lg;
 		}
 		
 		@Override
