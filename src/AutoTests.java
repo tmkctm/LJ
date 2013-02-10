@@ -5,7 +5,7 @@ import LJava.*;
 import static LJava.LJ.*;
 import static LJava.Utils.*;
 import static LJava.LJMath.*;
-import static LJava.Reflection.*;
+import static LJava.FLJ.*;
 
 import org.junit.*;
 import static org.junit.Assert.*;
