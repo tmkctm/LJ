@@ -461,7 +461,6 @@ public final class LJ {
 
 /* future plan:
  * - DataBase structure into hamt and ability to load, save and switch worlds inside the memory without disk.
- * - work on reflection.
 */
 
 /* Next version:

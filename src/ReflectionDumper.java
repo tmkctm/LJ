@@ -40,7 +40,7 @@ public class ReflectionDumper {
 			if (newFile) {
 				text.append("package LJava;\n"+
 							"import static LJava."+className+".*;\n\n"+
-							"public class Reflection {\n\n");				
+							"public class FLJ {\n\n");				
 			}
 			writer.write(text.toString());
 			writer.flush();
