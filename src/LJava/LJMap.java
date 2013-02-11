@@ -15,7 +15,7 @@ import java.util.Map;
  */
 public class LJMap {
 	
-	protected HashMap<Variable, ArrayList<Object>> map=new HashMap<Variable, ArrayList<Object>>();;
+	public HashMap<Variable, ArrayList<Object>> map=new HashMap<Variable, ArrayList<Object>>();;
 	protected HashMap<Variable, Constraint> constraints= new HashMap<Variable, Constraint>();
 	
 	
@@ -202,7 +202,7 @@ public class LJMap {
 	 * @return get(0, getVars().toArray(new Variable[0]));
 	 */
 	public final Variable[] get(Variable... vs) {
-		return get(0, getVars().toArray(new Variable[0])); 
+		return get(0, vs); 
 	}
 }
 

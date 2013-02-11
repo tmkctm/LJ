@@ -294,7 +294,7 @@ public class Constraint implements QueryParameter, Lazy<LJMap> {
 		return result.get();		
 	}  
 
-
+	
 	protected boolean lz(LJMap varsMap) {
 		LJMap answer=new LJMap();
 		boolean result;
