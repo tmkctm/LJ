@@ -1,18 +1,11 @@
-import static LJava.LJ.DIFFER;
-import static LJava.LJ.OR;
-import static LJava.LJ.associate;
-import static LJava.LJ.c;
-import static LJava.LJ.lz;
-import static LJava.LJ.r;
-import static LJava.LJ.varArray;
+import static LJava.LJ.*;
 import static LJava.LJMath.*;
-
 import javax.swing.JOptionPane;
-
 import LJava.Constraint;
 import LJava.Group;
 import LJava.Lazy;
 import LJava.Variable;
+import LJava.Formula;
 import LJava.LJMap;
 
 public class Main {
