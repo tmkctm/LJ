@@ -321,7 +321,7 @@ public class Constraint implements QueryParameter, Lazy<LJMap> {
 	
 	/**
 	 * returns this constraint as a relation if it can be represented as such. It means that the constraint only holds a single restriction and it is that the contained relation needs to be satisfied.
-	 * @return
+	 * @return a relation or LJFalse if not possible
 	 */
 	public Relation asRelation() {
 		if (isRelation()) return ((Atom) atom).relation;
@@ -330,8 +330,7 @@ public class Constraint implements QueryParameter, Lazy<LJMap> {
 	
 	
 	/**
-	 * returns true if this constraint can be represented as a relation.
-	 * @return
+	 * @return true if this constraint can be represented as a relation.
 	 */
 	public boolean isRelation() {
 		return (atom instanceof Atom);

@@ -274,7 +274,7 @@ public final class LJ {
 	/**
 	 * Searches the arguments without a meaningful name, just like e(args) but fills the variables in args with all possible answers.
 	 * @param args
-	 * @return
+	 * @return true if found any answer
 	 */
 	public static boolean a(Object... args) {
 		Relation r=new Relation("#query",args);
