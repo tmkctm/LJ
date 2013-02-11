@@ -3,6 +3,7 @@ package LJava;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -31,6 +32,20 @@ public final class LJ {
 	protected static double doubleTolerance=0.00000000000001;
 	protected static int threadCount=2;
 
+	
+	public static HashMap<Integer, LinkedHashSet<Association>> world() {
+		HashMap<Integer, LinkedHashSet<Association>> w=new HashMap<Integer, LinkedHashSet<Association>>();
+		HashSet<Integer> keys=new HashSet<Integer>();
+		synchronized (LJavaRelationTable) { keys.addAll(LJavaRelationTable.keySet()); }
+		for (Integer len: keys) {
+			LinkedHashSet<Association> set=LJavaRelationTable.get(len);
+			LinkedHashSet<Association> copy=new LinkedHashSet<Association>();
+			synchronized (set) { copy.addAll(set); }
+			w.put(len, copy);
+		}
+		return w;
+	}
+	
 	
 	public static boolean associate(Association r) {
 		if (r==undefined || r==none) return false;
@@ -328,13 +343,12 @@ public final class LJ {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected static <K,V> void addTo(Map map, K key, V val, Class<?> type) {
 		Collection collection=(Collection) map.get(key);
-		if (collection==null) {
+		if (collection==null)
 			try{
 				collection=(Collection) type.newInstance();
-				map.put(key, collection);
+				synchronized (map) { map.put(key, collection); }
 			}catch (Exception e){}
-		}
-		collection.add(val);
+		synchronized (collection) { collection.add(val); }
 	}	
 	
 	

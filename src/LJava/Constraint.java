@@ -54,11 +54,8 @@ public class Constraint implements QueryParameter, Lazy<LJMap> {
 					r=r(relation.name, restrict(args, restrictions));
 					lazyMap.put(restrictions, r);
 				}}
-			if ((!relation.isFormula() && r.lz(answer)) || (relation.isFormula() && relation.satisfy(r.args, answer))) {
-				answer.add(restrictions);
-				return true;
-			}
-			//lazyMap.remove(restrictions);
+			if ((!relation.isFormula() && r.lz(answer)) || (relation.isFormula() && relation.satisfy(r.args, answer)))
+				return (answer.add(restrictions)!=null);
 			return false;
 		}
 		

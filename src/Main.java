@@ -10,7 +10,6 @@ import static LJava.LJMath.*;
 import javax.swing.JOptionPane;
 
 import LJava.Constraint;
-import LJava.Formula;
 import LJava.Group;
 import LJava.Lazy;
 import LJava.Variable;
