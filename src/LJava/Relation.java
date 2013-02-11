@@ -7,10 +7,20 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import LJava.LJ.LJIterator;
 
+/**
+ * @author Tzali Maimon
+ * Relation is a fact that has an order to its arguments. the name of a Relation is like a key.<p>
+ * So you can write a rule coolLibrary(LJ,"really cool") like this: new Relation("coolLibrary", LJ, "really cool")<p>
+ * Relations are Associations so you can place them as rules in the "world" of LJ
+ */
 public class Relation extends Association implements QueryParameter{
 	
 	private AtomicReference<LJIterator> iterator;
 	
+	/**
+	 * @param n - the relation's name
+	 * @param params - the relation's arguments
+	 */
 	public Relation(String n, Object... params){
 		super (n, params);
 		iterator=new AtomicReference<LJIterator>(emptyIterator);
@@ -49,6 +59,10 @@ public class Relation extends Association implements QueryParameter{
 	}
 	
 	
+	/**
+	 * @param replacements
+	 * @return a new relation that replaced all the variables by the corresponding objects in replacements. 
+	 */
 	public Relation replaceVariables(HashMap<Variable, Object> replacements) {
 		Object arguments[]=new Object[args.length];
 		for (int i=0; i<args.length; i++) {
@@ -59,6 +73,11 @@ public class Relation extends Association implements QueryParameter{
 	}
 
 	
+	/**
+	 * @param v1 a variable
+	 * @param v2 an object
+	 * @return a new relation where v1 is replaced by v2
+	 */
 	public Relation replaceVariables(Variable v1, Object v2) {
 		HashMap<Variable, Object> m=new HashMap<Variable, Object>();
 		m.put(v1, v2);

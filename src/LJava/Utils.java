@@ -1,9 +1,16 @@
 package LJava;
 
+/**
+ * @author Tzali Maimon
+ * This class offers a pre-define Formulas for some basic logical commands. This is used since LJ is still under the "rules" of the Java compiler and needs to represents its conditions as Objects. 
+ */
 public final class Utils {
 	
 	
 //Predefined Functors
+	/**
+	 * Formulating the compare of Objects.
+	 */
 	public static Formula<Object,Integer> cmp=new Formula<Object,Integer>("Compare", Object.class) {
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		@Override
@@ -27,12 +34,18 @@ public final class Utils {
 			}
 		}};
 
+	/**
+	 * a formula for True
+	 */
 	public static Formula<Object, Boolean> LJTrue=new Formula<Object,Boolean>("$LJava_True$", Object.class) {
 		@Override
 		protected Boolean f(Object[] p) {
 			return true;
 		}};
 
+	/**
+	 * a formula for false
+	 */
 	public static Formula<Object, Boolean> LJFalse=new Formula<Object,Boolean>("$LJava_False$", Object.class) {
 		@Override
 		protected Boolean f(Object[] p) {

@@ -7,15 +7,24 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
-
-import scala.actors.threadpool.Arrays;
 import static LJava.LJ.*;
 
 
+/**
+ * @author Tzali Maimon
+ * Group is a relation without order of parameters. A Relation has meaning to the order of its parameters so 1,2,3 and 1,3,2 are two different things.<p>
+ * But for Group 1,2,3 and 1,3,2 are the exact same thing. There's no point associating them both into the "world". <p>
+ * One main use for Group is to define all permutations of a series of Objects in one entry into the world. <p>
+ * Group can also be activated as a lazy through the Lazy interface. 
+ */
 public class Group extends Association {
 	
 	protected final Map<Object, Integer> argsMap;
 	
+	/**
+	 * @param n - a name for the group
+	 * @param params - the parameters of the group (remember: order has no meaning).
+	 */
 	public Group(String n, Object... params) {
 		super(n, params);
 		HashMap<Object, Integer> map=new HashMap<Object, Integer>();
@@ -25,6 +34,10 @@ public class Group extends Association {
 	}
 	
 	
+	/**
+	 * Creates a Group without a meaningful name.
+	 * @param params - the parameters of the group (remember: order has no meaning).
+	 */
 	public Group(Object... params) {
 		this("#LJavaGroupTableEntry",params);
 	}
@@ -167,14 +180,13 @@ public class Group extends Association {
 			return noVars;
 		}
 		
-		@SuppressWarnings("unchecked")
 		@Override
 		public synchronized void resetLazy() {
 			while (!iStack.isEmpty()) {
 				VarIterator i=iStack.pop();
 				if (varsCount.get(i.var)==null) backtrack(i);				
 			}
-			if (!varsCount.isEmpty()) iStack.push(new VarIterator(Arrays.asList(valsCount.entrySet().toArray()).listIterator(), varsCount.firstKey(), varsCount.get(varsCount.firstKey())));
+			if (!varsCount.isEmpty()) iStack.push(new VarIterator(valsCount.entrySet().iterator(), varsCount.firstKey(), varsCount.get(varsCount.firstKey())));
 		}
 		
 		@Override

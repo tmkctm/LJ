@@ -10,6 +10,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * @author Tzali Maimon
+ * Constraint is the class that is responsible for queries in LJ.<p>
+ * When you a query using LJ's logic operators a tree is built within a constraint object and is managed from here.<p>
+ * Like any other class in LJ Constraint is also thread-safe.<p>
+ * Constraint can be activated through the Lazy interface.  
+ */
 public class Constraint implements QueryParameter, Lazy<LJMap> {
 
 	private interface Node {
@@ -170,6 +177,10 @@ public class Constraint implements QueryParameter, Lazy<LJMap> {
 	private LJMap current;
 	private final LJMap noRestrictions;
 	
+	/**
+	 * @param f - a formula to serve as the constraint
+	 * @param params - arguments to serve as the formula's parameters in the constraint.
+	 */
 	@SuppressWarnings("rawtypes")
 	public Constraint(Formula f, Object... params) {
 		atom=new Atom(f, params);
@@ -177,6 +188,9 @@ public class Constraint implements QueryParameter, Lazy<LJMap> {
 	}
 	
 	
+	/**
+	 * @param r - a relation that will serve as the constraint.
+	 */
 	public Constraint(Relation r) {
 		atom=new Atom(r, r.args);
 		noRestrictions=new LJMap();
@@ -189,6 +203,11 @@ public class Constraint implements QueryParameter, Lazy<LJMap> {
 	}
 	
 	
+	/**
+	 * @param l - a relation, formula or another constraint
+	 * @param lp - a logic operator from LJ.LogicOperator
+	 * @param r - a relation, formula or another constraint
+	 */
 	public Constraint(QueryParameter l, LogicOperator lp, QueryParameter r) {
 		if (lp!=null) {
 			Node left=(l instanceof Constraint) ? ((Constraint) l).atom : new Atom((Relation)l, ((Relation)l).args);
@@ -200,11 +219,22 @@ public class Constraint implements QueryParameter, Lazy<LJMap> {
 	}
 	
 	
+	/**
+	 * Checks if the first value of each variable in the LJMap are legal according to this constraint. 
+	 * @param map - LJMap containing the required restrictions to check.
+	 * @return true if all values are legal.
+	 */
 	public boolean satisfy(LJMap map) {
 		return atom.satisfy(map, new LJMap());
 	}
 	
 	
+	/**
+	 * Checks to see if the Variables in vs can be swapped by the corresponding values in os within the constraint legally.  
+	 * @param vs - a variables array
+	 * @param os - an objects array  
+	 * @return true if after swapping the constraint is still satisfied.
+	 */
 	public boolean satisfy(Variable[] vs, Object[] os) {
 		if (vs.length>os.length) return false;
 		LJMap map=new LJMap();
@@ -213,11 +243,23 @@ public class Constraint implements QueryParameter, Lazy<LJMap> {
 	}
 	
 	
+	/**
+	 * Creates an LJMap out of the given HashMap and activates satisfy(LJMap)
+	 * @param map - a hash map
+	 * @return - satisfy(LJMap)
+	 */
 	public boolean satisfy(HashMap<Variable,Object> map) {
 		return atom.satisfy(new LJMap(map), new LJMap());
 	}
 
 	
+	/**
+	 * Divides the given arguments into pairs of Variable, Object and returns true if the constraint is satisfied after swapping each variable within it with the corresponding object.<p>
+	 * EXAMPLE: satisfy(x,1,y,"A",z, new Relation("try it");<p>
+	 * NOTE: a wrong format in the argument will cause the method to return false as it's obvious that the constraint isn't satisfied in such a case. 
+	 * @param pairs - arguments in pairs
+	 * @return true if after swapping the constraint is still satisfied.
+	 */
 	public boolean satisfy(Object... pairs) {
 		if (pairs.length%2==1) return false;
 		LJMap map=new LJMap();
@@ -277,17 +319,31 @@ public class Constraint implements QueryParameter, Lazy<LJMap> {
 	}
 	
 	
+	/**
+	 * returns this constraint as a relation if it can be represented as such. It means that the constraint only holds a single restriction and it is that the contained relation needs to be satisfied.
+	 * @return
+	 */
 	public Relation asRelation() {
 		if (isRelation()) return ((Atom) atom).relation;
 		return LJFalse;
 	}
 	
 	
+	/**
+	 * returns true if this constraint can be represented as a relation.
+	 * @return
+	 */
 	public boolean isRelation() {
 		return (atom instanceof Atom);
 	}
 	
 	
+	/**
+	 * replace the variable v with the object o within the constraint and returning a new constraint (this constraint won't change).
+	 * @param v - a variable to replace
+	 * @param o - a target object 
+	 * @return - a new constraint.
+	 */
 	public Constraint replaceVariable(Variable v, Object o) {
 		return new Constraint(atom.replaceVariable(v, o));
 	}

@@ -6,10 +6,23 @@ import static LJava.Utils.LJTrue;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 
+/**
+ * @author Tzali Maimon
+ * Formula is LJ's function object. From here you can create a logical formula and as result - a function (an n+1 dimension Formula is an n dimension function).<p>
+ * Formula requires you to override the inner function that it should activate on call.<p>
+ * One main use for Formula is defining infinite many Relations with one entry into the "world" of LJ <p>
+ * For example if you associate a formula that sums up two numbers, then you defined the rule "x,y,z where x=y+z". 
+ * @param <P> - the arguments type of the function f that gets overrode. 
+ * @param <R> - the return type of the function f that gets overrode.
+ */
 public abstract class Formula<P,R> extends Relation {
 
 	protected final Class<P> parametersType;
 	
+	/**
+	 * @param n - a name for the formula
+	 * @param type - the type of the arguments of the function f that gets overrode. This is meant for Formula to avoid throwing exceptions at runtime.
+	 */
 	public Formula(String n, Class<P> type) {		
 		super(n);
 		parametersType=type;
@@ -19,21 +32,44 @@ public abstract class Formula<P,R> extends Relation {
 	protected abstract R f(P[] p);
 	
 	
+	/**
+	 * Returns true if val is the same as the result of f(params). See LJ.same for more info.
+	 * @param val - a value
+	 * @param params - parameters
+	 * @return - a boolean expression
+	 */
 	public boolean satisfy(Object val, P... params) {
 		return (same(val,invoke(params)));
 	}
 	
 	
+	/**
+	 * returns v(params)  
+	 * @param params - arguments.
+	 * @return a type R object.
+	 */
 	public R value(P... params) {
 		return v(params);
 	}
 
 	
+	/**
+	 * returns the value of activating f on the given params.
+	 * @param params - arguments.
+	 * @return a type R object.
+	 */
 	public R v(P... params) {
 		return f((P[]) params);
 	}	
 	
 	
+	/**
+	 * returns the invoking result of f on the given params. <p>
+	 * The difference between invoke and value is that invoke accepts any Objects as params and returns an Object as a result. <p>
+	 * This allows you to bypass Java's compiler types errors but at a risk of getting undefined return (about undefined read LJ class java doc)
+	 * @param params - arguments
+	 * @return and object that might be of type R or undefined
+	 */
 	@SuppressWarnings("unchecked")
 	public Object invoke(Object... params) {
 		try { return v((P[])Arrays.copyOf(params, params.length, ((P[])Array.newInstance(parametersType, 0)).getClass())); }

@@ -1,6 +1,12 @@
 package LJava;
 import static LJava.LJ.*;
 
+/**
+ * @author Tzali Maimon
+ * This class is meant for the sole purpose of using LJ's commands as Formulas.<p>
+ * Formulas are LJ's functions which gives it its functional abilities. <p>
+ * Read more about it at logicjava.wordpress.com.
+ */
 public class FLJ {
 
 public static Formula<Object, Object> relate=new Formula<Object, Object>("relate", Object.class) {
