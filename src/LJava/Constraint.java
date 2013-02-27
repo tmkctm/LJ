@@ -61,8 +61,11 @@ public class Constraint implements QueryParameter, Lazy<LJMap> {
 					r=r(relation.name, restrict(args, restrictions));
 					lazyMap.put(restrictions, r);
 				}}
-			if ((!relation.isFormula() && r.lz(answer)) || (relation.isFormula() && relation.satisfy(r.args, answer)))
+			if (r==LJFalse) return false;
+			if ((!relation.isFormula() && r.lz(answer)) || (relation.isFormula() && relation.satisfy(r.args, answer))) {
+				if (relation.isFormula()) lazyMap.put(restrictions, LJFalse);
 				return (answer.add(restrictions)!=null);
+			}
 			return false;
 		}
 		
@@ -277,7 +280,6 @@ public class Constraint implements QueryParameter, Lazy<LJMap> {
 		return atom.toString();
 	}
 	
-
 	@Override
 	public boolean map(LJMap m, boolean cut) {
 		if (cut) return lz(m);
@@ -294,6 +296,15 @@ public class Constraint implements QueryParameter, Lazy<LJMap> {
 		return result.get();		
 	}  
 
+	/*
+	@Override
+	public boolean map(LJMap m, boolean cut) {
+		if (cut) return lz(m);
+		if (!lz(m)) return false;
+		while (lz(m)) {}
+		return true;
+	}
+*/
 	
 	protected boolean lz(LJMap varsMap) {
 		LJMap answer=new LJMap();
